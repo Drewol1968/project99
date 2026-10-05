@@ -1,0 +1,17 @@
+{
+  "name": "PROJECT 99 — Human Challenges",
+  "short_name": "PROJECT 99",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#07070b",
+  "theme_color": "#07070b",
+  "description": "Fast human challenges built for sharing.",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
