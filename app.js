@@ -4,11 +4,11 @@ const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_landmark
 const WASM_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm";
 
 const EXPRESSIONS = {
-  surprise: { name: "SURPRISED", emoji: "😮", instruction: "Open your mouth and raise your eyebrows", targets: { jawOpen: .78, browInnerUp: .65, eyeWideLeft: .48, eyeWideRight: .48, mouthSmileLeft: .05, mouthSmileRight: .05 } },
-  smile: { name: "BIG SMILE", emoji: "😁", instruction: "Smile as wide as you can", targets: { mouthSmileLeft: .86, mouthSmileRight: .86, cheekSquintLeft: .48, cheekSquintRight: .48, jawOpen: .12 } },
-  wink: { name: "WINK", emoji: "😉", instruction: "Wink one eye and keep the other open", targets: { eyeBlinkLeft: .88, eyeBlinkRight: .08, mouthSmileLeft: .38, mouthSmileRight: .38 } },
-  angry: { name: "ANGRY", emoji: "😠", instruction: "Pull your eyebrows down and tense your eyes", targets: { browDownLeft: .72, browDownRight: .72, eyeSquintLeft: .40, eyeSquintRight: .40, jawOpen: .05 } },
-  kiss: { name: "KISS FACE", emoji: "😘", instruction: "Pucker your lips", targets: { mouthPucker: .84, mouthFunnel: .55, jawOpen: .04, mouthSmileLeft: .03, mouthSmileRight: .03 } }
+  surprise: { name: "SURPRISED", emoji: "😮", instruction: "Open your mouth and raise your eyebrows", targets: { jawOpen: .42, browInnerUp: .24, eyeWideLeft: .16, eyeWideRight: .16, mouthSmileLeft: .10, mouthSmileRight: .10 } },
+  smile: { name: "BIG SMILE", emoji: "😁", instruction: "Smile as wide as you can", targets: { mouthSmileLeft: .42, mouthSmileRight: .42, cheekSquintLeft: .16, cheekSquintRight: .16, jawOpen: .14 } },
+  wink: { name: "WINK", emoji: "😉", instruction: "Wink one eye and keep the other open", targets: { eyeBlinkLeft: .52, eyeBlinkRight: .14, mouthSmileLeft: .20, mouthSmileRight: .20 } },
+  angry: { name: "ANGRY", emoji: "😠", instruction: "Pull your eyebrows down and tense your eyes", targets: { browDownLeft: .34, browDownRight: .34, eyeSquintLeft: .16, eyeSquintRight: .16, jawOpen: .14 } },
+  kiss: { name: "KISS FACE", emoji: "😘", instruction: "Pucker your lips", targets: { mouthPucker: .36, mouthFunnel: .22, jawOpen: .12, mouthSmileLeft: .14, mouthSmileRight: .14 } }
 };
 
 const $ = (id) => document.getElementById(id);
@@ -52,9 +52,25 @@ function updateReadyState() { const ready = modelReady && cameraReady; $("captur
 function resizeOverlay() { const rect = overlay.getBoundingClientRect(); const dpr = Math.min(devicePixelRatio || 1, 2); overlay.width = Math.round(rect.width * dpr); overlay.height = Math.round(rect.height * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
 function categoryMap(result) { const categories = result?.faceBlendshapes?.[0]?.categories || []; const map = {}; for (const c of categories) map[c.categoryName] = c.score; return map; }
 function expressionScore(actual, targets) {
-  const diffs = [];
-  for (const [name, target] of Object.entries(targets)) { const value = actual[name] ?? 0; const weight = target > .4 ? 1.2 : .75; diffs.push(Math.abs(value - target) * weight); }
-  const mae = diffs.reduce((a,b) => a+b, 0) / Math.max(diffs.length, 1); const raw = Math.max(0, 1 - mae / .72); return Math.max(0, Math.min(100, Math.pow(raw, .82) * 100));
+  // Score against practical thresholds instead of exact blendshape values.
+  // This is much more stable across different faces and cameras.
+  const parts = [];
+  for (const [name, target] of Object.entries(targets)) {
+    const value = actual[name] ?? 0;
+    let s;
+    if (target <= .15) {
+      // Feature should stay low (e.g. jawOpen during a smile).
+      const tolerance = Math.max(.22, target + .18);
+      s = 1 - Math.min(1, Math.max(0, value - target) / tolerance);
+    } else {
+      // Feature should be clearly present. Reaching the threshold is full credit.
+      s = Math.min(1, value / target);
+    }
+    parts.push(s);
+  }
+  const avg = parts.reduce((a,b) => a+b, 0) / Math.max(parts.length, 1);
+  // Keep the scale competitive while avoiding overly punishing mid-range scores.
+  return Math.max(0, Math.min(99.9, Math.pow(avg, .72) * 100));
 }
 function drawFaceGuide(result) {
   ctx.clearRect(0,0,overlay.clientWidth,overlay.clientHeight); const lm = result?.faceLandmarks?.[0]; if (!lm) return;
