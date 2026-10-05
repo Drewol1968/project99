@@ -17,7 +17,7 @@ const video = $("video");
 const overlay = $("overlay");
 const ctx = overlay.getContext("2d");
 let stream = null, faceLandmarker = null, modelReady = false, cameraReady = false, processing = false;
-let currentExpressionKey = "surprise", currentScore = 0, bestScoreThisRound = 0, deferredInstallPrompt = null, rafId = null, lastVideoTime = -1, chosenFromLink = false;
+let currentExpressionKey = "surprise", currentScore = 0, bestScoreThisRound = 0, lastFinalScore = 0, deferredInstallPrompt = null, rafId = null, lastVideoTime = -1, chosenFromLink = false;
 
 function showScreen(id) { screens.forEach(s => $(s).classList.toggle("active", s === id)); }
 function pickExpression() {
