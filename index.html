@@ -8,12 +8,19 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>PROJECT 99 — Daily Face Challenge</title>
-  <meta name="description" content="One global face challenge every day. Copy the expression, get your score and global rank, then challenge a friend." />
+  <meta name="description" content="Copy today’s face, get a score and see your global rank. A fast daily camera challenge with no account required." />
   <meta property="og:title" content="PROJECT 99 — Daily Face Challenge" />
-  <meta property="og:description" content="Copy today's face. Get your score and global rank. Challenge a friend." />
+  <meta property="og:description" content="Copy today’s face. Get your score. See your global rank. New challenge every day." />
   <meta property="og:type" content="website" />
-  <link rel="manifest" href="./manifest.webmanifest?v=15" />
-  <link rel="stylesheet" href="./styles.css?v=15" />
+  <meta property="og:site_name" content="PROJECT 99" />
+  <meta property="og:url" content="https://drewol1968.github.io/project99/" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="canonical" href="https://drewol1968.github.io/project99/" />
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebApplication","name":"PROJECT 99","url":"https://drewol1968.github.io/project99/","applicationCategory":"GameApplication","operatingSystem":"Any modern mobile browser","description":"A fast daily face-copy challenge with a global ranking.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+  </script>
+  <link rel="manifest" href="./manifest.webmanifest?v=16" />
+  <link rel="stylesheet" href="./styles.css?v=16" />
 </head>
 <body>
   <main class="app-shell">
@@ -42,6 +49,7 @@
       </div>
 
       <button id="startBtn" class="primary-btn">PLAY TODAY'S CHALLENGE</button>
+      <div id="quickProof" class="quick-proof">~5 SEC · NO ACCOUNT · GLOBAL RANKING</div>
       <button id="randomBtn" class="ghost-btn">RANDOM FACE</button>
       <button id="shareHomeBtn" class="share-home-btn">SHARE CHALLENGE</button>
       <a class="sponsor-card hidden" data-sponsor-card href="#" target="_blank" rel="sponsored noopener">
@@ -120,6 +128,6 @@
     </section>
   </main>
 
-  <script type="module" src="./app.js?v=15"></script>
+  <script type="module" src="./app.js?v=16"></script>
 </body>
 </html>
