@@ -105,3 +105,10 @@ h2 { margin:2px 0 0; font-size:26px; letter-spacing:-.03em; }
 .steps-strip span { min-width:0; border:1px solid var(--line); background:rgba(255,255,255,.025); border-radius:12px; padding:8px 6px; color:var(--muted); text-align:center; font-size:8px; line-height:1.25; font-weight:900; letter-spacing:.03em; }
 .browser-notice { border:1px solid rgba(246,255,61,.32); background:rgba(246,255,61,.07); border-radius:14px; padding:10px 12px; display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; color:#e9eab9; font-size:11px; line-height:1.35; }
 .browser-notice button { border:1px solid rgba(246,255,61,.35); border-radius:10px; background:transparent; color:var(--accent); padding:8px 9px; font-size:9px; font-weight:950; white-space:nowrap; }
+
+.leaderboard-card { width:100%; border:1px solid var(--line); background:var(--panel); border-radius:18px; padding:12px 14px; margin:0 0 16px; }
+.leaderboard-title { color:var(--muted); font-size:10px; font-weight:950; letter-spacing:.08em; margin-bottom:7px; text-align:left; }
+.leaderboard-row { display:flex; align-items:center; justify-content:space-between; padding:7px 2px; border-top:1px solid rgba(255,255,255,.06); font-size:12px; }
+.leaderboard-row:first-child { border-top:0; }
+.leaderboard-row.you { color:var(--accent); }
+.leaderboard-row strong { font-size:13px; }
