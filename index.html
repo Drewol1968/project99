@@ -8,8 +8,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>PROJECT 99 — Copy Face</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=6" />
-  <link rel="stylesheet" href="./styles.css?v=6" />
+  <link rel="manifest" href="./manifest.webmanifest?v=7" />
+  <link rel="stylesheet" href="./styles.css?v=7" />
 </head>
 <body>
   <main class="app-shell">
@@ -39,7 +39,7 @@
       <button id="startBtn" class="primary-btn">PLAY TODAY'S CHALLENGE</button>
       <button id="randomBtn" class="ghost-btn">RANDOM FACE</button>
       <button id="installBtn" class="ghost-btn hidden">INSTALL APP</button>
-      <p class="fineprint">PROJECT 99 v0.4 · No account required.</p>
+      <p class="fineprint">PROJECT 99 v0.5 · No account required.</p>
     </section>
 
     <section id="gameScreen" class="screen">
@@ -90,6 +90,7 @@
         <h2 id="resultHeadline">ALMOST PERFECT</h2>
         <p id="resultDetail" class="result-detail">Best local score today: 92.4%</p>
         <div id="streakResult" class="streak-result hidden">🔥 <strong id="streakResultValue">1</strong> <span id="streakResultLabel">day streak</span></div>
+        <div id="globalRankCard" class="streak-result hidden">🌍 <span id="globalRankText">Global ranking unavailable</span></div>
 
         <div class="actions">
           <button id="shareBtn" class="primary-btn">CHALLENGE A FRIEND</button>
@@ -101,6 +102,6 @@
     </section>
   </main>
 
-  <script type="module" src="./app.js?v=6"></script>
+  <script type="module" src="./app.js?v=7"></script>
 </body>
 </html>
