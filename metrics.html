@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en" class="notranslate">
+<head>
+  <meta charset="utf-8" />
+  <meta name="google" content="notranslate" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#07070b" />
+  <title>PROJECT 99 — Live Metrics</title>
+  <meta name="description" content="Live public beta metrics for PROJECT 99." />
+  <link rel="stylesheet" href="./styles.css?v=22" />
+  <style>
+    .metrics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:18px 0}
+    .metric-box{border:1px solid var(--line);background:var(--panel);border-radius:18px;padding:16px}
+    .metric-box span{display:block;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.07em}
+    .metric-box strong{display:block;font-size:30px;margin-top:4px}
+    .source-row{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:9px 0;font-size:13px}
+    .source-row:first-child{border-top:0}
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./" style="text-decoration:none">PROJECT <span>99</span></a>
+      <div class="pill">LIVE BETA</div>
+    </header>
+    <section class="screen active">
+      <div class="hero-copy">
+        <p class="eyebrow">PUBLIC BETA METRICS</p>
+        <h1>PROJECT 99<br/>today.</h1>
+        <p class="subtitle">Anonymous usage counts only. No face images are stored.</p>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-box"><span>PLAYERS TODAY</span><strong id="mPlayers">—</strong></div>
+        <div class="metric-box"><span>STARTS TODAY</span><strong id="mStarts">—</strong></div>
+        <div class="metric-box"><span>COMPLETED</span><strong id="mCompletes">—</strong></div>
+        <div class="metric-box"><span>SHARES</span><strong id="mShares">—</strong></div>
+        <div class="metric-box" style="grid-column:1/-1"><span>COMPLETION RATE</span><strong id="mRate">—</strong></div>
+      </div>
+      <section class="leaderboard-card">
+        <div class="leaderboard-title">TRAFFIC SOURCES TODAY</div>
+        <div id="sources">Loading…</div>
+      </section>
+      <p class="fineprint"><a href="./">← PROJECT 99</a> · <a href="./sponsor.html">Advertising</a></p>
+    </section>
+  </main>
+  <script type="module" src="./metrics.js?v=1"></script>
+</body>
+</html>
