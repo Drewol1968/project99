@@ -1,5 +1,5 @@
 import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/+esm";
-import { submitScoreAndRank, isRankingConfigured } from "./ranking.js?v=1";
+import { submitScoreAndRank, isRankingConfigured } from "./ranking.js?v=2";
 
 const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
 const WASM_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm";
@@ -124,7 +124,7 @@ function updateDailyStreak(score) {
   }
   const bestKey = "p99_daily_best_"+today;
   const oldBest = Number(localStorage.getItem(bestKey) || 0);
-  if (score > oldBest) localStorage.setItem(bestKey, fmtScore(score));
+  if (score > oldBest) localStorage.setItem(bestKey, Number(score).toFixed(1));
   return streak;
 }
 async function initModel() {
@@ -200,11 +200,12 @@ async function runChallenge() {
 function scoreHeadline(score) { if (score >= 96) return T.score96; if (score >= 90) return T.score90; if (score >= 82) return T.score82; if (score >= 70) return T.score70; return T.scoreLow; }
 function localBestKey() { return "p99_best_"+currentExpressionKey; }
 function getLocalBest() { return Number(localStorage.getItem(localBestKey()) || 0); }
-function saveLocalBest(score) { if (score > getLocalBest()) localStorage.setItem(localBestKey(), fmtScore(score)); }
+function saveLocalBest(score) { if (score > getLocalBest()) localStorage.setItem(localBestKey(), Number(score).toFixed(1)); }
 async function updateGlobalRank(score) {
   const card = $("globalRankCard");
   const text = $("globalRankText");
   if (!card || !text) return;
+  if (!isDailyRun) { card.classList.add("hidden"); return; }
   if (!isRankingConfigured()) {
     card.classList.add("hidden");
     return;
@@ -267,6 +268,6 @@ $("shareBtn").addEventListener("click", shareResult);
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=7").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=8").catch(console.warn);
 applyLanguage();
 refreshHomeStats();
