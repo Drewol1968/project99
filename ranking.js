@@ -60,3 +60,28 @@ export async function submitScoreAndRank({ challengeDate, expression, score }) {
     bestScore: Number(row.best_score || rounded)
   };
 }
+
+
+export async function getDailyLeaderboard({ challengeDate, expression, limit = 10 }) {
+  const supabase = getClient();
+  if (!supabase) return { configured: false, rows: [] };
+
+  const user = await ensureAnonymousUser();
+  if (!user) throw new Error("Could not create anonymous ranking session");
+
+  const { data, error } = await supabase.rpc("get_daily_leaderboard", {
+    p_challenge_date: challengeDate,
+    p_expression: expression,
+    p_limit: Math.max(1, Math.min(20, Number(limit) || 10))
+  });
+
+  if (error) throw error;
+  return {
+    configured: true,
+    rows: (Array.isArray(data) ? data : []).map(row => ({
+      rank: Number(row.rank || 0),
+      score: Number(row.score || 0),
+      isYou: Boolean(row.is_you)
+    }))
+  };
+}
