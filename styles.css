@@ -73,3 +73,10 @@ h2 { margin:2px 0 0; font-size:26px; letter-spacing:-.03em; }
   .target-strip { margin:8px 0; padding:10px 14px; }
   .game-head { margin:4px 0 8px; }
 }
+
+.stats-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.stat-chip { display:flex; justify-content:space-between; align-items:center; border:1px solid var(--line); background:var(--panel); padding:11px 13px; border-radius:15px; }
+.stat-chip span { color:var(--muted); font-size:9px; font-weight:900; letter-spacing:.07em; }
+.stat-chip strong { font-size:16px; }
+.text-btn { border:0; background:transparent; color:var(--muted); font-weight:800; padding:11px; }
+.streak-result { margin:0 0 22px; border:1px solid var(--line); background:var(--panel); padding:9px 13px; border-radius:999px; font-size:13px; }
