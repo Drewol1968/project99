@@ -19,8 +19,8 @@
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"WebApplication","name":"PROJECT 99","url":"https://drewol1968.github.io/project99/","applicationCategory":"GameApplication","operatingSystem":"Any modern mobile browser","description":"A fast daily face-copy challenge with a global ranking.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
   </script>
-  <link rel="manifest" href="./manifest.webmanifest?v=17" />
-  <link rel="stylesheet" href="./styles.css?v=17" />
+  <link rel="manifest" href="./manifest.webmanifest?v=18" />
+  <link rel="stylesheet" href="./styles.css?v=18" />
 </head>
 <body>
   <main class="app-shell">
@@ -120,6 +120,10 @@
         <p id="resultDetail" class="result-detail">Best local score today: 92.4%</p>
         <div id="streakResult" class="streak-result hidden">🔥 <strong id="streakResultValue">1</strong> <span id="streakResultLabel">day streak</span></div>
         <div id="globalRankCard" class="streak-result hidden">🌍 <span id="globalRankText">Global ranking unavailable</span></div>
+        <div id="leaderboardCard" class="leaderboard-card hidden">
+          <div class="leaderboard-title">🌍 <span id="leaderboardTitle">TOP 10 TODAY</span></div>
+          <div id="leaderboardRows"></div>
+        </div>
         <a class="sponsor-card hidden" data-sponsor-card href="#" target="_blank" rel="sponsored noopener">
         <span class="sponsor-label" data-sponsor-label>SPONSOR DNIA</span>
         <strong data-sponsor-name></strong>
@@ -137,6 +141,6 @@
     </section>
   </main>
 
-  <script type="module" src="./app.js?v=17"></script>
+  <script type="module" src="./app.js?v=18"></script>
 </body>
 </html>
