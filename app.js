@@ -1,5 +1,6 @@
 import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/+esm";
 import { submitScoreAndRank, isRankingConfigured } from "./ranking.js?v=2";
+import { SPONSOR } from "./sponsor-config.js?v=1";
 
 const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
 const WASM_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm";
@@ -109,7 +110,7 @@ function applyExpression(key) {
 }
 function pickExpression(mode = "daily") {
   const requested = new URLSearchParams(location.search).get("c");
-  if (!chosenFromLink && requested && EXPRESSIONS[requested]) { chosenFromLink = true; isDailyRun = false; applyExpression(requested); return; }
+  if (!chosenFromLink && requested && EXPRESSIONS[requested]) { chosenFromLink = true; isDailyRun = requested === dailyExpressionKey(); applyExpression(requested); return; }
   if (mode === "daily") { isDailyRun = true; applyExpression(dailyExpressionKey()); }
   else { isDailyRun = false; const keys = Object.keys(EXPRESSIONS); applyExpression(keys[Math.floor(Math.random()*keys.length)]); }
 }
@@ -126,6 +127,24 @@ function updateDailyCountdown() {
 }
 setInterval(updateDailyCountdown, 30000);
 
+function renderSponsor() {
+  const cards = document.querySelectorAll("[data-sponsor-card]");
+  for (const card of cards) {
+    if (!SPONSOR?.enabled || !SPONSOR?.name) {
+      card.classList.add("hidden");
+      continue;
+    }
+    const label = LANG==="pl" ? (SPONSOR.labelPl || "SPONSOR DNIA") : (SPONSOR.labelEn || "TODAY'S SPONSOR");
+    const message = LANG==="pl" ? (SPONSOR.messagePl || "") : (SPONSOR.messageEn || SPONSOR.messagePl || "");
+    const cta = LANG==="pl" ? (SPONSOR.ctaPl || "SPRAWDŹ") : (SPONSOR.ctaEn || "LEARN MORE");
+    card.querySelector("[data-sponsor-label]").textContent = label;
+    card.querySelector("[data-sponsor-name]").textContent = SPONSOR.name;
+    card.querySelector("[data-sponsor-message]").textContent = message;
+    card.querySelector("[data-sponsor-cta]").textContent = cta;
+    card.href = SPONSOR.href || "#";
+    card.classList.remove("hidden");
+  }
+}
 function refreshSocialProof() {
   const el = $("socialProof");
   if (!el) return;
@@ -144,6 +163,7 @@ function refreshHomeStats() {
   applyExpression(dailyExpressionKey());
   updateDailyCountdown();
   refreshSocialProof();
+  renderSponsor();
 }
 function updateDailyStreak(score) {
   const today = utcDateKey();
@@ -280,7 +300,7 @@ function showResult(score) {
   showScreen("resultScreen");
   updateGlobalRank(score);
 }
-function challengeUrl() { const url = new URL(location.href); url.searchParams.set("c", currentExpressionKey); return url.toString(); }
+function challengeUrl() { const url = new URL(location.href); url.search = ""; url.searchParams.set("c", currentExpressionKey); url.searchParams.set("ref", "score"); return url.toString(); }
 function makeShareCard(score) {
   const canvas = $("shareCanvas"), c = canvas.getContext("2d"), e = EXPRESSIONS[currentExpressionKey], g = c.createLinearGradient(0,0,1080,1920);
   g.addColorStop(0,"#09090e"); g.addColorStop(1,"#17121e"); c.fillStyle=g; c.fillRect(0,0,1080,1920);
@@ -304,6 +324,7 @@ async function shareHomeChallenge() {
   const url = new URL(location.href);
   url.search = "";
   url.searchParams.set("c", dailyExpressionKey());
+  url.searchParams.set("ref", "share");
   const e = exprText(dailyExpressionKey());
   const text = LANG==="pl"
     ? "Dzisiejsze wyzwanie PROJECT 99: "+e.name+". Pobijesz mój wynik?"
@@ -350,6 +371,6 @@ $("shareHomeBtn")?.addEventListener("click", shareHomeChallenge);
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=13").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=14").catch(console.warn);
 applyLanguage();
 refreshHomeStats();
