@@ -248,14 +248,20 @@ async function updateGlobalRank(score) {
     const r = await submitScoreAndRank({ challengeDate: utcDateKey(), expression: currentExpressionKey, score });
     if (!r.configured) { card.classList.add("hidden"); return; }
     const topPct = Math.max(1, Math.ceil((r.rank / Math.max(r.total, 1)) * 100));
-    lastGlobalRank = { rank:r.rank, total:r.total, topPct };
+    lastGlobalRank = { rank:r.rank, total:r.total, topPct, bestScore:r.bestScore };
     localStorage.setItem("p99_players_date", utcDateKey());
     localStorage.setItem("p99_players_total", String(r.total));
     localStorage.setItem("p99_last_rank", String(r.rank));
     refreshSocialProof();
-    text.textContent = LANG==="pl"
-      ? "#"+r.rank+" z "+r.total+" · TOP "+topPct+"% dzisiaj"
-      : "#"+r.rank+" of "+r.total+" · TOP "+topPct+"% today";
+    if (r.total < 10) {
+      text.textContent = LANG==="pl"
+        ? "#"+r.rank+" z "+r.total+" graczy dzisiaj"
+        : "#"+r.rank+" of "+r.total+" players today";
+    } else {
+      text.textContent = LANG==="pl"
+        ? "#"+r.rank+" z "+r.total+" · TOP "+topPct+"% dzisiaj"
+        : "#"+r.rank+" of "+r.total+" · TOP "+topPct+"% today";
+    }
   } catch (err) {
     console.error(err);
     text.textContent = (LANG==="pl" ? "Błąd rankingu: " : "Ranking error: ") + (err?.message || "unknown");
@@ -287,7 +293,10 @@ function makeShareCard(score) {
   c.fillStyle="#fff"; c.font="800 50px system-ui"; c.fillText("COPY THE FACE.",78,1460); c.fillText("SEND YOUR SCORE.",78,1535);
   if (lastGlobalRank?.total > 0) {
     c.fillStyle="#f6ff3d"; c.font="900 42px system-ui";
-    c.fillText("#"+lastGlobalRank.rank+" / "+lastGlobalRank.total+" · TOP "+lastGlobalRank.topPct+"%",78,1640);
+    const rankLine = lastGlobalRank.total < 10
+      ? "#"+lastGlobalRank.rank+" / "+lastGlobalRank.total
+      : "#"+lastGlobalRank.rank+" / "+lastGlobalRank.total+" · TOP "+lastGlobalRank.topPct+"%";
+    c.fillText(rankLine,78,1640);
   }
   c.fillStyle="#777786"; c.font="700 30px system-ui"; c.fillText("#PROJECT99",78,1800); return canvas;
 }
@@ -315,7 +324,9 @@ async function shareHomeChallenge() {
 async function shareResult() {
   const score = lastFinalScore, canvas = makeShareCard(score), url = challengeUrl();
   const rankPart = lastGlobalRank?.total > 0
-    ? (LANG==="pl" ? " Jestem #"+lastGlobalRank.rank+" z "+lastGlobalRank.total+" (TOP "+lastGlobalRank.topPct+"%)." : " I'm #"+lastGlobalRank.rank+" of "+lastGlobalRank.total+" (TOP "+lastGlobalRank.topPct+"%).")
+    ? (lastGlobalRank.total < 10
+      ? (LANG==="pl" ? " Jestem #"+lastGlobalRank.rank+" z "+lastGlobalRank.total+" graczy." : " I'm #"+lastGlobalRank.rank+" of "+lastGlobalRank.total+" players.")
+      : (LANG==="pl" ? " Jestem #"+lastGlobalRank.rank+" z "+lastGlobalRank.total+" (TOP "+lastGlobalRank.topPct+"%)." : " I'm #"+lastGlobalRank.rank+" of "+lastGlobalRank.total+" (TOP "+lastGlobalRank.topPct+"%)."))
     : "";
   const text = LANG==="pl"
     ? "Mam "+fmtScore(score)+"% w PROJECT 99."+rankPart+" Pobijesz mnie?"
@@ -339,6 +350,6 @@ $("shareHomeBtn")?.addEventListener("click", shareHomeChallenge);
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=12").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=13").catch(console.warn);
 applyLanguage();
 refreshHomeStats();
