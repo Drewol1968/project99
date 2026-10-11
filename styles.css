@@ -100,3 +100,8 @@ h2 { margin:2px 0 0; font-size:26px; letter-spacing:-.03em; }
 .sponsor-cta { grid-column:2; grid-row:2 / span 2; color:var(--accent); font-size:10px; font-weight:950; letter-spacing:.05em; }
 
 .quick-proof { text-align:center; color:var(--muted); font-size:9px; font-weight:900; letter-spacing:.09em; margin-top:-10px; }
+
+.steps-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:-8px; }
+.steps-strip span { min-width:0; border:1px solid var(--line); background:rgba(255,255,255,.025); border-radius:12px; padding:8px 6px; color:var(--muted); text-align:center; font-size:8px; line-height:1.25; font-weight:900; letter-spacing:.03em; }
+.browser-notice { border:1px solid rgba(246,255,61,.32); background:rgba(246,255,61,.07); border-radius:14px; padding:10px 12px; display:grid; grid-template-columns:1fr auto; gap:10px; align-items:center; color:#e9eab9; font-size:11px; line-height:1.35; }
+.browser-notice button { border:1px solid rgba(246,255,61,.35); border-radius:10px; background:transparent; color:var(--accent); padding:8px 9px; font-size:9px; font-weight:950; white-space:nowrap; }
