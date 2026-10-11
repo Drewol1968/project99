@@ -12,8 +12,8 @@
   <meta property="og:title" content="PROJECT 99 — Daily Face Challenge" />
   <meta property="og:description" content="Copy today's face. Get your score and global rank. Challenge a friend." />
   <meta property="og:type" content="website" />
-  <link rel="manifest" href="./manifest.webmanifest?v=13" />
-  <link rel="stylesheet" href="./styles.css?v=13" />
+  <link rel="manifest" href="./manifest.webmanifest?v=14" />
+  <link rel="stylesheet" href="./styles.css?v=14" />
 </head>
 <body>
   <main class="app-shell">
@@ -44,6 +44,12 @@
       <button id="startBtn" class="primary-btn">PLAY TODAY'S CHALLENGE</button>
       <button id="randomBtn" class="ghost-btn">RANDOM FACE</button>
       <button id="shareHomeBtn" class="share-home-btn">CHALLENGE A FRIEND</button>
+      <a class="sponsor-card hidden" data-sponsor-card href="#" target="_blank" rel="sponsored noopener">
+        <span class="sponsor-label" data-sponsor-label>SPONSOR DNIA</span>
+        <strong data-sponsor-name></strong>
+        <span class="sponsor-message" data-sponsor-message></span>
+        <span class="sponsor-cta" data-sponsor-cta>SPRAWDŹ</span>
+      </a>
       <button id="installBtn" class="ghost-btn hidden">INSTALL APP</button>
       <p class="fineprint">PROJECT 99 v1.0 BETA · <a href="./privacy.html">Privacy</a> · <a href="./terms.html">Terms</a></p>
     </section>
@@ -97,6 +103,12 @@
         <p id="resultDetail" class="result-detail">Best local score today: 92.4%</p>
         <div id="streakResult" class="streak-result hidden">🔥 <strong id="streakResultValue">1</strong> <span id="streakResultLabel">day streak</span></div>
         <div id="globalRankCard" class="streak-result hidden">🌍 <span id="globalRankText">Global ranking unavailable</span></div>
+        <a class="sponsor-card hidden" data-sponsor-card href="#" target="_blank" rel="sponsored noopener">
+        <span class="sponsor-label" data-sponsor-label>SPONSOR DNIA</span>
+        <strong data-sponsor-name></strong>
+        <span class="sponsor-message" data-sponsor-message></span>
+        <span class="sponsor-cta" data-sponsor-cta>SPRAWDŹ</span>
+      </a>
 
         <div class="actions">
           <button id="shareBtn" class="primary-btn">CHALLENGE A FRIEND</button>
@@ -108,6 +120,6 @@
     </section>
   </main>
 
-  <script type="module" src="./app.js?v=13"></script>
+  <script type="module" src="./app.js?v=14"></script>
 </body>
 </html>
