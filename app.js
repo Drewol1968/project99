@@ -15,8 +15,8 @@ const EXPRESSIONS = {
 
 const UI = {
   en: {
-    dailyEyebrow:"DAILY HUMAN CHALLENGE", homeTitle:"Can you beat<br/>today's face?",
-    homeSubtitle:"One global face every day. Your camera analyzes the expression locally on your phone. No face image is uploaded.",
+    dailyEyebrow:"LIVE GLOBAL CHALLENGE", homeTitle:"How high can you<br/>rank today?",
+    homeSubtitle:"Copy one face. Get your score. See your global rank. New challenge every day.",
     streakLabel:"🔥 STREAK", todayBestLabel:"🏆 TODAY BEST", dailyBadge:"DAILY",
     challengeNameHome:"COPY FACE", challengeMeta:"Same challenge worldwide · resets daily",
     start:"PLAY TODAY'S CHALLENGE", random:"RANDOM FACE", install:"INSTALL APP",
@@ -29,11 +29,11 @@ const UI = {
     bestToday:"Today's best on this device: ", bestDevice:"Your best on this device: ", streakWord:"day streak",
     score96:"ABSURDLY CLOSE", score90:"ALMOST PERFECT", score82:"VERY CLOSE", score70:"NOT BAD", scoreLow:"TRY THAT AGAIN",
     socialProofKnown:"players joined today", socialProofUnknown:"GLOBAL RANKING IS LIVE",
-    shareHome:"SHARE CHALLENGE", shareResult:"SHARE SCORE — BEAT ME", copied:"LINK COPIED"
+    shareHome:"SHARE CHALLENGE", shareResult:"SHARE SCORE — BEAT ME", copied:"LINK COPIED", quick:"~5 SEC · NO ACCOUNT · GLOBAL RANKING"
   },
   pl: {
-    dailyEyebrow:"CODZIENNE WYZWANIE", homeTitle:"Czy pobijesz<br/>dzisiejszy wynik?",
-    homeSubtitle:"Każdego dnia jedna taka sama mina dla wszystkich. Kamera analizuje mimikę lokalnie na Twoim telefonie. Zdjęcie twarzy nie jest wysyłane.",
+    dailyEyebrow:"GLOBALNE WYZWANIE NA ŻYWO", homeTitle:"Jak wysoko wejdziesz<br/>dzisiaj?",
+    homeSubtitle:"Skopiuj minę. Zdobądź wynik. Sprawdź miejsce w globalnym rankingu. Codziennie nowe wyzwanie.",
     streakLabel:"🔥 SERIA", todayBestLabel:"🏆 NAJLEPSZY DZIŚ", dailyBadge:"DZISIAJ",
     challengeNameHome:"SKOPIUJ MINĘ", challengeMeta:"To samo wyzwanie na całym świecie · zmienia się codziennie",
     start:"ZAGRAJ W DZISIEJSZE WYZWANIE", random:"LOSOWA MINA", install:"ZAINSTALUJ APLIKACJĘ",
@@ -46,7 +46,7 @@ const UI = {
     bestToday:"Najlepszy dziś na tym urządzeniu: ", bestDevice:"Najlepszy na tym urządzeniu: ", streakWord:"dni z rzędu",
     score96:"NIEMAL IDEALNIE", score90:"PRAWIE IDEALNIE", score82:"BARDZO BLISKO", score70:"NIEŹLE", scoreLow:"SPRÓBUJ JESZCZE RAZ",
     socialProofKnown:"graczy dołączyło dzisiaj", socialProofUnknown:"RANKING GLOBALNY DZIAŁA",
-    shareHome:"UDOSTĘPNIJ WYZWANIE", shareResult:"UDOSTĘPNIJ WYNIK — POBIJ MNIE", copied:"LINK SKOPIOWANY"
+    shareHome:"UDOSTĘPNIJ WYZWANIE", shareResult:"UDOSTĘPNIJ WYNIK — POBIJ MNIE", copied:"LINK SKOPIOWANY", quick:"~5 SEKUND · BEZ KONTA · GLOBALNY RANKING"
   }
 };
 const LANG = (navigator.language || "en").toLowerCase().startsWith("pl") ? "pl" : "en";
@@ -82,6 +82,7 @@ function applyLanguage() {
   if ($("resultEyebrow")) $("resultEyebrow").textContent=T.resultEyebrow;
   if ($("shareBtn")) $("shareBtn").textContent=T.shareResult;
   if ($("shareHomeBtn")) $("shareHomeBtn").textContent=T.shareHome;
+  if ($("quickProof")) $("quickProof").textContent=T.quick;
   if ($("againBtn")) $("againBtn").textContent=T.again;
   if ($("homeBtn")) $("homeBtn").textContent=T.home;
   if ($("streakResultLabel")) $("streakResultLabel").textContent=T.streakWord;
@@ -371,6 +372,6 @@ $("shareHomeBtn")?.addEventListener("click", shareHomeChallenge);
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=15").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=16").catch(console.warn);
 applyLanguage();
 refreshHomeStats();
