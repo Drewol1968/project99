@@ -135,3 +135,31 @@ export async function submitSponsorLead({ company, email, message = "" }) {
   if (error) throw error;
   return Boolean(data);
 }
+
+
+export async function getPublicBetaMetrics() {
+  const supabase = getClient();
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("get_public_beta_metrics");
+  if (error) throw error;
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row) return null;
+  return {
+    playersToday: Number(row.players_today || 0),
+    startsToday: Number(row.starts_today || 0),
+    completesToday: Number(row.completes_today || 0),
+    sharesToday: Number(row.shares_today || 0),
+    completionRate: Number(row.completion_rate || 0)
+  };
+}
+
+export async function getPublicSourcesToday() {
+  const supabase = getClient();
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("get_public_sources_today");
+  if (error) throw error;
+  return (Array.isArray(data) ? data : []).map(row => ({
+    source: String(row.source || "direct"),
+    visits: Number(row.visits || 0)
+  }));
+}
