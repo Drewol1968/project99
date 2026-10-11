@@ -98,3 +98,5 @@ h2 { margin:2px 0 0; font-size:26px; letter-spacing:-.03em; }
 .sponsor-card strong { font-size:15px; }
 .sponsor-message { color:var(--muted); font-size:11px; line-height:1.35; }
 .sponsor-cta { grid-column:2; grid-row:2 / span 2; color:var(--accent); font-size:10px; font-weight:950; letter-spacing:.05em; }
+
+.quick-proof { text-align:center; color:var(--muted); font-size:9px; font-weight:900; letter-spacing:.09em; margin-top:-10px; }
