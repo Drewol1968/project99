@@ -43,64 +43,20 @@ export async function submitScoreAndRank({ challengeDate, expression, score }) {
 
   const rounded = Math.max(0, Math.min(99.9, Math.round(Number(score) * 10) / 10));
 
-  const { data: existing, error: existingError } = await supabase
-    .from("scores")
-    .select("id,score")
-    .eq("user_id", user.id)
-    .eq("challenge_date", challengeDate)
-    .eq("expression", expression)
-    .maybeSingle();
+  const { data, error } = await supabase.rpc("submit_daily_score", {
+    p_challenge_date: challengeDate,
+    p_expression: expression,
+    p_score: rounded
+  });
 
-  if (existingError) throw existingError;
-
-  if (!existing) {
-    const { error } = await supabase.from("scores").insert({
-      user_id: user.id,
-      challenge_date: challengeDate,
-      expression,
-      score: rounded
-    });
-    if (error) throw error;
-  } else if (rounded > Number(existing.score)) {
-    const { error } = await supabase
-      .from("scores")
-      .update({ score: rounded, updated_at: new Date().toISOString() })
-      .eq("id", existing.id);
-    if (error) throw error;
-  }
-
-  const { data: bestRow, error: bestError } = await supabase
-    .from("scores")
-    .select("score")
-    .eq("user_id", user.id)
-    .eq("challenge_date", challengeDate)
-    .eq("expression", expression)
-    .single();
-
-  if (bestError) throw bestError;
-  const bestScore = Number(bestRow.score);
-
-  const { count: betterCount, error: betterError } = await supabase
-    .from("scores")
-    .select("id", { count: "exact", head: true })
-    .eq("challenge_date", challengeDate)
-    .eq("expression", expression)
-    .gt("score", bestScore);
-
-  if (betterError) throw betterError;
-
-  const { count: totalCount, error: totalError } = await supabase
-    .from("scores")
-    .select("id", { count: "exact", head: true })
-    .eq("challenge_date", challengeDate)
-    .eq("expression", expression);
-
-  if (totalError) throw totalError;
+  if (error) throw error;
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row) throw new Error("Ranking response was empty");
 
   return {
     configured: true,
-    rank: Number(betterCount || 0) + 1,
-    total: Number(totalCount || 0),
-    bestScore
+    rank: Number(row.rank || 0),
+    total: Number(row.total || 0),
+    bestScore: Number(row.best_score || rounded)
   };
 }
