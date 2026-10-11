@@ -29,7 +29,9 @@ const UI = {
     bestToday:"Today's best on this device: ", bestDevice:"Your best on this device: ", streakWord:"day streak",
     score96:"ABSURDLY CLOSE", score90:"ALMOST PERFECT", score82:"VERY CLOSE", score70:"NOT BAD", scoreLow:"TRY THAT AGAIN",
     socialProofKnown:"players joined today", socialProofUnknown:"GLOBAL RANKING IS LIVE",
-    shareHome:"SHARE CHALLENGE", shareResult:"SHARE SCORE — BEAT ME", copied:"LINK COPIED", quick:"~5 SEC · NO ACCOUNT · GLOBAL RANKING"
+    shareHome:"SHARE CHALLENGE", shareResult:"SHARE SCORE — BEAT ME", copied:"LINK COPIED", quick:"~5 SEC · NO ACCOUNT · GLOBAL RANKING",
+    round:"TODAY", step1:"1. COPY THE FACE", step2:"2. GET YOUR SCORE", step3:"3. CLIMB THE WORLD RANKING",
+    browserWarn:"Camera may be blocked inside this app. Open this page in Chrome or Safari.", browserCopy:"COPY LINK"
   },
   pl: {
     dailyEyebrow:"GLOBALNE WYZWANIE NA ŻYWO", homeTitle:"Jak wysoko wejdziesz<br/>dzisiaj?",
@@ -46,7 +48,9 @@ const UI = {
     bestToday:"Najlepszy dziś na tym urządzeniu: ", bestDevice:"Najlepszy na tym urządzeniu: ", streakWord:"dni z rzędu",
     score96:"NIEMAL IDEALNIE", score90:"PRAWIE IDEALNIE", score82:"BARDZO BLISKO", score70:"NIEŹLE", scoreLow:"SPRÓBUJ JESZCZE RAZ",
     socialProofKnown:"graczy dołączyło dzisiaj", socialProofUnknown:"RANKING GLOBALNY DZIAŁA",
-    shareHome:"UDOSTĘPNIJ WYZWANIE", shareResult:"UDOSTĘPNIJ WYNIK — POBIJ MNIE", copied:"LINK SKOPIOWANY", quick:"~5 SEKUND · BEZ KONTA · GLOBALNY RANKING"
+    shareHome:"UDOSTĘPNIJ WYZWANIE", shareResult:"UDOSTĘPNIJ WYNIK — POBIJ MNIE", copied:"LINK SKOPIOWANY", quick:"~5 SEKUND · BEZ KONTA · GLOBALNY RANKING",
+    round:"DZISIAJ", step1:"1. SKOPIUJ MINĘ", step2:"2. ZDOBĄDŹ WYNIK", step3:"3. WSKOCZ W GLOBALNY RANKING",
+    browserWarn:"Kamera może być zablokowana wewnątrz tej aplikacji. Otwórz stronę w Chrome lub Safari.", browserCopy:"KOPIUJ LINK"
   }
 };
 const LANG = (navigator.language || "en").toLowerCase().startsWith("pl") ? "pl" : "en";
@@ -83,6 +87,12 @@ function applyLanguage() {
   if ($("shareBtn")) $("shareBtn").textContent=T.shareResult;
   if ($("shareHomeBtn")) $("shareHomeBtn").textContent=T.shareHome;
   if ($("quickProof")) $("quickProof").textContent=T.quick;
+  if ($("roundChip")) $("roundChip").textContent=T.round;
+  if ($("step1")) $("step1").textContent=T.step1;
+  if ($("step2")) $("step2").textContent=T.step2;
+  if ($("step3")) $("step3").textContent=T.step3;
+  if ($("browserWarnText")) $("browserWarnText").textContent=T.browserWarn;
+  if ($("browserCopyBtn")) $("browserCopyBtn").textContent=T.browserCopy;
   if ($("againBtn")) $("againBtn").textContent=T.again;
   if ($("homeBtn")) $("homeBtn").textContent=T.home;
   if ($("streakResultLabel")) $("streakResultLabel").textContent=T.streakWord;
@@ -114,6 +124,30 @@ function pickExpression(mode = "daily") {
   if (!chosenFromLink && requested && EXPRESSIONS[requested]) { chosenFromLink = true; isDailyRun = requested === dailyExpressionKey(); applyExpression(requested); return; }
   if (mode === "daily") { isDailyRun = true; applyExpression(dailyExpressionKey()); }
   else { isDailyRun = false; const keys = Object.keys(EXPRESSIONS); applyExpression(keys[Math.floor(Math.random()*keys.length)]); }
+}
+function detectInAppBrowser() {
+  const ua = navigator.userAgent || "";
+  return /Instagram|FBAN|FBAV|TikTok|musical_ly|Line\//i.test(ua);
+}
+function updateBrowserNotice() {
+  const box = $("browserNotice");
+  if (!box) return;
+  box.classList.toggle("hidden", !detectInAppBrowser());
+}
+async function copyPublicLink() {
+  const url = location.origin + location.pathname;
+  try {
+    await navigator.clipboard.writeText(url);
+    $("browserCopyBtn").textContent = T.copied;
+  } catch (_) {
+    const ta = document.createElement("textarea");
+    ta.value = url;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    ta.remove();
+    $("browserCopyBtn").textContent = T.copied;
+  }
 }
 function updateDailyCountdown() {
   const el = $("dailyCountdown");
@@ -165,6 +199,7 @@ function refreshHomeStats() {
   updateDailyCountdown();
   refreshSocialProof();
   renderSponsor();
+  updateBrowserNotice();
 }
 function updateDailyStreak(score) {
   const today = utcDateKey();
@@ -195,6 +230,12 @@ async function initModel() {
 }
 async function startCamera() {
   if (stream) return;
+  if (!navigator.mediaDevices?.getUserMedia) {
+    $("statusText").textContent = T.browserWarn;
+    $("cameraHint").textContent = T.cameraBlocked;
+    updateBrowserNotice();
+    return;
+  }
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 720 }, height: { ideal: 1280 } }, audio: false });
     video.srcObject = stream; await video.play(); cameraReady = true; resizeOverlay(); $("cameraHint").textContent = T.center; updateReadyState(); loop();
@@ -369,9 +410,10 @@ $("againBtn").addEventListener("click", async () => { showScreen("gameScreen"); 
 $("homeBtn").addEventListener("click", () => { refreshHomeStats(); showScreen("startScreen"); });
 $("shareBtn").addEventListener("click", shareResult);
 $("shareHomeBtn")?.addEventListener("click", shareHomeChallenge);
+$("browserCopyBtn")?.addEventListener("click", copyPublicLink);
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=16").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=17").catch(console.warn);
 applyLanguage();
 refreshHomeStats();
