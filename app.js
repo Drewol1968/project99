@@ -29,7 +29,7 @@ const UI = {
     bestToday:"Today's best on this device: ", bestDevice:"Your best on this device: ", streakWord:"day streak",
     score96:"ABSURDLY CLOSE", score90:"ALMOST PERFECT", score82:"VERY CLOSE", score70:"NOT BAD", scoreLow:"TRY THAT AGAIN",
     socialProofKnown:"players joined today", socialProofUnknown:"GLOBAL RANKING IS LIVE",
-    shareHome:"CHALLENGE A FRIEND", shareResult:"SHARE SCORE — BEAT ME", copied:"LINK COPIED"
+    shareHome:"SHARE CHALLENGE", shareResult:"SHARE SCORE — BEAT ME", copied:"LINK COPIED"
   },
   pl: {
     dailyEyebrow:"CODZIENNE WYZWANIE", homeTitle:"Czy pobijesz<br/>dzisiejszy wynik?",
@@ -46,7 +46,7 @@ const UI = {
     bestToday:"Najlepszy dziś na tym urządzeniu: ", bestDevice:"Najlepszy na tym urządzeniu: ", streakWord:"dni z rzędu",
     score96:"NIEMAL IDEALNIE", score90:"PRAWIE IDEALNIE", score82:"BARDZO BLISKO", score70:"NIEŹLE", scoreLow:"SPRÓBUJ JESZCZE RAZ",
     socialProofKnown:"graczy dołączyło dzisiaj", socialProofUnknown:"RANKING GLOBALNY DZIAŁA",
-    shareHome:"RZUĆ WYZWANIE ZNAJOMEMU", shareResult:"UDOSTĘPNIJ WYNIK — POBIJ MNIE", copied:"LINK SKOPIOWANY"
+    shareHome:"UDOSTĘPNIJ WYZWANIE", shareResult:"UDOSTĘPNIJ WYNIK — POBIJ MNIE", copied:"LINK SKOPIOWANY"
   }
 };
 const LANG = (navigator.language || "en").toLowerCase().startsWith("pl") ? "pl" : "en";
@@ -371,6 +371,6 @@ $("shareHomeBtn")?.addEventListener("click", shareHomeChallenge);
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=14").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=15").catch(console.warn);
 applyLanguage();
 refreshHomeStats();
