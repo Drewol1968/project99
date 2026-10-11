@@ -1,4 +1,5 @@
 import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/+esm";
+import { submitScoreAndRank, isRankingConfigured } from "./ranking.js?v=1";
 
 const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
 const WASM_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm";
@@ -200,6 +201,27 @@ function scoreHeadline(score) { if (score >= 96) return T.score96; if (score >= 
 function localBestKey() { return "p99_best_"+currentExpressionKey; }
 function getLocalBest() { return Number(localStorage.getItem(localBestKey()) || 0); }
 function saveLocalBest(score) { if (score > getLocalBest()) localStorage.setItem(localBestKey(), fmtScore(score)); }
+async function updateGlobalRank(score) {
+  const card = $("globalRankCard");
+  const text = $("globalRankText");
+  if (!card || !text) return;
+  if (!isRankingConfigured()) {
+    card.classList.add("hidden");
+    return;
+  }
+  card.classList.remove("hidden");
+  text.textContent = LANG==="pl" ? "Zapisywanie wyniku…" : "Saving score…";
+  try {
+    const r = await submitScoreAndRank({ challengeDate: utcDateKey(), expression: currentExpressionKey, score });
+    if (!r.configured) { card.classList.add("hidden"); return; }
+    text.textContent = LANG==="pl"
+      ? "#"+r.rank+" na "+r.total+" graczy dzisiaj"
+      : "#"+r.rank+" of "+r.total+" players today";
+  } catch (err) {
+    console.error(err);
+    text.textContent = LANG==="pl" ? "Ranking chwilowo niedostępny" : "Ranking temporarily unavailable";
+  }
+}
 function showResult(score) {
   stopCamera(); score = Math.max(0, Math.min(99.9, score)); lastFinalScore = score; saveLocalBest(score); const e = exprText(currentExpressionKey);
   let streak = Number(localStorage.getItem("p99_daily_streak") || 0);
@@ -210,6 +232,7 @@ function showResult(score) {
   if ($("streakResultLabel")) $("streakResultLabel").textContent = LANG==="pl" ? (streak===1 ? "dzień z rzędu" : "dni z rzędu") : (streak===1 ? "day streak" : "day streak");
   const deg = Math.max(10, score * 3.6); document.querySelector(".score-ring").style.background = "conic-gradient(var(--accent) 0deg, var(--accent2) "+deg+"deg, #24242d "+deg+"deg)";
   showScreen("resultScreen");
+  updateGlobalRank(score);
 }
 function challengeUrl() { const url = new URL(location.href); url.searchParams.set("c", currentExpressionKey); return url.toString(); }
 function makeShareCard(score) {
@@ -244,6 +267,6 @@ $("shareBtn").addEventListener("click", shareResult);
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=6").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=7").catch(console.warn);
 applyLanguage();
 refreshHomeStats();
