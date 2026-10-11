@@ -91,7 +91,8 @@ let stream = null, faceLandmarker = null, modelReady = false, cameraReady = fals
 let currentExpressionKey = "surprise", currentScore = 0, bestScoreThisRound = 0, lastFinalScore = 0, deferredInstallPrompt = null, rafId = null, lastVideoTime = -1, chosenFromLink = false, isDailyRun = true;
 
 function showScreen(id) { screens.forEach(s => $(s).classList.toggle("active", s === id)); }
-function fmtScore(n) { const s = Number(n).toFixed(1); return LANG==="pl" ? s.replace(".", ",") : s; }
+function fmtScore(n) { const x = Number(n); const s = Number.isFinite(x) ? x.toFixed(1) : "0.0"; return LANG==="pl" ? s.replace(".", ",") : s; }
+function storedNumber(key) { const raw = localStorage.getItem(key); if (raw == null) return 0; const n = Number(String(raw).replace(",", ".")); return Number.isFinite(n) ? n : 0; }
 function utcDateKey(date = new Date()) { return date.toISOString().slice(0,10); }
 function yesterdayUtcKey() { const d = new Date(); d.setUTCDate(d.getUTCDate()-1); return utcDateKey(d); }
 function hashString(s) { let h = 2166136261; for (let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h,16777619); } return h >>> 0; }
@@ -109,21 +110,21 @@ function pickExpression(mode = "daily") {
 }
 function refreshHomeStats() {
   $("streakValue").textContent = String(Number(localStorage.getItem("p99_daily_streak") || 0));
-  const best = Number(localStorage.getItem("p99_daily_best_"+utcDateKey()) || 0);
+  const best = storedNumber("p99_daily_best_"+utcDateKey());
   $("todayBestValue").textContent = best > 0 ? fmtScore(best)+"%" : "--";
   applyExpression(dailyExpressionKey());
 }
 function updateDailyStreak(score) {
   const today = utcDateKey();
   const last = localStorage.getItem("p99_daily_last");
-  let streak = Number(localStorage.getItem("p99_daily_streak") || 0);
+  let streak = storedNumber("p99_daily_streak");
   if (last !== today) {
     streak = last === yesterdayUtcKey() ? streak + 1 : 1;
     localStorage.setItem("p99_daily_streak", String(streak));
     localStorage.setItem("p99_daily_last", today);
   }
   const bestKey = "p99_daily_best_"+today;
-  const oldBest = Number(localStorage.getItem(bestKey) || 0);
+  const oldBest = storedNumber(bestKey);
   if (score > oldBest) localStorage.setItem(bestKey, Number(score).toFixed(1));
   return streak;
 }
@@ -199,7 +200,7 @@ async function runChallenge() {
 }
 function scoreHeadline(score) { if (score >= 96) return T.score96; if (score >= 90) return T.score90; if (score >= 82) return T.score82; if (score >= 70) return T.score70; return T.scoreLow; }
 function localBestKey() { return "p99_best_"+currentExpressionKey; }
-function getLocalBest() { return Number(localStorage.getItem(localBestKey()) || 0); }
+function getLocalBest() { return storedNumber(localBestKey()); }
 function saveLocalBest(score) { if (score > getLocalBest()) localStorage.setItem(localBestKey(), Number(score).toFixed(1)); }
 async function updateGlobalRank(score) {
   const card = $("globalRankCard");
@@ -220,15 +221,15 @@ async function updateGlobalRank(score) {
       : "#"+r.rank+" of "+r.total+" players today";
   } catch (err) {
     console.error(err);
-    text.textContent = LANG==="pl" ? "Ranking chwilowo niedostępny" : "Ranking temporarily unavailable";
+    text.textContent = (LANG==="pl" ? "Błąd rankingu: " : "Ranking error: ") + (err?.message || "unknown");
   }
 }
 function showResult(score) {
   stopCamera(); score = Math.max(0, Math.min(99.9, score)); lastFinalScore = score; saveLocalBest(score); const e = exprText(currentExpressionKey);
-  let streak = Number(localStorage.getItem("p99_daily_streak") || 0);
+  let streak = storedNumber("p99_daily_streak");
   if (isDailyRun) streak = updateDailyStreak(score);
   $("resultEmoji").textContent = e.emoji; $("finalScore").textContent = fmtScore(score); $("resultHeadline").textContent = scoreHeadline(score);
-  $("resultDetail").textContent = isDailyRun ? T.bestToday+fmtScore(Number(localStorage.getItem("p99_daily_best_"+utcDateKey()) || score))+"%" : T.bestDevice+fmtScore(getLocalBest())+"%";
+  $("resultDetail").textContent = isDailyRun ? T.bestToday+fmtScore(storedNumber("p99_daily_best_"+utcDateKey()) || score)+"%" : T.bestDevice+fmtScore(getLocalBest())+"%";
   $("streakResult").classList.toggle("hidden", !isDailyRun); $("streakResultValue").textContent = String(streak);
   if ($("streakResultLabel")) $("streakResultLabel").textContent = LANG==="pl" ? (streak===1 ? "dzień z rzędu" : "dni z rzędu") : (streak===1 ? "day streak" : "day streak");
   const deg = Math.max(10, score * 3.6); document.querySelector(".score-ring").style.background = "conic-gradient(var(--accent) 0deg, var(--accent2) "+deg+"deg, #24242d "+deg+"deg)";
@@ -268,6 +269,6 @@ $("shareBtn").addEventListener("click", shareResult);
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=8").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=9").catch(console.warn);
 applyLanguage();
 refreshHomeStats();
