@@ -1,5 +1,5 @@
 import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/+esm";
-import { submitScoreAndRank, getDailyLeaderboard, isRankingConfigured } from "./ranking.js?v=3";
+import { submitScoreAndRank, getDailyLeaderboard, getDailyStats, logAppEvent, isRankingConfigured } from "./ranking.js?v=4";
 import { SPONSOR } from "./sponsor-config.js?v=1";
 
 const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
@@ -125,6 +125,22 @@ function pickExpression(mode = "daily") {
   if (mode === "daily") { isDailyRun = true; applyExpression(dailyExpressionKey()); }
   else { isDailyRun = false; const keys = Object.keys(EXPRESSIONS); applyExpression(keys[Math.floor(Math.random()*keys.length)]); }
 }
+function trafficSource() {
+  const p = new URLSearchParams(location.search);
+  return (p.get("ref") || p.get("utm_source") || "direct").slice(0,40);
+}
+async function refreshRemoteDailyStats() {
+  if (!isRankingConfigured()) return;
+  try {
+    const r = await getDailyStats({ challengeDate: utcDateKey(), expression: dailyExpressionKey() });
+    if (!r.configured) return;
+    localStorage.setItem("p99_players_date", utcDateKey());
+    localStorage.setItem("p99_players_total", String(r.total));
+    refreshSocialProof();
+  } catch (err) {
+    console.warn("Daily stats unavailable", err);
+  }
+}
 function detectInAppBrowser() {
   const ua = navigator.userAgent || "";
   return /Instagram|FBAN|FBAV|TikTok|musical_ly|Line\//i.test(ua);
@@ -198,6 +214,7 @@ function refreshHomeStats() {
   applyExpression(dailyExpressionKey());
   updateDailyCountdown();
   refreshSocialProof();
+  refreshRemoteDailyStats();
   renderSponsor();
   updateBrowserNotice();
 }
@@ -367,6 +384,7 @@ function showResult(score) {
   const deg = Math.max(10, score * 3.6); document.querySelector(".score-ring").style.background = "conic-gradient(var(--accent) 0deg, var(--accent2) "+deg+"deg, #24242d "+deg+"deg)";
   showScreen("resultScreen");
   updateGlobalRank(score);
+  if (isDailyRun) logAppEvent({eventType:"challenge_complete",challengeDate:utcDateKey(),expression:currentExpressionKey,source:trafficSource()});
 }
 function challengeUrl() { const url = new URL(location.href); url.search = ""; url.searchParams.set("c", currentExpressionKey); url.searchParams.set("ref", "score"); return url.toString(); }
 function makeShareCard(score) {
@@ -405,6 +423,7 @@ async function shareHomeChallenge() {
       if ($("shareHomeBtn")) $("shareHomeBtn").textContent=T.copied;
     }
     localStorage.setItem("p99_shares", String(storedNumber("p99_shares")+1));
+    if (isDailyRun) logAppEvent({eventType:"share",challengeDate:utcDateKey(),expression:currentExpressionKey,source:trafficSource()});
   } catch (err) {
     if (err?.name !== "AbortError") console.error(err);
   }
@@ -428,7 +447,7 @@ async function shareResult() {
     if (err?.name !== "AbortError") { console.error(err); try { await navigator.clipboard.writeText(text+" "+url); $("shareBtn").textContent=T.copied; } catch (_) {} }
   }
 }
-$("startBtn").addEventListener("click", async () => { pickExpression("daily"); showScreen("gameScreen"); await Promise.all([initModel(), startCamera()]); });
+$("startBtn").addEventListener("click", async () => { pickExpression("daily"); logAppEvent({eventType:"challenge_start",challengeDate:utcDateKey(),expression:currentExpressionKey,source:trafficSource()}); showScreen("gameScreen"); await Promise.all([initModel(), startCamera()]); });
 $("randomBtn").addEventListener("click", async () => { pickExpression("random"); showScreen("gameScreen"); await Promise.all([initModel(), startCamera()]); });
 $("backBtn").addEventListener("click", () => { stopCamera(); showScreen("startScreen"); });
 $("captureBtn").addEventListener("click", runChallenge);
@@ -440,6 +459,6 @@ $("browserCopyBtn")?.addEventListener("click", copyPublicLink);
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=18").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=19").catch(console.warn);
 applyLanguage();
 refreshHomeStats();
