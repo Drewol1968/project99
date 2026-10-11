@@ -84,3 +84,6 @@ h2 { margin:2px 0 0; font-size:26px; letter-spacing:-.03em; }
 
 /* hide-ai-landmark-overlay */
 #overlay { opacity: 0 !important; visibility: hidden !important; }
+
+.fineprint a { color:#8f8f9b; text-decoration:none; }
+.fineprint a:hover { text-decoration:underline; }
