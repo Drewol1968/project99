@@ -12,8 +12,8 @@
   <meta property="og:title" content="PROJECT 99 — Daily Face Challenge" />
   <meta property="og:description" content="Copy today's face. Get your score and global rank. Challenge a friend." />
   <meta property="og:type" content="website" />
-  <link rel="manifest" href="./manifest.webmanifest?v=11" />
-  <link rel="stylesheet" href="./styles.css?v=11" />
+  <link rel="manifest" href="./manifest.webmanifest?v=12" />
+  <link rel="stylesheet" href="./styles.css?v=12" />
 </head>
 <body>
   <main class="app-shell">
@@ -27,6 +27,7 @@
         <p class="eyebrow" id="dailyEyebrow">DAILY HUMAN CHALLENGE</p>
         <h1 id="homeTitle">Can you beat<br/>today's face?</h1>
         <p class="subtitle" id="homeSubtitle">One global face every day. Your camera analyzes the expression locally on your phone. No face image is uploaded.</p>
+      <div id="socialProof" class="social-proof">🌍 GLOBAL RANKING IS LIVE</div>
       <div class="stats-row">
         <div class="stat-chip"><span id="streakLabel">🔥 STREAK</span><strong id="streakValue">0</strong></div>
         <div class="stat-chip"><span id="todayBestLabel">🏆 TODAY BEST</span><strong id="todayBestValue">--</strong></div>
@@ -42,8 +43,9 @@
 
       <button id="startBtn" class="primary-btn">PLAY TODAY'S CHALLENGE</button>
       <button id="randomBtn" class="ghost-btn">RANDOM FACE</button>
+      <button id="shareHomeBtn" class="share-home-btn">CHALLENGE A FRIEND</button>
       <button id="installBtn" class="ghost-btn hidden">INSTALL APP</button>
-      <p class="fineprint">PROJECT 99 v0.9 · <a href="./privacy.html">Privacy</a> · <a href="./terms.html">Terms</a></p>
+      <p class="fineprint">PROJECT 99 v1.0 BETA · <a href="./privacy.html">Privacy</a> · <a href="./terms.html">Terms</a></p>
     </section>
 
     <section id="gameScreen" class="screen">
@@ -106,6 +108,6 @@
     </section>
   </main>
 
-  <script type="module" src="./app.js?v=11"></script>
+  <script type="module" src="./app.js?v=12"></script>
 </body>
 </html>
