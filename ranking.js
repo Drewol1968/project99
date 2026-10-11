@@ -85,3 +85,38 @@ export async function getDailyLeaderboard({ challengeDate, expression, limit = 1
     }))
   };
 }
+
+
+export async function getDailyStats({ challengeDate, expression }) {
+  const supabase = getClient();
+  if (!supabase) return { configured:false, total:0, bestScore:null };
+  const { data, error } = await supabase.rpc("get_daily_stats", {
+    p_challenge_date: challengeDate,
+    p_expression: expression
+  });
+  if (error) throw error;
+  const row = Array.isArray(data) ? data[0] : data;
+  return {
+    configured:true,
+    total:Number(row?.total || 0),
+    bestScore: row?.best_score == null ? null : Number(row.best_score)
+  };
+}
+
+export async function logAppEvent({ eventType, challengeDate, expression, source = null }) {
+  const supabase = getClient();
+  if (!supabase) return false;
+  const user = await ensureAnonymousUser();
+  if (!user) return false;
+  const { error } = await supabase.rpc("log_app_event", {
+    p_event_type: eventType,
+    p_challenge_date: challengeDate,
+    p_expression: expression,
+    p_source: source
+  });
+  if (error) {
+    console.warn("Event log failed", error);
+    return false;
+  }
+  return true;
+}
