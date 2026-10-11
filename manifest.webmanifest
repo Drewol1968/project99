@@ -5,7 +5,7 @@
   "display": "standalone",
   "background_color": "#07070b",
   "theme_color": "#07070b",
-  "description": "Fast human challenges built for sharing.",
+  "description": "A fast daily face-copy challenge with a global ranking.",
   "icons": [
     {
       "src": "./icon.svg",
