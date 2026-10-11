@@ -92,3 +92,9 @@ h2 { margin:2px 0 0; font-size:26px; letter-spacing:-.03em; }
 
 .social-proof { margin:12px 0 10px; padding:10px 12px; border:1px solid rgba(124,255,140,.22); background:rgba(124,255,140,.06); color:var(--good); border-radius:14px; text-align:center; font-size:11px; font-weight:950; letter-spacing:.05em; }
 .share-home-btn { width:100%; border-radius:18px; padding:15px 18px; font-weight:950; letter-spacing:.035em; border:1px solid rgba(246,255,61,.35); background:rgba(246,255,61,.07); color:var(--accent); cursor:pointer; }
+
+.sponsor-card { width:100%; display:grid; grid-template-columns:1fr auto; gap:4px 12px; align-items:center; text-align:left; text-decoration:none; border:1px solid rgba(255,255,255,.12); background:linear-gradient(135deg,#14141c,#101015); border-radius:18px; padding:14px 16px; color:var(--text); }
+.sponsor-label { grid-column:1 / -1; color:var(--muted); font-size:9px; font-weight:900; letter-spacing:.12em; }
+.sponsor-card strong { font-size:15px; }
+.sponsor-message { color:var(--muted); font-size:11px; line-height:1.35; }
+.sponsor-cta { grid-column:2; grid-row:2 / span 2; color:var(--accent); font-size:10px; font-weight:950; letter-spacing:.05em; }
