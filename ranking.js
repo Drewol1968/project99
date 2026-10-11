@@ -120,3 +120,18 @@ export async function logAppEvent({ eventType, challengeDate, expression, source
   }
   return true;
 }
+
+
+export async function submitSponsorLead({ company, email, message = "" }) {
+  const supabase = getClient();
+  if (!supabase) return false;
+  const user = await ensureAnonymousUser();
+  if (!user) return false;
+  const { data, error } = await supabase.rpc("submit_sponsor_lead", {
+    p_company: company,
+    p_email: email,
+    p_message: message
+  });
+  if (error) throw error;
+  return Boolean(data);
+}
