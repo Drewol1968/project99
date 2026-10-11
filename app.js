@@ -24,7 +24,7 @@ const UI = {
     hold:"HOLD IT!", almost:"Almost…", copy:"Copy the face", noFace:"Face not detected",
     cameraRequired:"Camera permission is required for COPY FACE.", cameraBlocked:"Camera blocked",
     loading:"Loading face model…", aiReady:"AI ready — center your face", getReady:"Get ready…", holdFace:"HOLD THE FACE",
-    bestToday:T.bestToday, bestDevice:T.bestDevice, streakWord:"day streak",
+    bestToday:"Today's best on this device: ", bestDevice:"Your best on this device: ", streakWord:"day streak",
     score96:"ABSURDLY CLOSE", score90:"ALMOST PERFECT", score82:"VERY CLOSE", score70:"NOT BAD", scoreLow:"TRY THAT AGAIN"
   },
   pl: {
@@ -241,6 +241,6 @@ $("shareBtn").addEventListener("click", shareResult);
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=4").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=5").catch(console.warn);
 applyLanguage();
 refreshHomeStats();
