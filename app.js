@@ -88,7 +88,7 @@ const video = $("video");
 const overlay = $("overlay");
 const ctx = overlay.getContext("2d");
 let stream = null, faceLandmarker = null, modelReady = false, cameraReady = false, processing = false;
-let currentExpressionKey = "surprise", currentScore = 0, bestScoreThisRound = 0, lastFinalScore = 0, deferredInstallPrompt = null, rafId = null, lastVideoTime = -1, chosenFromLink = false, isDailyRun = true;
+let currentExpressionKey = "surprise", currentScore = 0, bestScoreThisRound = 0, lastFinalScore = 0, lastGlobalRank = null, deferredInstallPrompt = null, rafId = null, lastVideoTime = -1, chosenFromLink = false, isDailyRun = true;
 
 function showScreen(id) { screens.forEach(s => $(s).classList.toggle("active", s === id)); }
 function fmtScore(n) { const x = Number(n); const s = Number.isFinite(x) ? x.toFixed(1) : "0.0"; return LANG==="pl" ? s.replace(".", ",") : s; }
@@ -216,15 +216,18 @@ async function updateGlobalRank(score) {
   try {
     const r = await submitScoreAndRank({ challengeDate: utcDateKey(), expression: currentExpressionKey, score });
     if (!r.configured) { card.classList.add("hidden"); return; }
+    const topPct = Math.max(1, Math.ceil((r.rank / Math.max(r.total, 1)) * 100));
+    lastGlobalRank = { rank:r.rank, total:r.total, topPct };
     text.textContent = LANG==="pl"
-      ? "#"+r.rank+" na "+r.total+" graczy dzisiaj"
-      : "#"+r.rank+" of "+r.total+" players today";
+      ? "#"+r.rank+" z "+r.total+" · TOP "+topPct+"% dzisiaj"
+      : "#"+r.rank+" of "+r.total+" · TOP "+topPct+"% today";
   } catch (err) {
     console.error(err);
     text.textContent = (LANG==="pl" ? "Błąd rankingu: " : "Ranking error: ") + (err?.message || "unknown");
   }
 }
 function showResult(score) {
+  lastGlobalRank = null;
   stopCamera(); score = Math.max(0, Math.min(99.9, score)); lastFinalScore = score; saveLocalBest(score); const e = exprText(currentExpressionKey);
   let streak = storedNumber("p99_daily_streak");
   if (isDailyRun) streak = updateDailyStreak(score);
@@ -247,10 +250,20 @@ function makeShareCard(score) {
   c.fillStyle="#fff"; c.font="900 230px system-ui"; c.fillText(fmtScore(score),70,1230);
   c.fillStyle="#f6ff3d"; c.font="900 88px system-ui"; c.fillText("% MATCH",725,1230);
   c.fillStyle="#fff"; c.font="800 50px system-ui"; c.fillText("COPY THE FACE.",78,1460); c.fillText("SEND YOUR SCORE.",78,1535);
+  if (lastGlobalRank?.total > 0) {
+    c.fillStyle="#f6ff3d"; c.font="900 42px system-ui";
+    c.fillText("#"+lastGlobalRank.rank+" / "+lastGlobalRank.total+" · TOP "+lastGlobalRank.topPct+"%",78,1640);
+  }
   c.fillStyle="#777786"; c.font="700 30px system-ui"; c.fillText("#PROJECT99",78,1800); return canvas;
 }
 async function shareResult() {
-  const score = lastFinalScore, canvas = makeShareCard(score), text = "I scored "+fmtScore(score)+"% on "+EXPRESSIONS[currentExpressionKey].name+". Can you beat me?", url = challengeUrl();
+  const score = lastFinalScore, canvas = makeShareCard(score), url = challengeUrl();
+  const rankPart = lastGlobalRank?.total > 0
+    ? (LANG==="pl" ? " Jestem #"+lastGlobalRank.rank+" z "+lastGlobalRank.total+" (TOP "+lastGlobalRank.topPct+"%)." : " I'm #"+lastGlobalRank.rank+" of "+lastGlobalRank.total+" (TOP "+lastGlobalRank.topPct+"%).")
+    : "";
+  const text = LANG==="pl"
+    ? "Mam "+fmtScore(score)+"% w PROJECT 99."+rankPart+" Pobijesz mnie?"
+    : "I scored "+fmtScore(score)+"% in PROJECT 99."+rankPart+" Can you beat me?";
   try {
     const blob = await new Promise(r => canvas.toBlob(r,"image/png",.94)), file = blob ? new File([blob],"project99-score.png",{type:"image/png"}) : null;
     if (navigator.share) { const payload = { title:"PROJECT 99", text, url }; if (file && navigator.canShare?.({files:[file]})) payload.files=[file]; await navigator.share(payload); return; }
@@ -269,6 +282,6 @@ $("shareBtn").addEventListener("click", shareResult);
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=9").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=10").catch(console.warn);
 applyLanguage();
 refreshHomeStats();
