@@ -108,11 +108,25 @@ function pickExpression(mode = "daily") {
   if (mode === "daily") { isDailyRun = true; applyExpression(dailyExpressionKey()); }
   else { isDailyRun = false; const keys = Object.keys(EXPRESSIONS); applyExpression(keys[Math.floor(Math.random()*keys.length)]); }
 }
+function updateDailyCountdown() {
+  const el = $("dailyCountdown");
+  if (!el) return;
+  const now = new Date();
+  const next = new Date(now);
+  next.setUTCHours(24,0,0,0);
+  const ms = Math.max(0, next - now);
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  el.textContent = LANG==="pl" ? "Nowa mina za "+h+" h "+m+" min" : "New face in "+h+"h "+m+"m";
+}
+setInterval(updateDailyCountdown, 30000);
+
 function refreshHomeStats() {
   $("streakValue").textContent = String(Number(localStorage.getItem("p99_daily_streak") || 0));
   const best = storedNumber("p99_daily_best_"+utcDateKey());
   $("todayBestValue").textContent = best > 0 ? fmtScore(best)+"%" : "--";
   applyExpression(dailyExpressionKey());
+  updateDailyCountdown();
 }
 function updateDailyStreak(score) {
   const today = utcDateKey();
@@ -282,6 +296,6 @@ $("shareBtn").addEventListener("click", shareResult);
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=10").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=11").catch(console.warn);
 applyLanguage();
 refreshHomeStats();
