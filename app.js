@@ -1,5 +1,5 @@
 import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/+esm";
-import { submitScoreAndRank, getDailyLeaderboard, getDailyStats, logAppEvent, isRankingConfigured } from "./ranking.js?v=4";
+import { submitScoreAndRank, getDailyLeaderboard, getDailyStats, logAppEvent, submitSponsorLead, isRankingConfigured } from "./ranking.js?v=5";
 import { SPONSOR } from "./sponsor-config.js?v=1";
 
 const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
@@ -31,7 +31,7 @@ const UI = {
     socialProofKnown:"players joined today", socialProofUnknown:"GLOBAL RANKING IS LIVE",
     shareHome:"SHARE CHALLENGE", shareResult:"SHARE SCORE — BEAT ME", copied:"LINK COPIED", quick:"~5 SEC · NO ACCOUNT · GLOBAL RANKING",
     round:"TODAY", step1:"1. COPY THE FACE", step2:"2. GET YOUR SCORE", step3:"3. CLIMB THE WORLD RANKING",
-    browserWarn:"Camera may be blocked inside this app. Open this page in Chrome or Safari.", browserCopy:"COPY LINK"
+    browserWarn:"Camera may be blocked inside this app. Open this page in Chrome or Safari.", browserCopy:"COPY LINK", sponsorTitle:"ADVERTISE IN PROJECT 99", sponsorText:"Reach players inside the daily challenge.", sponsorBtn:"BECOME A SPONSOR", sponsorCompany:"Company", sponsorEmail:"Email", sponsorMessage:"Message", sponsorSend:"SEND INQUIRY", sponsorSent:"THANK YOU — WE WILL CONTACT YOU"
   },
   pl: {
     dailyEyebrow:"GLOBALNE WYZWANIE NA ŻYWO", homeTitle:"Jak wysoko wejdziesz<br/>dzisiaj?",
@@ -50,7 +50,7 @@ const UI = {
     socialProofKnown:"graczy dołączyło dzisiaj", socialProofUnknown:"RANKING GLOBALNY DZIAŁA",
     shareHome:"UDOSTĘPNIJ WYZWANIE", shareResult:"UDOSTĘPNIJ WYNIK — POBIJ MNIE", copied:"LINK SKOPIOWANY", quick:"~5 SEKUND · BEZ KONTA · GLOBALNY RANKING",
     round:"DZISIAJ", step1:"1. SKOPIUJ MINĘ", step2:"2. ZDOBĄDŹ WYNIK", step3:"3. WSKOCZ W GLOBALNY RANKING",
-    browserWarn:"Kamera może być zablokowana wewnątrz tej aplikacji. Otwórz stronę w Chrome lub Safari.", browserCopy:"KOPIUJ LINK"
+    browserWarn:"Kamera może być zablokowana wewnątrz tej aplikacji. Otwórz stronę w Chrome lub Safari.", browserCopy:"KOPIUJ LINK", sponsorTitle:"REKLAMA W PROJECT 99", sponsorText:"Pokaż markę graczom podczas codziennego wyzwania.", sponsorBtn:"ZOSTAŃ SPONSOREM", sponsorCompany:"Firma", sponsorEmail:"E-mail", sponsorMessage:"Wiadomość", sponsorSend:"WYŚLIJ ZAPYTANIE", sponsorSent:"DZIĘKUJEMY — SKONTAKTUJEMY SIĘ"
   }
 };
 const LANG = (navigator.language || "en").toLowerCase().startsWith("pl") ? "pl" : "en";
@@ -93,6 +93,13 @@ function applyLanguage() {
   if ($("step3")) $("step3").textContent=T.step3;
   if ($("browserWarnText")) $("browserWarnText").textContent=T.browserWarn;
   if ($("browserCopyBtn")) $("browserCopyBtn").textContent=T.browserCopy;
+  if ($("sponsorTitle")) $("sponsorTitle").textContent=T.sponsorTitle;
+  if ($("sponsorText")) $("sponsorText").textContent=T.sponsorText;
+  if ($("sponsorBtn")) $("sponsorBtn").textContent=T.sponsorBtn;
+  if ($("sponsorCompany")) $("sponsorCompany").placeholder=T.sponsorCompany;
+  if ($("sponsorEmail")) $("sponsorEmail").placeholder=T.sponsorEmail;
+  if ($("sponsorMessage")) $("sponsorMessage").placeholder=T.sponsorMessage;
+  if ($("sponsorSend")) $("sponsorSend").textContent=T.sponsorSend;
   if ($("againBtn")) $("againBtn").textContent=T.again;
   if ($("homeBtn")) $("homeBtn").textContent=T.home;
   if ($("streakResultLabel")) $("streakResultLabel").textContent=T.streakWord;
@@ -406,6 +413,27 @@ function makeShareCard(score) {
   }
   c.fillStyle="#777786"; c.font="700 30px system-ui"; c.fillText("#PROJECT99",78,1800); return canvas;
 }
+async function sendSponsorLead() {
+  const company = $("sponsorCompany")?.value?.trim() || "";
+  const email = $("sponsorEmail")?.value?.trim() || "";
+  const message = $("sponsorMessage")?.value?.trim() || "";
+  const status = $("sponsorStatus");
+  if (!company || !email) {
+    if (status) status.textContent = LANG==="pl" ? "Podaj firmę i e-mail." : "Enter company and email.";
+    return;
+  }
+  try {
+    $("sponsorSend").disabled = true;
+    if (status) status.textContent = LANG==="pl" ? "Wysyłanie…" : "Sending…";
+    await submitSponsorLead({ company, email, message });
+    if (status) status.textContent = T.sponsorSent;
+    $("sponsorLeadForm")?.reset();
+  } catch (err) {
+    if (status) status.textContent = LANG==="pl" ? "Nie udało się wysłać. Spróbuj ponownie." : "Could not send. Try again.";
+  } finally {
+    $("sponsorSend").disabled = false;
+  }
+}
 async function shareHomeChallenge() {
   const url = new URL(location.href);
   url.search = "";
@@ -456,9 +484,11 @@ $("homeBtn").addEventListener("click", () => { refreshHomeStats(); showScreen("s
 $("shareBtn").addEventListener("click", shareResult);
 $("shareHomeBtn")?.addEventListener("click", shareHomeChallenge);
 $("browserCopyBtn")?.addEventListener("click", copyPublicLink);
+$("sponsorBtn")?.addEventListener("click", () => $("sponsorLead")?.classList.toggle("hidden"));
+$("sponsorLeadForm")?.addEventListener("submit", e => { e.preventDefault(); sendSponsorLead(); });
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=19").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=20").catch(console.warn);
 applyLanguage();
 refreshHomeStats();
