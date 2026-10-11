@@ -1,5 +1,5 @@
 import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/+esm";
-import { submitScoreAndRank, isRankingConfigured } from "./ranking.js?v=2";
+import { submitScoreAndRank, getDailyLeaderboard, isRankingConfigured } from "./ranking.js?v=3";
 import { SPONSOR } from "./sponsor-config.js?v=1";
 
 const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
@@ -295,6 +295,31 @@ function scoreHeadline(score) { if (score >= 96) return T.score96; if (score >= 
 function localBestKey() { return "p99_best_"+currentExpressionKey; }
 function getLocalBest() { return storedNumber(localBestKey()); }
 function saveLocalBest(score) { if (score > getLocalBest()) localStorage.setItem(localBestKey(), Number(score).toFixed(1)); }
+async function loadLeaderboard() {
+  const box = $("leaderboardCard");
+  const rowsEl = $("leaderboardRows");
+  if (!box || !rowsEl || !isDailyRun || !isRankingConfigured()) return;
+  try {
+    const r = await getDailyLeaderboard({ challengeDate: utcDateKey(), expression: currentExpressionKey, limit: 10 });
+    if (!r.configured || !r.rows.length) { box.classList.add("hidden"); return; }
+    rowsEl.innerHTML = "";
+    for (const row of r.rows) {
+      const line = document.createElement("div");
+      line.className = "leaderboard-row" + (row.isYou ? " you" : "");
+      const left = document.createElement("span");
+      left.textContent = "#" + row.rank + (row.isYou ? (LANG==="pl" ? " · TY" : " · YOU") : "");
+      const right = document.createElement("strong");
+      right.textContent = fmtScore(row.score) + "%";
+      line.append(left, right);
+      rowsEl.appendChild(line);
+    }
+    box.classList.remove("hidden");
+  } catch (err) {
+    console.warn("Leaderboard unavailable", err);
+    box.classList.add("hidden");
+  }
+}
+
 async function updateGlobalRank(score) {
   const card = $("globalRankCard");
   const text = $("globalRankText");
@@ -324,6 +349,7 @@ async function updateGlobalRank(score) {
         ? "#"+r.rank+" z "+r.total+" · TOP "+topPct+"% dzisiaj"
         : "#"+r.rank+" of "+r.total+" · TOP "+topPct+"% today";
     }
+    await loadLeaderboard();
   } catch (err) {
     console.error(err);
     text.textContent = (LANG==="pl" ? "Błąd rankingu: " : "Ranking error: ") + (err?.message || "unknown");
@@ -414,6 +440,6 @@ $("browserCopyBtn")?.addEventListener("click", copyPublicLink);
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=17").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=18").catch(console.warn);
 applyLanguage();
 refreshHomeStats();
