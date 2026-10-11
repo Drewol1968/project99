@@ -11,6 +11,75 @@ const EXPRESSIONS = {
   kiss: { name: "KISS FACE", emoji: "😘", instruction: "Pucker your lips", targets: { mouthPucker: .36, mouthFunnel: .22, jawOpen: .12, mouthSmileLeft: .14, mouthSmileRight: .14 } }
 };
 
+const UI = {
+  en: {
+    dailyEyebrow:"DAILY HUMAN CHALLENGE", homeTitle:"Can you beat<br/>today's face?",
+    homeSubtitle:"One global face every day. Your camera analyzes the expression locally on your phone. No face image is uploaded.",
+    streakLabel:"🔥 STREAK", todayBestLabel:"🏆 TODAY BEST", dailyBadge:"DAILY",
+    challengeNameHome:"COPY FACE", challengeMeta:"Same challenge worldwide · resets daily",
+    start:"PLAY TODAY'S CHALLENGE", random:"RANDOM FACE", install:"INSTALL APP",
+    gameEyebrow:"COPY FACE", copyThis:"COPY THIS", liveMatch:"LIVE MATCH",
+    resultEyebrow:"YOUR RESULT", share:"CHALLENGE A FRIEND", again:"TRY AGAIN", home:"BACK TO HOME",
+    ready:"I'M READY", center:"Center your face", makeFace:"Make the face, then tap I'M READY",
+    hold:"HOLD IT!", almost:"Almost…", copy:"Copy the face", noFace:"Face not detected",
+    cameraRequired:"Camera permission is required for COPY FACE.", cameraBlocked:"Camera blocked",
+    loading:"Loading face model…", aiReady:"AI ready — center your face", getReady:"Get ready…", holdFace:"HOLD THE FACE",
+    bestToday:T.bestToday, bestDevice:T.bestDevice, streakWord:"day streak",
+    score96:"ABSURDLY CLOSE", score90:"ALMOST PERFECT", score82:"VERY CLOSE", score70:"NOT BAD", scoreLow:"TRY THAT AGAIN"
+  },
+  pl: {
+    dailyEyebrow:"CODZIENNE WYZWANIE", homeTitle:"Czy pobijesz<br/>dzisiejszy wynik?",
+    homeSubtitle:"Każdego dnia jedna taka sama mina dla wszystkich. Kamera analizuje mimikę lokalnie na Twoim telefonie. Zdjęcie twarzy nie jest wysyłane.",
+    streakLabel:"🔥 SERIA", todayBestLabel:"🏆 NAJLEPSZY DZIŚ", dailyBadge:"DZISIAJ",
+    challengeNameHome:"SKOPIUJ MINĘ", challengeMeta:"To samo wyzwanie na całym świecie · zmienia się codziennie",
+    start:"ZAGRAJ W DZISIEJSZE WYZWANIE", random:"LOSOWA MINA", install:"ZAINSTALUJ APLIKACJĘ",
+    gameEyebrow:"SKOPIUJ MINĘ", copyThis:"SKOPIUJ TO", liveMatch:"DOPASOWANIE",
+    resultEyebrow:"TWÓJ WYNIK", share:"WYZWANIE DLA PRZYJACIELA", again:"SPRÓBUJ PONOWNIE", home:"WRÓĆ NA START",
+    ready:"JESTEM GOTOWY", center:"Ustaw twarz na środku", makeFace:"Zrób pokazaną minę i naciśnij JESTEM GOTOWY",
+    hold:"TRZYMAJ!", almost:"Prawie…", copy:"Skopiuj minę", noFace:"Nie wykryto twarzy",
+    cameraRequired:"Aby zagrać, zezwól na dostęp do przedniej kamery.", cameraBlocked:"Kamera zablokowana",
+    loading:"Ładowanie modelu twarzy…", aiReady:"AI gotowe — ustaw twarz na środku", getReady:"Przygotuj się…", holdFace:"TRZYMAJ MINĘ",
+    bestToday:"Najlepszy dziś na tym urządzeniu: ", bestDevice:"Najlepszy na tym urządzeniu: ", streakWord:"dni z rzędu",
+    score96:"NIEMAL IDEALNIE", score90:"PRAWIE IDEALNIE", score82:"BARDZO BLISKO", score70:"NIEŹLE", scoreLow:"SPRÓBUJ JESZCZE RAZ"
+  }
+};
+const LANG = (navigator.language || "en").toLowerCase().startsWith("pl") ? "pl" : "en";
+const T = UI[LANG];
+
+function exprText(key) {
+  if (LANG !== "pl") return EXPRESSIONS[key];
+  const pl = {
+    surprise:{name:"ZDZIWIENIE",instruction:"Otwórz usta i unieś brwi"},
+    smile:{name:"SZEROKI UŚMIECH",instruction:"Uśmiechnij się jak najszerzej"},
+    wink:{name:"MRUGNIĘCIE",instruction:"Mrugnij jednym okiem, drugie zostaw otwarte"},
+    angry:{name:"ZŁOŚĆ",instruction:"Ściągnij brwi i zmruż oczy"},
+    kiss:{name:"BUZIAK",instruction:"Zrób dzióbek ustami"}
+  };
+  return {...EXPRESSIONS[key], ...pl[key]};
+}
+function applyLanguage() {
+  document.documentElement.lang = LANG;
+  if ($("dailyEyebrow")) $("dailyEyebrow").textContent=T.dailyEyebrow;
+  if ($("homeTitle")) $("homeTitle").innerHTML=T.homeTitle;
+  if ($("homeSubtitle")) $("homeSubtitle").textContent=T.homeSubtitle;
+  if ($("streakLabel")) $("streakLabel").textContent=T.streakLabel;
+  if ($("todayBestLabel")) $("todayBestLabel").textContent=T.todayBestLabel;
+  if ($("dailyBadge")) $("dailyBadge").textContent=T.dailyBadge;
+  if ($("challengeNameHome")) $("challengeNameHome").textContent=T.challengeNameHome;
+  if ($("challengeMeta")) $("challengeMeta").textContent=T.challengeMeta;
+  if ($("startBtn")) $("startBtn").textContent=T.start;
+  if ($("randomBtn")) $("randomBtn").textContent=T.random;
+  if ($("installBtn")) $("installBtn").textContent=T.install;
+  if ($("gameEyebrow")) $("gameEyebrow").textContent=T.gameEyebrow;
+  if ($("copyThisLabel")) $("copyThisLabel").textContent=T.copyThis;
+  if ($("liveMatchLabel")) $("liveMatchLabel").textContent=T.liveMatch;
+  if ($("resultEyebrow")) $("resultEyebrow").textContent=T.resultEyebrow;
+  if ($("shareBtn")) $("shareBtn").textContent=T.share;
+  if ($("againBtn")) $("againBtn").textContent=T.again;
+  if ($("homeBtn")) $("homeBtn").textContent=T.home;
+  if ($("streakResultLabel")) $("streakResultLabel").textContent=T.streakWord;
+}
+
 const $ = (id) => document.getElementById(id);
 const screens = ["startScreen", "gameScreen", "resultScreen"];
 const video = $("video");
@@ -26,7 +95,7 @@ function hashString(s) { let h = 2166136261; for (let i=0;i<s.length;i++){ h ^= 
 function dailyExpressionKey() { const keys = Object.keys(EXPRESSIONS); return keys[hashString("project99:"+utcDateKey()) % keys.length]; }
 function applyExpression(key) {
   currentExpressionKey = key;
-  const e = EXPRESSIONS[key];
+  const e = exprText(key);
   $("targetName").textContent = e.name; $("targetInstruction").textContent = e.instruction; $("targetEmoji").textContent = e.emoji; $("startEmoji").textContent = e.emoji;
 }
 function pickExpression(mode = "daily") {
@@ -57,7 +126,7 @@ function updateDailyStreak(score) {
 }
 async function initModel() {
   if (modelReady || faceLandmarker) return;
-  $("statusText").textContent = "Loading face model…";
+  $("statusText").textContent = T.loading;
   try {
     const vision = await FilesetResolver.forVisionTasks(WASM_URL);
     faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
@@ -65,18 +134,18 @@ async function initModel() {
       outputFaceBlendshapes: true, outputFacialTransformationMatrixes: false,
       minFaceDetectionConfidence: .5, minFacePresenceConfidence: .5, minTrackingConfidence: .5,
     });
-    modelReady = true; $("statusText").textContent = "AI ready — center your face"; updateReadyState();
+    modelReady = true; $("statusText").textContent = T.aiReady; updateReadyState();
   } catch (err) { console.error(err); $("statusText").textContent = "Could not load face AI. Check internet connection and reload."; }
 }
 async function startCamera() {
   if (stream) return;
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 720 }, height: { ideal: 1280 } }, audio: false });
-    video.srcObject = stream; await video.play(); cameraReady = true; resizeOverlay(); $("cameraHint").textContent = "Center your face"; updateReadyState(); loop();
-  } catch (err) { console.error(err); $("statusText").textContent = "Camera permission is required for COPY FACE."; $("cameraHint").textContent = "Camera blocked"; }
+    video.srcObject = stream; await video.play(); cameraReady = true; resizeOverlay(); $("cameraHint").textContent = T.center; updateReadyState(); loop();
+  } catch (err) { console.error(err); $("statusText").textContent = T.cameraRequired; $("cameraHint").textContent = T.cameraBlocked; }
 }
 function stopCamera() { if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; cameraReady = false; if (rafId) cancelAnimationFrame(rafId); rafId = null; }
-function updateReadyState() { const ready = modelReady && cameraReady; $("captureBtn").disabled = !ready; if (ready) { $("captureBtn").textContent = "I'M READY"; $("statusText").textContent = "Make the face, then tap I'M READY"; } }
+function updateReadyState() { const ready = modelReady && cameraReady; $("captureBtn").disabled = !ready; if (ready) { $("captureBtn").textContent = T.ready; $("statusText").textContent = T.makeFace; } }
 function resizeOverlay() { const rect = overlay.getBoundingClientRect(); const dpr = Math.min(devicePixelRatio || 1, 2); overlay.width = Math.round(rect.width * dpr); overlay.height = Math.round(rect.height * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
 function categoryMap(result) { const categories = result?.faceBlendshapes?.[0]?.categories || []; const map = {}; for (const c of categories) map[c.categoryName] = c.score; return map; }
 function expressionScore(actual, targets) {
@@ -101,9 +170,7 @@ function expressionScore(actual, targets) {
   return Math.max(0, Math.min(99.9, Math.pow(avg, .72) * 100));
 }
 function drawFaceGuide(result) {
-  ctx.clearRect(0,0,overlay.clientWidth,overlay.clientHeight); const lm = result?.faceLandmarks?.[0]; if (!lm) return;
-  ctx.fillStyle = "rgba(246,255,61,.76)"; const keyIdx = [1,33,263,61,291,13,14,70,300], w = overlay.clientWidth, h = overlay.clientHeight;
-  for (const idx of keyIdx) { const p = lm[idx]; if (!p) continue; const x = w * (1 - p.x), y = h * p.y; ctx.beginPath(); ctx.arc(x,y,2.1,0,Math.PI*2); ctx.fill(); }
+  ctx.clearRect(0,0,overlay.clientWidth,overlay.clientHeight);
 }
 function loop() {
   if (!stream) return;
@@ -113,8 +180,8 @@ function loop() {
       const result = faceLandmarker.detectForVideo(video, performance.now()); drawFaceGuide(result); const actual = categoryMap(result);
       if (Object.keys(actual).length) {
         const score = expressionScore(actual, EXPRESSIONS[currentExpressionKey].targets); currentScore = score; if (processing) bestScoreThisRound = Math.max(bestScoreThisRound, score);
-        $("liveScore").textContent = score.toFixed(0)+"%"; $("meterFill").style.width = score+"%"; $("cameraHint").textContent = score > 82 ? "HOLD IT!" : score > 60 ? "Almost…" : "Copy the face";
-      } else { $("liveScore").textContent = "--%"; $("meterFill").style.width = "0%"; $("cameraHint").textContent = "Face not detected"; }
+        $("liveScore").textContent = score.toFixed(0)+"%"; $("meterFill").style.width = score+"%"; $("cameraHint").textContent = score > 82 ? T.hold : score > 60 ? T.almost : T.copy;
+      } else { $("liveScore").textContent = "--%"; $("meterFill").style.width = "0%"; $("cameraHint").textContent = T.noFace; }
     } catch (err) { console.warn(err); }
   }
   rafId = requestAnimationFrame(loop);
@@ -122,21 +189,21 @@ function loop() {
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function runChallenge() {
   if (processing || !modelReady || !cameraReady) return;
-  processing = true; bestScoreThisRound = 0; $("captureBtn").disabled = true; $("statusText").textContent = "Get ready…";
+  processing = true; bestScoreThisRound = 0; $("captureBtn").disabled = true; $("statusText").textContent = T.getReady;
   for (const n of [3,2,1]) { $("countdown").textContent = n; $("countdown").classList.remove("hidden"); await sleep(650); }
-  $("countdown").textContent = "GO"; await sleep(350); $("countdown").classList.add("hidden"); $("statusText").textContent = "HOLD THE FACE"; await sleep(2200);
+  $("countdown").textContent = "GO"; await sleep(350); $("countdown").classList.add("hidden"); $("statusText").textContent = T.holdFace; await sleep(2200);
   processing = false; showResult(Math.max(bestScoreThisRound, currentScore));
 }
-function scoreHeadline(score) { if (score >= 96) return "ABSURDLY CLOSE"; if (score >= 90) return "ALMOST PERFECT"; if (score >= 82) return "VERY CLOSE"; if (score >= 70) return "NOT BAD"; return "TRY THAT AGAIN"; }
+function scoreHeadline(score) { if (score >= 96) return T.score96; if (score >= 90) return T.score90; if (score >= 82) return T.score82; if (score >= 70) return T.score70; return T.scoreLow; }
 function localBestKey() { return "p99_best_"+currentExpressionKey; }
 function getLocalBest() { return Number(localStorage.getItem(localBestKey()) || 0); }
 function saveLocalBest(score) { if (score > getLocalBest()) localStorage.setItem(localBestKey(), score.toFixed(1)); }
 function showResult(score) {
-  stopCamera(); score = Math.max(0, Math.min(99.9, score)); lastFinalScore = score; saveLocalBest(score); const e = EXPRESSIONS[currentExpressionKey];
+  stopCamera(); score = Math.max(0, Math.min(99.9, score)); lastFinalScore = score; saveLocalBest(score); const e = exprText(currentExpressionKey);
   let streak = Number(localStorage.getItem("p99_daily_streak") || 0);
   if (isDailyRun) streak = updateDailyStreak(score);
   $("resultEmoji").textContent = e.emoji; $("finalScore").textContent = score.toFixed(1); $("resultHeadline").textContent = scoreHeadline(score);
-  $("resultDetail").textContent = isDailyRun ? "Today's best on this device: "+Number(localStorage.getItem("p99_daily_best_"+utcDateKey()) || score).toFixed(1)+"%" : "Your best on this device: "+getLocalBest().toFixed(1)+"%";
+  $("resultDetail").textContent = isDailyRun ? T.bestToday+Number(localStorage.getItem("p99_daily_best_"+utcDateKey()) || score).toFixed(1)+"%" : T.bestDevice+getLocalBest().toFixed(1)+"%";
   $("streakResult").classList.toggle("hidden", !isDailyRun); $("streakResultValue").textContent = String(streak);
   const deg = Math.max(10, score * 3.6); document.querySelector(".score-ring").style.background = "conic-gradient(var(--accent) 0deg, var(--accent2) "+deg+"deg, #24242d "+deg+"deg)";
   showScreen("resultScreen");
@@ -174,5 +241,6 @@ $("shareBtn").addEventListener("click", shareResult);
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=3").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=4").catch(console.warn);
+applyLanguage();
 refreshHomeStats();
