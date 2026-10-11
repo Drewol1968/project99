@@ -26,7 +26,9 @@ const UI = {
     cameraRequired:"Camera permission is required for COPY FACE.", cameraBlocked:"Camera blocked",
     loading:"Loading face model…", aiReady:"AI ready — center your face", getReady:"Get ready…", holdFace:"HOLD THE FACE",
     bestToday:"Today's best on this device: ", bestDevice:"Your best on this device: ", streakWord:"day streak",
-    score96:"ABSURDLY CLOSE", score90:"ALMOST PERFECT", score82:"VERY CLOSE", score70:"NOT BAD", scoreLow:"TRY THAT AGAIN"
+    score96:"ABSURDLY CLOSE", score90:"ALMOST PERFECT", score82:"VERY CLOSE", score70:"NOT BAD", scoreLow:"TRY THAT AGAIN",
+    socialProofKnown:"players joined today", socialProofUnknown:"GLOBAL RANKING IS LIVE",
+    shareHome:"CHALLENGE A FRIEND", shareResult:"SHARE SCORE — BEAT ME", copied:"LINK COPIED"
   },
   pl: {
     dailyEyebrow:"CODZIENNE WYZWANIE", homeTitle:"Czy pobijesz<br/>dzisiejszy wynik?",
@@ -41,7 +43,9 @@ const UI = {
     cameraRequired:"Aby zagrać, zezwól na dostęp do przedniej kamery.", cameraBlocked:"Kamera zablokowana",
     loading:"Ładowanie modelu twarzy…", aiReady:"AI gotowe — ustaw twarz na środku", getReady:"Przygotuj się…", holdFace:"TRZYMAJ MINĘ",
     bestToday:"Najlepszy dziś na tym urządzeniu: ", bestDevice:"Najlepszy na tym urządzeniu: ", streakWord:"dni z rzędu",
-    score96:"NIEMAL IDEALNIE", score90:"PRAWIE IDEALNIE", score82:"BARDZO BLISKO", score70:"NIEŹLE", scoreLow:"SPRÓBUJ JESZCZE RAZ"
+    score96:"NIEMAL IDEALNIE", score90:"PRAWIE IDEALNIE", score82:"BARDZO BLISKO", score70:"NIEŹLE", scoreLow:"SPRÓBUJ JESZCZE RAZ",
+    socialProofKnown:"graczy dołączyło dzisiaj", socialProofUnknown:"RANKING GLOBALNY DZIAŁA",
+    shareHome:"RZUĆ WYZWANIE ZNAJOMEMU", shareResult:"UDOSTĘPNIJ WYNIK — POBIJ MNIE", copied:"LINK SKOPIOWANY"
   }
 };
 const LANG = (navigator.language || "en").toLowerCase().startsWith("pl") ? "pl" : "en";
@@ -75,7 +79,8 @@ function applyLanguage() {
   if ($("copyThisLabel")) $("copyThisLabel").textContent=T.copyThis;
   if ($("liveMatchLabel")) $("liveMatchLabel").textContent=T.liveMatch;
   if ($("resultEyebrow")) $("resultEyebrow").textContent=T.resultEyebrow;
-  if ($("shareBtn")) $("shareBtn").textContent=T.share;
+  if ($("shareBtn")) $("shareBtn").textContent=T.shareResult;
+  if ($("shareHomeBtn")) $("shareHomeBtn").textContent=T.shareHome;
   if ($("againBtn")) $("againBtn").textContent=T.again;
   if ($("homeBtn")) $("homeBtn").textContent=T.home;
   if ($("streakResultLabel")) $("streakResultLabel").textContent=T.streakWord;
@@ -121,12 +126,24 @@ function updateDailyCountdown() {
 }
 setInterval(updateDailyCountdown, 30000);
 
+function refreshSocialProof() {
+  const el = $("socialProof");
+  if (!el) return;
+  const date = localStorage.getItem("p99_players_date");
+  const total = storedNumber("p99_players_total");
+  if (date === utcDateKey() && total > 0) {
+    el.textContent = "🌍 " + total + " " + T.socialProofKnown;
+  } else {
+    el.textContent = "🌍 " + T.socialProofUnknown;
+  }
+}
 function refreshHomeStats() {
   $("streakValue").textContent = String(Number(localStorage.getItem("p99_daily_streak") || 0));
   const best = storedNumber("p99_daily_best_"+utcDateKey());
   $("todayBestValue").textContent = best > 0 ? fmtScore(best)+"%" : "--";
   applyExpression(dailyExpressionKey());
   updateDailyCountdown();
+  refreshSocialProof();
 }
 function updateDailyStreak(score) {
   const today = utcDateKey();
@@ -232,6 +249,10 @@ async function updateGlobalRank(score) {
     if (!r.configured) { card.classList.add("hidden"); return; }
     const topPct = Math.max(1, Math.ceil((r.rank / Math.max(r.total, 1)) * 100));
     lastGlobalRank = { rank:r.rank, total:r.total, topPct };
+    localStorage.setItem("p99_players_date", utcDateKey());
+    localStorage.setItem("p99_players_total", String(r.total));
+    localStorage.setItem("p99_last_rank", String(r.rank));
+    refreshSocialProof();
     text.textContent = LANG==="pl"
       ? "#"+r.rank+" z "+r.total+" · TOP "+topPct+"% dzisiaj"
       : "#"+r.rank+" of "+r.total+" · TOP "+topPct+"% today";
@@ -270,6 +291,27 @@ function makeShareCard(score) {
   }
   c.fillStyle="#777786"; c.font="700 30px system-ui"; c.fillText("#PROJECT99",78,1800); return canvas;
 }
+async function shareHomeChallenge() {
+  const url = new URL(location.href);
+  url.search = "";
+  url.searchParams.set("c", dailyExpressionKey());
+  const e = exprText(dailyExpressionKey());
+  const text = LANG==="pl"
+    ? "Dzisiejsze wyzwanie PROJECT 99: "+e.name+". Pobijesz mój wynik?"
+    : "Today's PROJECT 99 challenge: "+e.name+". Can you beat me?";
+  try {
+    if (navigator.share) {
+      await navigator.share({ title:"PROJECT 99", text, url:url.toString() });
+    } else {
+      await navigator.clipboard.writeText(text+" "+url.toString());
+      if ($("shareHomeBtn")) $("shareHomeBtn").textContent=T.copied;
+    }
+    localStorage.setItem("p99_shares", String(storedNumber("p99_shares")+1));
+  } catch (err) {
+    if (err?.name !== "AbortError") console.error(err);
+  }
+}
+
 async function shareResult() {
   const score = lastFinalScore, canvas = makeShareCard(score), url = challengeUrl();
   const rankPart = lastGlobalRank?.total > 0
@@ -280,10 +322,10 @@ async function shareResult() {
     : "I scored "+fmtScore(score)+"% in PROJECT 99."+rankPart+" Can you beat me?";
   try {
     const blob = await new Promise(r => canvas.toBlob(r,"image/png",.94)), file = blob ? new File([blob],"project99-score.png",{type:"image/png"}) : null;
-    if (navigator.share) { const payload = { title:"PROJECT 99", text, url }; if (file && navigator.canShare?.({files:[file]})) payload.files=[file]; await navigator.share(payload); return; }
-    await navigator.clipboard.writeText(text+" "+url); $("shareBtn").textContent="LINK COPIED";
+    if (navigator.share) { const payload = { title:"PROJECT 99", text, url }; if (file && navigator.canShare?.({files:[file]})) payload.files=[file]; await navigator.share(payload); localStorage.setItem("p99_shares", String(storedNumber("p99_shares")+1)); return; }
+    await navigator.clipboard.writeText(text+" "+url); $("shareBtn").textContent=T.copied; localStorage.setItem("p99_shares", String(storedNumber("p99_shares")+1));
   } catch (err) {
-    if (err?.name !== "AbortError") { console.error(err); try { await navigator.clipboard.writeText(text+" "+url); $("shareBtn").textContent="LINK COPIED"; } catch (_) {} }
+    if (err?.name !== "AbortError") { console.error(err); try { await navigator.clipboard.writeText(text+" "+url); $("shareBtn").textContent=T.copied; } catch (_) {} }
   }
 }
 $("startBtn").addEventListener("click", async () => { pickExpression("daily"); showScreen("gameScreen"); await Promise.all([initModel(), startCamera()]); });
@@ -293,9 +335,10 @@ $("captureBtn").addEventListener("click", runChallenge);
 $("againBtn").addEventListener("click", async () => { showScreen("gameScreen"); await startCamera(); updateReadyState(); });
 $("homeBtn").addEventListener("click", () => { refreshHomeStats(); showScreen("startScreen"); });
 $("shareBtn").addEventListener("click", shareResult);
+$("shareHomeBtn")?.addEventListener("click", shareHomeChallenge);
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=11").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=12").catch(console.warn);
 applyLanguage();
 refreshHomeStats();
