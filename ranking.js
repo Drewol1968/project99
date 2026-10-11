@@ -1,5 +1,5 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "./ranking-config.js?v=1";
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "./ranking-config.js?v=2";
 
 let client = null;
 
