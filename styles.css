@@ -112,3 +112,11 @@ h2 { margin:2px 0 0; font-size:26px; letter-spacing:-.03em; }
 .leaderboard-row:first-child { border-top:0; }
 .leaderboard-row.you { color:var(--accent); }
 .leaderboard-row strong { font-size:13px; }
+
+.sponsor-lead-card { border:1px solid var(--line); background:var(--panel); border-radius:18px; padding:14px 16px; }
+.sponsor-lead-card .eyebrow { margin-bottom:5px; }
+.sponsor-lead-text { margin:0 0 4px; color:var(--muted); font-size:12px; line-height:1.4; }
+.sponsor-open { width:100%; text-align:left; padding-left:0; color:var(--accent); }
+.sponsor-lead-form { display:grid; gap:9px; margin-top:10px; }
+.sponsor-lead-form input, .sponsor-lead-form textarea { width:100%; border:1px solid var(--line); border-radius:12px; background:#0c0c11; color:var(--text); padding:12px 13px; font:inherit; resize:vertical; }
+.sponsor-lead-form input::placeholder, .sponsor-lead-form textarea::placeholder { color:#6f6f7a; }
