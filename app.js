@@ -78,6 +78,7 @@ function applyLanguage() {
   if ($("againBtn")) $("againBtn").textContent=T.again;
   if ($("homeBtn")) $("homeBtn").textContent=T.home;
   if ($("streakResultLabel")) $("streakResultLabel").textContent=T.streakWord;
+  if ($("privacyPill")) $("privacyPill").textContent = LANG==="pl" ? "AI NA TELEFONIE" : "ON-DEVICE AI";
 }
 
 const $ = (id) => document.getElementById(id);
@@ -89,6 +90,7 @@ let stream = null, faceLandmarker = null, modelReady = false, cameraReady = fals
 let currentExpressionKey = "surprise", currentScore = 0, bestScoreThisRound = 0, lastFinalScore = 0, deferredInstallPrompt = null, rafId = null, lastVideoTime = -1, chosenFromLink = false, isDailyRun = true;
 
 function showScreen(id) { screens.forEach(s => $(s).classList.toggle("active", s === id)); }
+function fmtScore(n) { const s = Number(n).toFixed(1); return LANG==="pl" ? s.replace(".", ",") : s; }
 function utcDateKey(date = new Date()) { return date.toISOString().slice(0,10); }
 function yesterdayUtcKey() { const d = new Date(); d.setUTCDate(d.getUTCDate()-1); return utcDateKey(d); }
 function hashString(s) { let h = 2166136261; for (let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h,16777619); } return h >>> 0; }
@@ -107,7 +109,7 @@ function pickExpression(mode = "daily") {
 function refreshHomeStats() {
   $("streakValue").textContent = String(Number(localStorage.getItem("p99_daily_streak") || 0));
   const best = Number(localStorage.getItem("p99_daily_best_"+utcDateKey()) || 0);
-  $("todayBestValue").textContent = best > 0 ? best.toFixed(1)+"%" : "--";
+  $("todayBestValue").textContent = best > 0 ? fmtScore(best)+"%" : "--";
   applyExpression(dailyExpressionKey());
 }
 function updateDailyStreak(score) {
@@ -121,7 +123,7 @@ function updateDailyStreak(score) {
   }
   const bestKey = "p99_daily_best_"+today;
   const oldBest = Number(localStorage.getItem(bestKey) || 0);
-  if (score > oldBest) localStorage.setItem(bestKey, score.toFixed(1));
+  if (score > oldBest) localStorage.setItem(bestKey, fmtScore(score));
   return streak;
 }
 async function initModel() {
@@ -197,14 +199,15 @@ async function runChallenge() {
 function scoreHeadline(score) { if (score >= 96) return T.score96; if (score >= 90) return T.score90; if (score >= 82) return T.score82; if (score >= 70) return T.score70; return T.scoreLow; }
 function localBestKey() { return "p99_best_"+currentExpressionKey; }
 function getLocalBest() { return Number(localStorage.getItem(localBestKey()) || 0); }
-function saveLocalBest(score) { if (score > getLocalBest()) localStorage.setItem(localBestKey(), score.toFixed(1)); }
+function saveLocalBest(score) { if (score > getLocalBest()) localStorage.setItem(localBestKey(), fmtScore(score)); }
 function showResult(score) {
   stopCamera(); score = Math.max(0, Math.min(99.9, score)); lastFinalScore = score; saveLocalBest(score); const e = exprText(currentExpressionKey);
   let streak = Number(localStorage.getItem("p99_daily_streak") || 0);
   if (isDailyRun) streak = updateDailyStreak(score);
-  $("resultEmoji").textContent = e.emoji; $("finalScore").textContent = score.toFixed(1); $("resultHeadline").textContent = scoreHeadline(score);
-  $("resultDetail").textContent = isDailyRun ? T.bestToday+Number(localStorage.getItem("p99_daily_best_"+utcDateKey()) || score).toFixed(1)+"%" : T.bestDevice+getLocalBest().toFixed(1)+"%";
+  $("resultEmoji").textContent = e.emoji; $("finalScore").textContent = fmtScore(score); $("resultHeadline").textContent = scoreHeadline(score);
+  $("resultDetail").textContent = isDailyRun ? T.bestToday+fmtScore(Number(localStorage.getItem("p99_daily_best_"+utcDateKey()) || score))+"%" : T.bestDevice+fmtScore(getLocalBest())+"%";
   $("streakResult").classList.toggle("hidden", !isDailyRun); $("streakResultValue").textContent = String(streak);
+  if ($("streakResultLabel")) $("streakResultLabel").textContent = LANG==="pl" ? (streak===1 ? "dzień z rzędu" : "dni z rzędu") : (streak===1 ? "day streak" : "day streak");
   const deg = Math.max(10, score * 3.6); document.querySelector(".score-ring").style.background = "conic-gradient(var(--accent) 0deg, var(--accent2) "+deg+"deg, #24242d "+deg+"deg)";
   showScreen("resultScreen");
 }
@@ -216,13 +219,13 @@ function makeShareCard(score) {
   c.fillStyle="#fff"; c.font="900 86px system-ui"; c.fillText("CAN YOU",78,300); c.fillText("BEAT THIS?",78,400);
   c.font="240px Apple Color Emoji, Segoe UI Emoji"; c.fillText(e.emoji,370,760);
   c.fillStyle="#a5a5b2"; c.font="800 34px system-ui"; c.fillText(e.name,78,930);
-  c.fillStyle="#fff"; c.font="900 230px system-ui"; c.fillText(score.toFixed(1),70,1230);
+  c.fillStyle="#fff"; c.font="900 230px system-ui"; c.fillText(fmtScore(score),70,1230);
   c.fillStyle="#f6ff3d"; c.font="900 88px system-ui"; c.fillText("% MATCH",725,1230);
   c.fillStyle="#fff"; c.font="800 50px system-ui"; c.fillText("COPY THE FACE.",78,1460); c.fillText("SEND YOUR SCORE.",78,1535);
   c.fillStyle="#777786"; c.font="700 30px system-ui"; c.fillText("#PROJECT99",78,1800); return canvas;
 }
 async function shareResult() {
-  const score = lastFinalScore, canvas = makeShareCard(score), text = "I scored "+score.toFixed(1)+"% on "+EXPRESSIONS[currentExpressionKey].name+". Can you beat me?", url = challengeUrl();
+  const score = lastFinalScore, canvas = makeShareCard(score), text = "I scored "+fmtScore(score)+"% on "+EXPRESSIONS[currentExpressionKey].name+". Can you beat me?", url = challengeUrl();
   try {
     const blob = await new Promise(r => canvas.toBlob(r,"image/png",.94)), file = blob ? new File([blob],"project99-score.png",{type:"image/png"}) : null;
     if (navigator.share) { const payload = { title:"PROJECT 99", text, url }; if (file && navigator.canShare?.({files:[file]})) payload.files=[file]; await navigator.share(payload); return; }
@@ -241,6 +244,6 @@ $("shareBtn").addEventListener("click", shareResult);
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=5").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=6").catch(console.warn);
 applyLanguage();
 refreshHomeStats();
