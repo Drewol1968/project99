@@ -1,5 +1,5 @@
-const CACHE = "project99-v03";
-const ASSETS = ["./styles.css?v=3", "./app.js?v=3", "./manifest.webmanifest?v=3", "./icon.svg"];
+const CACHE = "project99-v04";
+const ASSETS = ["./styles.css?v=4", "./app.js?v=4", "./manifest.webmanifest?v=4", "./icon.svg"];
 
 self.addEventListener("install", event => {
   self.skipWaiting();
