@@ -1,4 +1,4 @@
-import { getPublicBetaMetrics, getPublicSourcesToday } from "./ranking.js?v=6";
+import { getPublicBetaMetrics, getPublicSourcesToday } from "./ranking.js?v=7";
 const $=id=>document.getElementById(id);
 const fmt=n=>Number(n||0).toLocaleString();
 async function load(){
