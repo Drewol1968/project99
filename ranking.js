@@ -145,6 +145,7 @@ export async function getPublicBetaMetrics() {
   const row = Array.isArray(data) ? data[0] : data;
   if (!row) return null;
   return {
+    visitsToday: Number(row.visits_today || 0),
     playersToday: Number(row.players_today || 0),
     startsToday: Number(row.starts_today || 0),
     completesToday: Number(row.completes_today || 0),
