@@ -5,6 +5,7 @@ async function load(){
   try{
     const [m,sources]=await Promise.all([getPublicBetaMetrics(),getPublicSourcesToday()]);
     if(m){
+      if ($("mVisits")) $("mVisits").textContent=fmt(m.visitsToday);
       $("mPlayers").textContent=fmt(m.playersToday);
       $("mStarts").textContent=fmt(m.startsToday);
       $("mCompletes").textContent=fmt(m.completesToday);
