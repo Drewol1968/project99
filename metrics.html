@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#07070b" />
   <title>PROJECT 99 — Live Metrics</title>
   <meta name="description" content="Live public beta metrics for PROJECT 99." />
-  <link rel="stylesheet" href="./styles.css?v=22" />
+  <link rel="stylesheet" href="./styles.css?v=24" />
   <style>
     .metrics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:18px 0}
     .metric-box{border:1px solid var(--line);background:var(--panel);border-radius:18px;padding:16px}
@@ -29,7 +29,7 @@
         <h1>PROJECT 99<br/>today.</h1>
         <p class="subtitle">Anonymous usage counts only. No face images are stored.</p>
       </div>
-      <div class="metrics-grid">
+      <div class="metrics-grid"><div class="metric-box"><span>VISITS TODAY</span><strong id="mVisits">—</strong></div>
         <div class="metric-box"><span>PLAYERS TODAY</span><strong id="mPlayers">—</strong></div>
         <div class="metric-box"><span>STARTS TODAY</span><strong id="mStarts">—</strong></div>
         <div class="metric-box"><span>COMPLETED</span><strong id="mCompletes">—</strong></div>
@@ -43,6 +43,6 @@
       <p class="fineprint"><a href="./">← PROJECT 99</a> · <a href="./promote.html">LINKI PROMOCYJNE</a></p>
     </section>
   </main>
-  <script type="module" src="./metrics.js?v=1"></script>
+  <script type="module" src="./metrics.js?v=2"></script>
 </body>
 </html>
