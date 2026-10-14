@@ -5,7 +5,10 @@
   "display": "standalone",
   "background_color": "#07070b",
   "theme_color": "#07070b",
-  "description": "A fast daily face-copy challenge with a global ranking.",
+  "description": "A fast daily face-copy challenge with on-device camera analysis and a global ranking.",
+  "scope": "./",
+  "lang": "en",
+  "categories": ["games", "entertainment"],
   "icons": [
     {
       "src": "./icon.svg",
