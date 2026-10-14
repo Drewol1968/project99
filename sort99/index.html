@@ -1,82 +1,71 @@
 <!doctype html>
-<html lang="en" class="notranslate">
+<html lang="pl" class="notranslate">
 <head>
-  <meta charset="utf-8">
-  <meta name="google" content="notranslate">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#07070b">
-  <title>SORT 99 — Daily Puzzle</title>
-  <meta name="description" content="Sort the tiles as fast as you can. Daily puzzle, global score, no account required.">
-  <meta name="robots" content="index,follow">
-  <meta property="og:title" content="SORT 99 — Daily Puzzle">
-  <meta property="og:description" content="Sort 9 tiles. Get a score. Beat the world.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://project99.appforge99.com/sort99/">
-  <link rel="canonical" href="https://project99.appforge99.com/sort99/">
-  <link rel="manifest" href="./manifest.webmanifest?v=2">
-  <link rel="stylesheet" href="./styles.css?v=2">
+<meta charset="utf-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07070b">
+<title>SLIDE 99 — klasyczna przesuwanka</title>
+<meta name="description" content="Klasyczna przesuwanka 15: przesuwaj kafelki w puste pole, ułóż 1–15 i sprawdź wynik.">
+<link rel="stylesheet" href="./styles.css?v=10">
 </head>
 <body>
 <main class="app">
-  <header>
-    <div class="brand">SORT <span>99</span></div>
-    <div class="pill" id="dailyPill">DAILY PUZZLE</div>
-  </header>
+<header><div class="brand">SLIDE <span>99</span></div><div class="pill" id="pill">UKŁADANKA DNIA</div></header>
 
-  <section id="home" class="screen active">
-    <p class="eyebrow" id="homeEyebrow">ONE PUZZLE WORLDWIDE</p>
-    <h1 id="homeTitle">Sort it.<br>Beat the world.</h1>
-    <p class="sub" id="homeSub">Tap two tiles to swap them. Put the numbers in order with as few moves and as little time as possible.</p>
+<section id="home" class="screen active">
+<p class="eyebrow" id="eyebrow">KLASYCZNA PRZESUWANKA 15</p>
+<h1 id="title">Jedno puste pole.<br>Ułóż 1–15.</h1>
+<p class="sub" id="sub">Dotykasz kafelka obok pustego pola. Kafelek przesuwa się w pustą kratkę.</p>
 
-    <div class="stats">
-      <div><span id="bestLabel">BEST TODAY</span><strong id="best">—</strong></div>
-      <div><span id="streakLabel">STREAK</span><strong id="streak">0</strong></div>
-    </div>
+<div class="how">
+<strong id="how1">CEL</strong>
+<span id="how2">1 2 3 4 / 5 6 7 8 / 9 10 11 12 / 13 14 15 / puste</span>
+</div>
 
-    <div id="preview" class="board preview" aria-label="Puzzle preview"></div>
+<div class="stats">
+<div><span id="bestLabel">NAJLEPSZY DZIŚ</span><strong id="best">—</strong></div>
+<div><span id="streakLabel">SERIA</span><strong id="streak">0</strong></div>
+</div>
 
-    <button id="start" class="primary">PLAY TODAY</button>
-    <button id="practice" class="secondary">PRACTICE RANDOM</button>
-    <p class="fine" id="homeFine">~10 SEC · ONE FINGER · GLOBAL RANKING</p>
-  </section>
+<div id="preview" class="board preview"></div>
 
-  <section id="game" class="screen">
-    <div class="toprow">
-      <button id="back" class="icon" aria-label="Back">←</button>
-      <div><p class="eyebrow" id="sortLabel">SORT ASCENDING</p><h2 id="modeTitle">TODAY</h2></div>
-      <div class="pill"><span id="timer">0.0</span>s</div>
-    </div>
+<button id="start" class="primary">GRAJ DZISIAJ</button>
+<button id="practice" class="secondary">TRENING LOSOWY</button>
+<p class="fine" id="fine">RUSZA SIĘ TYLKO KAFELEK PRZY PUSTYM POLU</p>
+</section>
 
-    <div class="hud">
-      <div><span id="movesLabel">MOVES</span><strong id="moves">0</strong></div>
-      <div><span id="matchLabel">MATCH</span><strong id="match">0%</strong></div>
-    </div>
+<section id="game" class="screen">
+<div class="toprow">
+<button id="back" class="icon">←</button>
+<div><p class="eyebrow" id="gameLabel">PRZESUWAJ W PUSTE POLE</p><h2 id="modeTitle">DZISIAJ</h2></div>
+<div class="pill"><span id="timer">0,0</span>s</div>
+</div>
 
-    <div id="board" class="board" aria-label="Sorting puzzle"></div>
-    <p class="hint" id="hint">Tap one tile, then another to swap.</p>
-  </section>
+<div class="hud">
+<div><span id="movesLabel">RUCHY</span><strong id="moves">0</strong></div>
+<div><span id="placeLabel">NA MIEJSCU</span><strong id="match">0/15</strong></div>
+</div>
 
-  <section id="result" class="screen">
-    <p class="eyebrow" id="resultLabel">YOUR SCORE</p>
-    <div class="score"><span id="score">0.0</span><small>/99</small></div>
-    <h2 id="headline">NICE RUN</h2>
+<div id="board" class="board"></div>
+<div class="goal" id="goal">Zieloną obwódką zaznaczam kafelki, które możesz teraz przesunąć.</div>
+</section>
 
-    <div class="resultgrid">
-      <div><span id="timeLabel">TIME</span><strong id="rTime">0.0s</strong></div>
-      <div><span id="resultMovesLabel">MOVES</span><strong id="rMoves">0</strong></div>
-    </div>
-
-    <div id="rank" class="rank hidden"></div>
-    <div id="leader" class="leader hidden">
-      <div class="leadertitle" id="leaderTitle">TOP 10 TODAY</div>
-      <div id="leaderRows"></div>
-    </div>
-
-    <button id="share" class="primary">SHARE — BEAT ME</button>
-    <button id="again" class="secondary">TRY AGAIN</button>
-    <button id="homeBtn" class="text">BACK HOME</button>
-  </section>
+<section id="result" class="screen">
+<p class="eyebrow" id="resultLabel">TWÓJ WYNIK</p>
+<div class="score"><span id="score">0,0</span><small>/99</small></div>
+<h2 id="headline">GOTOWE</h2>
+<div class="resultgrid">
+<div><span id="timeLabel">CZAS</span><strong id="rTime">0,0s</strong></div>
+<div><span id="rMovesLabel">RUCHY</span><strong id="rMoves">0</strong></div>
+</div>
+<div id="rank" class="rank hidden"></div>
+<div id="leader" class="leader hidden"><div class="leadertitle" id="leaderTitle">TOP 10 DZISIAJ</div><div id="leaderRows"></div></div>
+<button id="share" class="primary">UDOSTĘPNIJ — POBIJ MNIE</button>
+<button id="again" class="secondary">SPRÓBUJ PONOWNIE</button>
+<button id="homeBtn" class="text">WRÓĆ NA START</button>
+</section>
 </main>
-<script type="module" src="./app.js?v=2"></script>
+<script type="module" src="./app.js?v=10"></script>
 </body>
 </html>
