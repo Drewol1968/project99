@@ -135,7 +135,34 @@ function pickExpression(mode = "daily") {
 }
 function trafficSource() {
   const p = new URLSearchParams(location.search);
-  return (p.get("ref") || p.get("utm_source") || "direct").slice(0,40);
+  const explicit = p.get("utm_source") || p.get("ref");
+  if (explicit) return explicit.toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0,40) || "direct";
+  try {
+    const host = document.referrer ? new URL(document.referrer).hostname.toLowerCase() : "";
+    if (!host) return "direct";
+    if (host.includes("tiktok")) return "tiktok";
+    if (host.includes("instagram")) return "instagram";
+    if (host.includes("facebook")) return "facebook";
+    if (host.includes("google")) return "google";
+    if (host.includes("youtube")) return "youtube";
+    return host.replace(/^www\./, "").slice(0,40);
+  } catch (_) {
+    return "direct";
+  }
+}
+
+function trackVisitOnce() {
+  if (!isRankingConfigured()) return;
+  const source = trafficSource();
+  const key = "p99_visit_" + utcDateKey() + "_" + source;
+  if (sessionStorage.getItem(key)) return;
+  sessionStorage.setItem(key, "1");
+  logAppEvent({
+    eventType: "visit",
+    challengeDate: utcDateKey(),
+    expression: dailyExpressionKey(),
+    source
+  });
 }
 async function refreshRemoteDailyStats() {
   if (!isRankingConfigured()) return;
@@ -405,7 +432,7 @@ function initResultAd() {
   try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (err) { console.warn("AdSense slot failed", err); }
 }
 
-function challengeUrl() { const url = new URL(location.href); url.search = ""; url.searchParams.set("c", currentExpressionKey); url.searchParams.set("ref", "score"); return url.toString(); }
+function challengeUrl() { const url = new URL(location.href); url.search = ""; url.searchParams.set("c", currentExpressionKey); url.searchParams.set("ref", "score"); url.searchParams.set("utm_medium", "share"); return url.toString(); }
 function makeShareCard(score) {
   const canvas = $("shareCanvas"), c = canvas.getContext("2d"), e = EXPRESSIONS[currentExpressionKey], g = c.createLinearGradient(0,0,1080,1920);
   g.addColorStop(0,"#09090e"); g.addColorStop(1,"#17121e"); c.fillStyle=g; c.fillRect(0,0,1080,1920);
@@ -451,6 +478,7 @@ async function shareHomeChallenge() {
   url.search = "";
   url.searchParams.set("c", dailyExpressionKey());
   url.searchParams.set("ref", "share");
+  url.searchParams.set("utm_medium", "share");
   const e = exprText(dailyExpressionKey());
   const text = LANG==="pl"
     ? "Dzisiejsze wyzwanie PROJECT 99: "+e.name+". Pobijesz mój wynik?"
@@ -501,6 +529,7 @@ $("sponsorLeadForm")?.addEventListener("submit", e => { e.preventDefault(); send
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=23").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=24").catch(console.warn);
+trackVisitOnce();
 applyLanguage();
 refreshHomeStats();
