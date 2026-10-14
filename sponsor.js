@@ -1,4 +1,4 @@
-import { submitSponsorLead } from "./ranking.js?v=5";
+import { submitSponsorLead } from "./ranking.js?v=7";
 
 const $ = id => document.getElementById(id);
 const pl = (navigator.language || "").toLowerCase().startsWith("pl");
