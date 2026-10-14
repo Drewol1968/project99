@@ -1,5 +1,5 @@
-const CACHE = "project99-v24";
-const ASSETS = ["./promote.html", "./promote.js?v=1", "./metrics.html", "./metrics.js?v=2", "./sponsor.html", "./sponsor.js?v=1", "./sponsor-config.js?v=1", "./ads-config.js?v=1", "./ranking.js?v=6", "./ranking-config.js?v=2", "./styles.css?v=24", "./app.js?v=24", "./manifest.webmanifest?v=24", "./icon.svg"];
+const CACHE = "project99-v25";
+const ASSETS = ["./promote.html", "./promote.js?v=1", "./about.html", "./privacy.html", "./terms.html", "./metrics.html", "./metrics.js?v=2", "./sponsor.html", "./sponsor.js?v=1", "./sponsor-config.js?v=1", "./ads-config.js?v=1", "./ranking.js?v=6", "./ranking-config.js?v=2", "./styles.css?v=25", "./app.js?v=25", "./manifest.webmanifest?v=25", "./icon.svg"];
 
 self.addEventListener("install", event => {
   self.skipWaiting();
