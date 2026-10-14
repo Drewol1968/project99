@@ -1,6 +1,7 @@
 import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/+esm";
-import { submitScoreAndRank, getDailyLeaderboard, getDailyStats, logAppEvent, submitSponsorLead, isRankingConfigured } from "./ranking.js?v=5";
+import { submitScoreAndRank, getDailyLeaderboard, getDailyStats, logAppEvent, submitSponsorLead, isRankingConfigured } from "./ranking.js?v=6";
 import { SPONSOR } from "./sponsor-config.js?v=1";
+import { ADS } from "./ads-config.js?v=1";
 
 const MODEL_URL = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
 const WASM_URL = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm";
@@ -390,9 +391,20 @@ function showResult(score) {
   if ($("streakResultLabel")) $("streakResultLabel").textContent = LANG==="pl" ? (streak===1 ? "dzień z rzędu" : "dni z rzędu") : (streak===1 ? "day streak" : "day streak");
   const deg = Math.max(10, score * 3.6); document.querySelector(".score-ring").style.background = "conic-gradient(var(--accent) 0deg, var(--accent2) "+deg+"deg, #24242d "+deg+"deg)";
   showScreen("resultScreen");
+  initResultAd();
   updateGlobalRank(score);
   if (isDailyRun) logAppEvent({eventType:"challenge_complete",challengeDate:utcDateKey(),expression:currentExpressionKey,source:trafficSource()});
 }
+function initResultAd() {
+  const host = $("resultAd");
+  if (!host || host.dataset.loaded === "1" || !ADS?.enabled || !ADS?.client || !ADS?.resultSlot) return;
+  host.innerHTML = '<div class="ad-label">'+(LANG==="pl" ? "REKLAMA" : "ADVERTISEMENT")+'</div>'
+    + '<ins class="adsbygoogle" style="display:block" data-ad-client="'+ADS.client+'" data-ad-slot="'+ADS.resultSlot+'" data-ad-format="auto" data-full-width-responsive="true"></ins>';
+  host.classList.remove("hidden");
+  host.dataset.loaded = "1";
+  try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (err) { console.warn("AdSense slot failed", err); }
+}
+
 function challengeUrl() { const url = new URL(location.href); url.search = ""; url.searchParams.set("c", currentExpressionKey); url.searchParams.set("ref", "score"); return url.toString(); }
 function makeShareCard(score) {
   const canvas = $("shareCanvas"), c = canvas.getContext("2d"), e = EXPRESSIONS[currentExpressionKey], g = c.createLinearGradient(0,0,1080,1920);
@@ -489,6 +501,6 @@ $("sponsorLeadForm")?.addEventListener("submit", e => { e.preventDefault(); send
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=21").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=23").catch(console.warn);
 applyLanguage();
 refreshHomeStats();
