@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07070b">
+  <title>SORT 99 — Daily Puzzle</title>
+  <meta name="description" content="Sort the tiles as fast as you can. Daily puzzle, global score, no account required.">
+  <meta name="robots" content="index,follow">
+  <link rel="stylesheet" href="./styles.css?v=1">
+</head>
+<body>
+<main class="app">
+  <header><div class="brand">SORT <span>99</span></div><div class="pill">DAILY PUZZLE</div></header>
+  <section id="home" class="screen active">
+    <p class="eyebrow">ONE PUZZLE WORLDWIDE</p>
+    <h1>Sort it.<br>Beat the world.</h1>
+    <p class="sub">Tap two tiles to swap them. Put the numbers in order with as few moves and as little time as possible.</p>
+    <div class="stats"><div><span>BEST TODAY</span><strong id="best">—</strong></div><div><span>STREAK</span><strong id="streak">0</strong></div></div>
+    <div id="preview" class="board preview"></div>
+    <button id="start" class="primary">PLAY TODAY</button>
+    <button id="practice" class="secondary">PRACTICE RANDOM</button>
+    <p class="fine">~10 SEC · ONE FINGER · GLOBAL RANKING</p>
+  </section>
+
+  <section id="game" class="screen">
+    <div class="toprow"><button id="back" class="icon">←</button><div><p class="eyebrow">SORT ASCENDING</p><h2 id="modeTitle">TODAY</h2></div><div class="pill"><span id="timer">0.0</span>s</div></div>
+    <div class="hud"><div><span>MOVES</span><strong id="moves">0</strong></div><div><span>MATCH</span><strong id="match">0%</strong></div></div>
+    <div id="board" class="board"></div>
+    <p class="hint">Tap one tile, then another to swap.</p>
+  </section>
+
+  <section id="result" class="screen">
+    <p class="eyebrow">YOUR SCORE</p>
+    <div class="score"><span id="score">0.0</span><small>/99</small></div>
+    <h2 id="headline">NICE RUN</h2>
+    <div class="resultgrid">
+      <div><span>TIME</span><strong id="rTime">0.0s</strong></div>
+      <div><span>MOVES</span><strong id="rMoves">0</strong></div>
+    </div>
+    <div id="rank" class="rank hidden"></div>
+    <div id="leader" class="leader hidden"><div class="leadertitle">TOP 10 TODAY</div><div id="leaderRows"></div></div>
+    <button id="share" class="primary">SHARE — BEAT ME</button>
+    <button id="again" class="secondary">TRY AGAIN</button>
+    <button id="homeBtn" class="text">BACK HOME</button>
+  </section>
+</main>
+<script type="module" src="./app.js?v=1"></script>
+</body>
+</html>
