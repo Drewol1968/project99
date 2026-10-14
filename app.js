@@ -1,5 +1,5 @@
 import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/+esm";
-import { submitScoreAndRank, getDailyLeaderboard, getDailyStats, logAppEvent, submitSponsorLead, isRankingConfigured } from "./ranking.js?v=6";
+import { submitScoreAndRank, getDailyLeaderboard, getDailyStats, logAppEvent, submitSponsorLead, isRankingConfigured } from "./ranking.js?v=7";
 import { SPONSOR } from "./sponsor-config.js?v=1";
 import { ADS } from "./ads-config.js?v=1";
 
@@ -529,7 +529,7 @@ $("sponsorLeadForm")?.addEventListener("submit", e => { e.preventDefault(); send
 window.addEventListener("resize", resizeOverlay);
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstallPrompt=e; $("installBtn").classList.remove("hidden"); });
 $("installBtn").addEventListener("click", async () => { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); await deferredInstallPrompt.userChoice; deferredInstallPrompt=null; $("installBtn").classList.add("hidden"); });
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=24").catch(console.warn);
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js?v=26").catch(console.warn);
 trackVisitOnce();
 applyLanguage();
 refreshHomeStats();
