@@ -25,9 +25,4 @@
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
-  <url>
-    <loc>https://project99.appforge99.com/metrics.html</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.3</priority>
-  </url>
 </urlset>
