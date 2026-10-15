@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080a12">
+  <meta name="description" content="REACTION 99 — Three rounds. Wait for green, tap fast, challenge a friend. A free mini-game from PROJECT 99.">
+  <meta property="og:title" content="REACTION 99 — How fast are you?">
+  <meta property="og:description" content="Wait for green. Tap as fast as you can. Three rounds. Beat my time!">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://project99.appforge99.com/reaction99/">
+  <link rel="canonical" href="https://project99.appforge99.com/reaction99/">
+  <title>REACTION 99 — PROJECT 99</title>
+  <style>
+    :root { color-scheme:dark; --bg:#080a12; --card:#121725; --stroke:#29314a; --text:#f5f7ff; --muted:#a0abc4; --lime:#ccff49; --pink:#ff578a; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif }
+    * { box-sizing:border-box }
+    html { min-height:100%;background:var(--bg) }
+    body { margin:0; min-height:100dvh; color:var(--text); background:radial-gradient(ellipse at 50% -12%,#253b62 0%,#111626 34%,#080a12 74%); -webkit-tap-highlight-color:transparent }
+    .wrap { max-width:540px; margin:auto; padding:calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 25px) }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:24px }
+    .brand { font-weight:900; letter-spacing:1.6px; font-size:17px; color:#fff; text-decoration:none }
+    .brand b { color:var(--lime) }
+    .beta { border:1px solid #526281; border-radius:50px; padding:7px 10px; font-size:10px; letter-spacing:1.4px; font-weight:800;color:#b6c3dc }
+    .kicker { color:var(--lime); font-size:12px;letter-spacing:2.5px;font-weight:850; margin:0 0 6px }
+    h1 { letter-spacing:-2.3px; font-size:clamp(37px,9.6vw,55px); line-height:1; margin:0 0 11px; font-weight:950 }
+    .lead { color:#bfcae1; font-size:16px; line-height:1.44; margin:0 0 19px; min-height:45px }
+    .hud { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px }
+    .pill { border:1px solid var(--stroke);border-radius:15px;background:rgba(17,24,41,.8);padding:11px 14px }
+    .pill small { display:block;color:var(--muted);letter-spacing:.9px;font-size:10px;font-weight:800;margin-bottom:3px }
+    .pill strong { font-variant-numeric:tabular-nums;font-size:22px; letter-spacing:-1px }
+    .stage { width:100%;height: min(46dvh,355px); min-height:255px; border:0; border-radius:25px; color:#fff; text-align:center; padding:20px;display:flex; flex-direction:column; align-items:center;justify-content:center; gap:15px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;position:relative;overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.35);transition:background .12s linear,box-shadow .12s linear }
+    .stage:focus-visible { outline:4px solid white;outline-offset:4px }
+    .stage.ready { background:linear-gradient(140deg,#3b39c8,#6134b6 75%);box-shadow:0 17px 48px #422ca944 }
+    .stage.waiting { background:linear-gradient(140deg,#b21840,#e03250);box-shadow:0 17px 48px #f0194a33 }
+    .stage.go { background:linear-gradient(140deg,#24d56a,#06a676);box-shadow:0 17px 48px #19da7159; color:#051c13 }
+    .stage.between { background:linear-gradient(140deg,#2552a9,#425fc9) }
+    .stage.done { background:linear-gradient(140deg,#244661,#314b86) }
+    .stage::before { content:"";position:absolute;inset:-70%;background:radial-gradient(circle,#ffffff2d,transparent 43%);pointer-events:none;opacity:.55 }
+    .stage.waiting::before { animation:pulse 1s ease-in-out infinite alternate }
+    @keyframes pulse { to { transform:scale(.82);opacity:.17 } }
+    .glyph { font-size:clamp(65px,17vw,100px);line-height:1; filter:drop-shadow(0 8px 12px #0002); z-index:1 }
+    .stage-title { z-index:1;font-size:clamp(28px,7.5vw,41px);font-weight:950;letter-spacing:-1px;line-height:1.06;max-width:95% }
+    .stage-hint { z-index:1; font-size:15px;font-weight:650; opacity:.9;max-width:90%;line-height:1.4 }
+    .dots {display:flex; gap:9px;justify-content:center;margin:18px 0 14px}
+    .dot {height:9px;width:38px;background:#343e56;border-radius:50px;transition:background .2s}
+    .dot.completed{background:var(--lime)}
+    .dot.current{background:#fff}
+    .summary {border:1px solid #354a66;border-radius:22px;background:linear-gradient(145deg,#1d2943,#111a2b); padding:21px;margin-bottom:15px;text-align:center}
+    .summary .caption {font-size:12px;letter-spacing:2px;font-weight:900;color:#b2c5e4}
+    .bigscore {font-size:clamp(49px,14vw,76px);letter-spacing:-3px;font-weight:950;line-height:1.2;font-variant-numeric:tabular-nums;color:var(--lime)}
+    .bigscore span{font-size:23px;letter-spacing:0}
+    .verdict {font-weight:900;font-size:22px;margin:5px 0}
+    .detail{color:#bac9e1;font-size:14px;margin:7px 0 0;line-height:1.5}
+    .attempts {display:flex;gap:7px;justify-content:center;margin-top:14px}
+    .attempt {background:#0b1425;border:1px solid #344562;border-radius:12px;padding:10px 8px; flex:1; font-size:14px;font-weight:850;font-variant-numeric:tabular-nums}
+    .attempt small {display:block;font-size:10px;font-weight:750;color:#aabbd4; margin-bottom:4px}
+    .btn {width:100%;border:0;border-radius:15px;min-height:54px;padding:13px 17px;font:900 16px system-ui;cursor:pointer;letter-spacing:.3px}
+    .share {background:var(--lime);color:#0d1516;margin:0 0 9px}
+    .again {background:#27354d;color:#fff}
+    .secondary {display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:17px;color:var(--muted);font-size:12px}
+    .secondary a{color:#d0d9ee;text-underline-offset:3px}
+    .note {font-size:11px;line-height:1.5;color:#75859f;text-align:center;margin:14px 8px}
+    [hidden] {display:none!important}
+    @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <a class="brand" href="../">PROJECT <b>99</b></a>
+      <span class="beta">NEW MINI GAME</span>
+    </header>
+    <p class="kicker">⚡ REACTION 99</p>
+    <h1 id="heading">Are you faster<br>than your friends?</h1>
+    <p class="lead" id="instruction">Wait for GREEN. Tap as fast as you can. Three rounds — one score.</p>
+    <div class="hud">
+      <div class="pill"><small id="roundLabel">ROUND</small><strong id="roundValue">1 / 3</strong></div>
+      <div class="pill"><small id="bestLabel">YOUR BEST TODAY</small><strong id="bestValue">—</strong></div>
+    </div>
+    <button id="stage" class="stage ready" type="button" aria-live="off">
+      <span class="glyph" id="glyph">⚡</span>
+      <span class="stage-title" id="stageTitle">TAP TO START</span>
+      <span class="stage-hint" id="stageHint">Then wait until the screen turns green</span>
+    </button>
+    <div class="dots" id="dots" aria-label="Round progress">
+      <span class="dot current"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+    <section id="summary" class="summary" aria-live="polite" hidden>
+      <div class="caption" id="resultLabel">YOUR AVERAGE TIME</div>
+      <div class="bigscore"><span id="finalScore">—</span> <span>ms</span></div>
+      <div class="verdict" id="verdict"></div>
+      <p class="detail" id="resultDetail"></p>
+      <div class="attempts" id="attempts"></div>
+    </section>
+    <div id="endActions" hidden>
+      <button id="shareBtn" class="btn share" type="button">⚡ CHALLENGE A FRIEND</button>
+      <button id="againBtn" class="btn again" type="button">PLAY AGAIN</button>
+    </div>
+    <div class="secondary"><span id="noAccount">FREE · NO ACCOUNT · NO CAMERA</span><a href="../" id="backLink">← PROJECT 99</a></div>
+    <p class="note" id="note">For fun only. Results depend on the device and screen delay; not an official athletic reaction-time measurement.</p>
+  </main>
+  <script>
+  (() => {
+    "use strict";
+    const pl = (navigator.language || "en").toLowerCase().startsWith("pl");
+    const phrases = {
+      en: {
+        heading:"Are you faster<br>than your friends?",intro:"Wait for GREEN. Tap as fast as you can. Three rounds — one score.",
+        round:"ROUND",best:"YOUR BEST TODAY",start:"TAP TO START",startHint:"Then wait until the screen turns green",
+        wait:"WAIT…",waitHint:"Do not tap on red!",go:"TAP NOW!",goHint:"AS FAST AS YOU CAN!",
+        early:"TOO EARLY!",earlyHint:"False start — 1000 ms penalty",late:"TOO SLOW!",lateHint:"No tap — 2000 ms penalty",
+        ms:"ms",next:"NEXT ROUND",nextHint:"Tap to try again",results:"SEE YOUR SCORE",resultsHint:"Tap to finish",
+        done:"GOOD GAME!",doneHint:"Tap to play again",resultLabel:"YOUR AVERAGE TIME",
+        verdictFast:"LIGHTNING FAST ⚡",verdictGood:"NICE REFLEXES 🔥",verdictOkay:"CAN YOU GO FASTER?",detail:"Lower is better. False starts count as 1000 ms.",
+        share:"⚡ CHALLENGE A FRIEND",again:"PLAY AGAIN",back:"← PROJECT 99",noAccount:"FREE · NO ACCOUNT · NO CAMERA",
+        note:"For fun only. Results depend on the device and screen delay; not an official athletic reaction-time measurement.",
+        copy:"LINK COPIED ✓",shareTitle:"REACTION 99 — beat my time!",shareText:(ms,url)=>"⚡ My REACTION 99 score: "+ms+" ms (3 rounds). Can you beat me? "+url,
+        tapped:"TAP TO START",prize:"New personal best today!"
+      },
+      pl: {
+        heading:"Masz szybszy refleks<br>niż znajomi?",intro:"Czekaj na ZIELONY ekran. Dotknij jak najszybciej. Trzy próby — jeden wynik.",
+        round:"PRÓBA",best:"TWÓJ REKORD DZIŚ",start:"DOTKNIJ, ABY ZACZĄĆ",startHint:"Potem czekaj, aż ekran zrobi się zielony",
+        wait:"CZEKAJ…",waitHint:"Nie dotykaj czerwonego ekranu!",go:"DOTKNIJ TERAZ!",goHint:"JAK NAJSZYBCIEJ!",
+        early:"ZA WCZEŚNIE!",earlyHint:"Falstart — kara 1000 ms",late:"ZA PÓŹNO!",lateHint:"Brak dotknięcia — kara 2000 ms",
+        ms:"ms",next:"NASTĘPNA PRÓBA",nextHint:"Dotknij, żeby kontynuować",results:"POKAŻ WYNIK",resultsHint:"Dotknij, żeby zakończyć",
+        done:"GRA SKOŃCZONA!",doneHint:"Dotknij, by zagrać ponownie",resultLabel:"TWÓJ ŚREDNI CZAS",
+        verdictFast:"BŁYSKAWICA ⚡",verdictGood:"ŚWIETNY REFLEKS 🔥",verdictOkay:"DASZ RADĘ SZYBCIEJ?",detail:"Im mniej, tym lepiej. Falstart daje karę 1000 ms.",
+        share:"⚡ WYZWANIE DLA ZNAJOMEGO",again:"ZAGRAJ PONOWNIE",back:"← PROJECT 99",noAccount:"ZA DARMO · BEZ KONTA · BEZ KAMERY",
+        note:"Gra rozrywkowa. Czas zależy od telefonu i opóźnienia ekranu. To nie jest oficjalny pomiar reakcji sportowca.",
+        copy:"LINK SKOPIOWANY ✓",shareTitle:"REACTION 99 — pobij mój czas!",shareText:(ms,url)=>"⚡ Mój wynik w REACTION 99: "+ms+" ms (3 próby). Pobijesz mnie? "+url,
+        tapped:"DOTKNIJ, ABY ZACZĄĆ",prize:"Nowy rekord dzisiaj!"
+      }
+    };
+    const t = phrases[pl ? "pl" : "en"];
+    document.documentElement.lang = pl ? "pl" : "en";
+    const $ = id => document.getElementById(id);
+    $("heading").innerHTML=t.heading;
+    $("instruction").textContent=t.intro;
+    $("roundLabel").textContent=t.round;
+    $("bestLabel").textContent=t.best;
+    $("resultLabel").textContent=t.resultLabel;
+    $("shareBtn").textContent=t.share;
+    $("againBtn").textContent=t.again;
+    $("backLink").textContent=t.back;
+    $("noAccount").textContent=t.noAccount;
+    $("note").textContent=t.note;
+
+    const stage = $("stage");
+    const rounds = 3;
+    const dateKey = new Date().toISOString().slice(0,10);
+    const storageKey = "p99_reaction_best_"+dateKey;
+    let state = "ready", times = [], signalAt = 0, signalTimer = 0, missTimer = 0, average = null;
+    function safeRead() { try { const n=Number(localStorage.getItem(storageKey));return Number.isFinite(n)&&n>0?n:null; } catch { return null; } }
+    function safeWrite(ms) { try { localStorage.setItem(storageKey,String(ms)); } catch {} }
+    function updateBest() {
+      const best=safeRead();
+      $("bestValue").textContent=best===null?"—":best+" ms";
+    }
+    function progress() {
+      const index = Math.min(times.length,rounds);
+      $("roundValue").textContent=Math.min(index+1,rounds)+" / "+rounds;
+      Array.from($("dots").children).forEach((el,i)=>{
+        el.className="dot"+(i<index?" completed":i===index&&state!=="done"?" current":"");
+      });
+    }
+    function paint(mode, glyph, title, hint) {
+      state=mode;
+      stage.className="stage "+mode;
+      $("glyph").textContent=glyph;
+      $("stageTitle").textContent=title;
+      $("stageHint").textContent=hint;
+      stage.setAttribute("aria-label",title+". "+hint);
+      progress();
+    }
+    function clearTimers(){ clearTimeout(signalTimer); clearTimeout(missTimer);signalTimer=0;missTimer=0; }
+    function startRound() {
+      if (times.length>=rounds) return showSummary();
+      clearTimers();
+      $("summary").hidden=true;
+      $("endActions").hidden=true;
+      paint("waiting","✋",t.wait,t.waitHint);
+      const delay=1400+Math.floor(Math.random()*2400);
+      signalTimer=setTimeout(()=>{
+        signalTimer=0;
+        signalAt=performance.now();
+        paint("go","⚡",t.go,t.goHint);
+        missTimer=setTimeout(()=>{ if(state==="go") finish(2000,"late"); },2000);
+      },delay);
+    }
+    function finish(ms,kind) {
+      if(state!=="waiting"&&state!=="go")return;
+      clearTimers();
+      const value = Math.max(0,Math.round(ms));
+      times.push({ms:value,kind});
+      const isLast=times.length>=rounds;
+      if(kind==="early") paint("between","🚫",t.early,t.earlyHint);
+      else if(kind==="late") paint("between","⌛",t.late,t.lateHint);
+      else paint("between","🎯",value+" ms",isLast?t.resultsHint:t.nextHint);
+      if(kind!=="valid") {
+        $("stageHint").textContent=(kind==="early"?t.earlyHint:t.lateHint)+" · "+(isLast?t.results:t.next);
+      } else if(isLast) {
+        $("stageHint").textContent=t.results+" · "+t.resultsHint;
+      } else {
+        $("stageHint").textContent=t.next+" · "+t.nextHint;
+      }
+    }
+    function showSummary() {
+      clearTimers();
+      average=Math.round(times.reduce((a,b)=>a+b.ms,0)/rounds);
+      const previous=safeRead();
+      const newBest=previous===null||average<previous;
+      if(newBest) safeWrite(average);
+      updateBest();
+      $("finalScore").textContent=String(average);
+      $("verdict").textContent=average<200?t.verdictFast:average<320?t.verdictGood:t.verdictOkay;
+      $("resultDetail").textContent=t.detail+(newBest?" "+t.prize:"");
+      $("attempts").replaceChildren(...times.map((x,i)=>{
+        const el=document.createElement("div");el.className="attempt";
+        const label=document.createElement("small");label.textContent=(pl?"PRÓBA ":"ROUND ")+(i+1);
+        const val=document.createElement("span");val.textContent=x.ms+" ms";
+        el.append(label,val);return el;
+      }));
+      $("summary").hidden=false;
+      $("endActions").hidden=false;
+      paint("done","🏆",t.done,t.doneHint);
+    }
+    function reset() {
+      clearTimers();times=[];average=null;
+      $("summary").hidden=true;$("endActions").hidden=true;
+      paint("ready","⚡",t.start,t.startHint);
+    }
+    function interact() {
+      if(state==="ready"){startRound();return;}
+      if(state==="waiting"){finish(1000,"early");return;}
+      if(state==="go"){finish(Math.min(2000,performance.now()-signalAt),"valid");return;}
+      if(state==="between"){times.length>=rounds?showSummary():startRound();return;}
+      if(state==="done"){reset();startRound();}
+    }
+    stage.addEventListener("pointerdown",e=>{e.preventDefault();interact();});
+    stage.addEventListener("click",e=>{if(e.detail===0)interact();});
+    $("againBtn").addEventListener("click",()=>{reset();startRound();});
+    $("shareBtn").addEventListener("click",async()=>{
+      if(average===null)return;
+      const url="https://project99.appforge99.com/reaction99/";
+      const shareData={title:t.shareTitle,text:t.shareText(average,url),url};
+      try {
+        if(navigator.share){await navigator.share(shareData);return;}
+        if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(shareData.text);$("shareBtn").textContent=t.copy;return;}
+      } catch (err){if(err?.name==="AbortError")return;}
+      const temp=document.createElement("textarea");temp.value=shareData.text;document.body.appendChild(temp);temp.select();try{document.execCommand("copy");$("shareBtn").textContent=t.copy;}catch{}temp.remove();
+    });
+    document.addEventListener("visibilitychange",()=>{
+      if(document.hidden&&(state==="waiting"||state==="go")){clearTimers();paint("ready","⚡",t.start,t.startHint);}
+    });
+    updateBest();reset();
+  })();
+  </script>
+</body>
+</html>
