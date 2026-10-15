@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#132a2a">
-<title>JUMP 99: Kwiat Paproci — PROJECT 99</title>
+<title>JUMP 99: Kwiat Paproci — PROJECT 99 (v2)</title>
 <meta name="description" content="JUMP 99: Kwiat Paproci. Trzy słowiańskie krainy. Jedno dotknięcie, żeby skoczyć.">
 <meta property="og:title" content="JUMP 99 — Kwiat Paproci">
 <meta property="og:description" content="Bór Leszego, Bagna Rusałki i Jaskinia Smoka. Zdobądź Kwiat Paproci!">
@@ -15,6 +15,7 @@ body{background:radial-gradient(ellipse at top,#28504b,#13242c 40%,#080e1b 95%);
 main{max-width:490px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 9px) 10px calc(env(safe-area-inset-bottom) + 10px);display:flex;flex-direction:column;align-items:center;gap:9px}
 header{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:40px}
 a{color:#e5ffbd;text-decoration:none}header a{font-size:16px;font-weight:1000;letter-spacing:1px}header a strong{color:#dff279}
+header .buttons{display:flex;gap:5px}
 header small{font-size:10px;font-weight:850;color:#a7c7b7;letter-spacing:1px}
 header button{border:1px solid #638273;background:#183c3e;color:white;border-radius:11px;font-size:18px;height:36px;min-width:41px;cursor:pointer}
 .frame{position:relative;overflow:hidden;border-radius:21px;border:2px solid #577666;box-shadow:0 22px 70px #0008;background:#25443d;width:min(100%,420px,calc((100svh - 159px)*.60));min-width:min(100%,265px);aspect-ratio:3/5;touch-action:none}
@@ -34,6 +35,8 @@ h1 span{color:#d5fb9e}
 .btn.alt{background:#345558;color:#fff;box-shadow:none;border:1px solid #7ea394;font-size:14px;min-height:44px;margin-top:11px}
 .result{font-size:28px;font-weight:1000;color:#f9e293;margin:0 0 11px}
 .controls{display:flex;gap:10px;width:min(100%,420px,calc((100svh - 159px)*.60));min-width:min(100%,265px);height:60px}
+.controls #bolt:not(:disabled){animation:boltGlow 1.5s ease-in-out infinite alternate}
+@keyframes boltGlow{to{box-shadow:0 0 19px #f9ed89c9,inset 0 2px #ffffff7c}}
 .controls button{border:1px solid #7ea48c;box-shadow:inset 0 2px #ffffff40;border-radius:15px;font-weight:1000;font-size:21px;touch-action:none;cursor:pointer}
 #bolt{width:36%;background:linear-gradient(120deg,#384d7b,#274263);color:#f8f6be}
 #bolt:disabled{opacity:.45}
@@ -44,13 +47,13 @@ h1 span{color:#d5fb9e}
 </head>
 <body>
 <main>
-<header><a href="../">PROJECT <strong>99</strong></a><small>JUMP 99 · BETA</small><button id="pause" aria-label="Pauza">⏸</button></header>
+<header><a href="../">PROJECT <strong>99</strong></a><small>JUMP 99 · BETA</small><div class="buttons"><button id="sound" aria-label="Dźwięk">🔊</button><button id="pause" aria-label="Pauza">⏸</button></div></header>
 <div class="frame">
 <canvas id="game" width="420" height="700" aria-label="JUMP 99 Kwiat Paproci"></canvas>
 <div class="overlay" id="overlay"></div>
 </div>
 <div class="controls"><button id="bolt">⚡ <span id="boltText">PIORUN</span></button><button id="jump">⬆ <span id="jumpText">SKOK</span></button></div>
-<div class="foot" id="foot">Dotknij ekranu = skok · Piorun usuwa przeszkody</div>
+<div class="foot" id="foot">Dotknij 2× = podwójny skok · ⚡ niszczy przeszkody</div>
 </main>
 <script>
 (()=>{
@@ -58,10 +61,10 @@ h1 span{color:#d5fb9e}
 const pl=(navigator.language||"pl").slice(0,2).toLowerCase()==="pl";
 const T=pl?{
 names:["BÓR LESZEGO","BAGNA RUSAŁKI","JASKINIA SMOKA"],worlds:["🌲 Bór Leszego","🌫️ Bagna Rusałki","🐉 Jaskinia Smoka"],
-intro:"Biegnij przez trzy słowiańskie krainy. Zbieraj bursztyny, przeskakuj przeszkody i zdobądź Kwiat Paproci!",start:"▶ ZAGRAJ",next:"▶ NASTĘPNA KRAINA",again:"↻ JESZCZE RAZ",pause:"PAUZA",resume:"▶ GRAJ DALEJ",win:"KWIAT PAPROCI ZDOBYTY!",lose:"KONIEC PRZYGODY",clear:"KRAINA ZDOBYTA!",share:"📤 UDOSTĘPNIJ WYNIK",jump:"SKOK",bolt:"PIORUN",foot:"Dotknij ekranu = skok · ⚡ usuwa przeszkody",score:"WYNIK",best:"REKORD",shield:"TARCZA",newBest:"NOWY REKORD!",points:"pkt",return:"← PROJECT 99",shareText:s=>"🌿 Mój wynik w JUMP 99: Kwiat Paproci to "+s+" pkt. Spróbuj mnie pokonać! "
+intro:"Biegnij przez trzy słowiańskie krainy! Dwa dotknięcia = podwójny skok. Piorun niszczy potwory. Zdobądź Kwiat Paproci!",start:"▶ ZAGRAJ",next:"▶ NASTĘPNA KRAINA",again:"↻ JESZCZE RAZ",pause:"PAUZA",resume:"▶ GRAJ DALEJ",win:"KWIAT PAPROCI ZDOBYTY!",lose:"KONIEC PRZYGODY",clear:"KRAINA ZDOBYTA!",share:"📤 UDOSTĘPNIJ WYNIK",jump:"SKOK",bolt:"PIORUN",foot:"Dotknij 2× = podwójny skok · ⚡ niszczy potwory",score:"WYNIK",best:"REKORD",shield:"TARCZA",newBest:"NOWY REKORD!",points:"pkt",return:"← PROJECT 99",shareText:s=>"🌿 Mój wynik w JUMP 99: Kwiat Paproci to "+s+" pkt. Spróbuj mnie pokonać! "
 }:{
 names:["LESHY'S FOREST","RUSALKA'S SWAMP","DRAGON'S CAVE"],worlds:["🌲 Leshy's Forest","🌫️ Rusalka's Swamp","🐉 Dragon's Cave"],
-intro:"Run through three Slavic worlds. Collect amber, jump over monsters, and find the legendary Fern Flower!",start:"▶ PLAY",next:"▶ NEXT WORLD",again:"↻ PLAY AGAIN",pause:"PAUSED",resume:"▶ RESUME",win:"YOU FOUND THE FERN FLOWER!",lose:"GAME OVER",clear:"WORLD CLEARED!",share:"📤 SHARE SCORE",jump:"JUMP",bolt:"THUNDER",foot:"Tap screen = jump · ⚡ clears obstacles",score:"SCORE",best:"BEST",shield:"SHIELD",newBest:"NEW RECORD!",points:"pts",return:"← PROJECT 99",shareText:s=>"🌿 My score in JUMP 99: Fern Flower is "+s+". Can you beat me? "
+intro:"Run through three Slavic worlds! Tap twice to double-jump. Thunder destroys enemies. Find the Fern Flower!",start:"▶ PLAY",next:"▶ NEXT WORLD",again:"↻ PLAY AGAIN",pause:"PAUSED",resume:"▶ RESUME",win:"YOU FOUND THE FERN FLOWER!",lose:"GAME OVER",clear:"WORLD CLEARED!",share:"📤 SHARE SCORE",jump:"JUMP",bolt:"THUNDER",foot:"Double tap = double jump · ⚡ destroys enemies",score:"SCORE",best:"BEST",shield:"SHIELD",newBest:"NEW RECORD!",points:"pts",return:"← PROJECT 99",shareText:s=>"🌿 My score in JUMP 99: Fern Flower is "+s+". Can you beat me? "
 };
 document.documentElement.lang=pl?"pl":"en";
 document.getElementById("jumpText").textContent=T.jump;
@@ -70,19 +73,41 @@ document.getElementById("foot").textContent=T.foot;
 const canvas=document.getElementById("game"),ctx=canvas.getContext("2d"),overlay=document.getElementById("overlay"),boltBtn=document.getElementById("bolt"),pauseBtn=document.getElementById("pause");
 const W=420,H=700,GROUND=526,PX=95,PW=37,PH=53,GRAV=1700,JUMP=-670;
 const plans=[
- {length:3700,gaps:[[1030,1144],[2470,2588]],traps:[[500,"log"],[1530,"wolf"],[2060,"log"],[3030,"wolf"],[3440,"log"]]},
- {length:3950,gaps:[[870,990],[2280,2400],[3150,3270]],traps:[[510,"spike"],[1390,"swamp"],[1880,"spike"],[2730,"swamp"],[3620,"spike"]]},
- {length:4300,gaps:[[940,1060],[2110,2230],[3440,3570]],traps:[[560,"bat"],[1480,"spike"],[1780,"bat"],[2700,"spike"],[3070,"bat"],[3780,"spike"]]}
+ {length:3700,gaps:[[1030,1144],[2470,2588]],traps:[[500,"log"],[790,"wolf"],[1530,"wolf"],[1790,"log"],[2060,"log"],[2790,"wolf"],[3030,"wolf"],[3440,"log"]]},
+ {length:3950,gaps:[[870,990],[2280,2400],[3150,3270]],traps:[[510,"spike"],[1135,"swamp"],[1390,"swamp"],[1640,"spike"],[1880,"spike"],[2730,"swamp"],[2910,"spike"],[3425,"swamp"],[3620,"spike"]]},
+ {length:4300,gaps:[[940,1060],[2110,2230],[3440,3570]],traps:[[560,"bat"],[1245,"spike"],[1480,"spike"],[1780,"bat"],[2450,"bat"],[2700,"spike"],[3070,"bat"],[3780,"spike"],[3990,"bat"]]}
 ];
 let mode="menu",level=0,dist=0,y=GROUND-PH,vy=0,onFloor=true,hearts=3,score=0,gems=0,shield=0,immune=0,boltCD=0,world=null,particles=[],fire=[],time=0,prev=performance.now(),best=0,record=false;
+let jumpCount=0,boltFlash=0,boltPaths=[],notice="",noticeTo=0,combo=0,lastAmberTime=-99,fireMarks=new Set(),soundOn=true,audioContext=null;
+function ping(frequency=440,duration=.08,type="triangle",volume=.07){
+ if(!soundOn)return;
+ try{
+  audioContext=audioContext||new(window.AudioContext||window.webkitAudioContext)();
+  if(audioContext.state==="suspended")audioContext.resume();
+  const osc=audioContext.createOscillator(),gain=audioContext.createGain(),at=audioContext.currentTime;
+  osc.type=type;osc.frequency.setValueAtTime(frequency,at);
+  osc.frequency.exponentialRampToValueAtTime(Math.max(90,frequency*.66),at+duration);
+  gain.gain.setValueAtTime(volume,at);gain.gain.exponentialRampToValueAtTime(.001,at+duration);
+  osc.connect(gain);gain.connect(audioContext.destination);osc.start(at);osc.stop(at+duration);
+ }catch(e){}
+}
+function announce(message,seconds=1.5){notice=message;noticeTo=time+seconds;}
+function vibrate(){try{if(navigator.vibrate)navigator.vibrate(30)}catch(e){}}
+
 try{best=Number(localStorage.getItem("p99_fern_best")||0)||0}catch{}
 function makeWorld(index){
-const cfg=plans[index],amber=[];
-for(let x=285;x<cfg.length-100;x+=140){
- if(cfg.gaps.some(g=>x>g[0]-34&&x<g[1]+39)||cfg.traps.some(t=>Math.abs(t[0]-x)<68))continue;
- amber.push({x,y:Math.floor(x/140)%5===2?405:479,taken:false});
-}
-return {length:cfg.length,gaps:cfg.gaps,traps:cfg.traps.map(([x,kind])=>({x,kind,dead:false})),amber,bonuses:[{x:1215,kind:"shield",taken:false},{x:2850,kind:"heart",taken:false}]};
+ const cfg=plans[index],amber=[];
+ for(let x=230;x<cfg.length-100;x+=116){
+  if(cfg.gaps.some(g=>x>g[0]-25&&x<g[1]+48)||cfg.traps.some(t=>Math.abs(t[0]-x)<56))continue;
+  const high=Math.floor(x/116)%5===2||Math.floor(x/116)%5===3;
+  amber.push({x,y:high?402:479,taken:false});
+ }
+ return {
+  length:cfg.length,gaps:cfg.gaps,
+  traps:cfg.traps.map(([x,kind])=>({x,kind,dead:false})),
+  amber,
+  bonuses:[{x:1230,kind:"shield",taken:false},{x:1730,kind:"bolt",taken:false},{x:2890,kind:"heart",taken:false},{x:3350,kind:"bolt",taken:false}]
+ };
 }
 function box(x,y,w,h){return {x,y,w,h}}
 function overlaps(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
@@ -97,7 +122,7 @@ function bg(){
  const color=[["#123d40","#276552","#164337"],["#262846","#5d6776","#355064"],["#3a2037","#b06445","#643847"]][level],grad=ctx.createLinearGradient(0,0,0,H);
  grad.addColorStop(0,color[0]);grad.addColorStop(.7,color[1]);grad.addColorStop(1,color[2]);r(0,0,W,H,grad);
  ball(334-dist*.018,118,67,"#ffe9a824");ball(334-dist*.018,118,36,level===2?"#ffa36d":"#e9e7c7");
- for(let i=0;i<18;i++){ball(mod(i*105-dist*.14,W+40),70+i*39%355,1.4+(i%3),level===2?"#ffe2a080":"#e0f2d080")}
+ for(let i=0;i<29;i++){const fx=mod(i*73+Math.sin(time*1.4+i)*17-dist*.16,W+40);const fy=88+i*49%380+Math.sin(time*2+i)*10;ball(fx,fy,2+(i%3),level===2?"#ffba7b90":"#e6ff9b9e");if(i%4===0)ball(fx,fy,7,"#f6ed8a20");}
  poly([[0,H],[0,411+Math.sin(dist/150)*18],[90,362],[210,425],[290,375],[420,410],[420,H]],level===2?"#4c2b3e":level===1?"#334a64":"#1d5450");
  if(level===0){
   for(let i=0;i<10;i++){
@@ -200,8 +225,38 @@ function dragon(now){
  poly([[x+97,yy+37],[x+145,yy+46],[x+101,yy+53]],"#d58d62");
 }
 function effects(){
- for(const p of particles)ball(p.x,p.y,Math.max(1,3*p.life),p.c);
+ for(const p of particles){
+  ctx.globalAlpha=Math.min(1,Math.max(0,p.life*1.5));
+  ball(p.x,p.y,Math.max(1,4.5*p.life),p.c);
+ }
+ ctx.globalAlpha=1;
 }
+function electric(now){
+ if(boltFlash<=0)return;
+ const life=Math.min(1,boltFlash/.45);
+ ctx.save();ctx.globalAlpha=Math.min(1,life*1.3);
+ r(0,0,W,H,"#c6f3ff"+(Math.round(Math.min(.22,life*.19)*255)).toString(16).padStart(2,"0"));
+ for(const dest of boltPaths){
+  const x=dest.x,y1=105,y2=dest.y;
+  ctx.lineJoin="round";ctx.lineCap="round";
+  for(const [thick,color] of [[13,"#5fcfff"],[6,"#d9fcff"],[2,"#ffffff"]]){
+   ctx.beginPath();ctx.moveTo(x+18,-15);ctx.lineTo(x-9,65);
+   let yy=65,step=0;
+   while(yy<y2){
+    yy=Math.min(y2,yy+28);
+    ctx.lineTo(x+Math.sin(now*.03+step*2.7)*19,yy);step++;
+   }
+   ctx.lineWidth=thick*life;ctx.strokeStyle=color;ctx.stroke();
+  }
+  ball(x,y2,15+15*(1-life),"#dfffff");
+  for(let j=0;j<7;j++){
+   const angle=j*Math.PI*2/7+now*.004;
+   stroke(x,y2,x+Math.cos(angle)*(24+life*35),y2+Math.sin(angle)*(24+life*35),"#fffdba",3*life);
+  }
+ }
+ ctx.restore();
+}
+
 function burst(x,y,c,n=9){
  for(let i=0;i<n;i++){const a=i*6.283/n;particles.push({x,y,vx:Math.cos(a)*120,vy:Math.sin(a)*120,life:.65,c})}
 }
@@ -210,10 +265,13 @@ function hud(){
  text(T.names[level],24,33,15,"#e6f9df");
  text((level+1)+" / 3",24,53,12,"#c2d6b6");
  text("🟠 "+gems,232,39,19,"#ffe4a4");
+ if(combo>=3&&time-lastAmberTime<2.8){round(143,92,129,28,"#3e6837e0");text("✨ x"+Math.min(5,1+Math.floor(combo/5)),207,112,16,"#fff5b9","center");}
  for(let i=0;i<3;i++)text(i<hearts?"♥":"♡",334+i*22,38,22,i<hearts?"#ff8793":"#99a2a1");
  round(24,63,372,6,"#51666a");round(24,63,Math.min(372,372*((dist+PX)/world.length)),6,"#d7ec94");
  if(shield){round(12,90,115,27,"#244f55dc");text("✦ "+T.shield,24,109,12,"#c7fff0");}
  if(boltCD>0){round(305,90,102,28,"#23384ddc");text("⚡ "+Math.ceil(boltCD)+"s",355,110,13,"#e2f6be","center");}
+ else{round(293,90,114,28,"#2e6b49dc");text("⚡ "+(pl?"GOTOWY":"READY"),348,110,12,"#f5ffc8","center");}
+ if(notice&&noticeTo>time){round(43,141,334,39,"#0b2834e8");text(notice,210,166,15,"#f5fbb4","center");}
 }
 function draw(now){
  bg();dragon(now);ground();
@@ -222,13 +280,13 @@ function draw(now){
   const x=bonus.x-dist;
   if(x>-30&&x<W+30){
    ball(x,463+Math.sin(now*.004)*5,23,"#b5ffb92d");
-   ball(x,463+Math.sin(now*.004)*5,16,bonus.kind==="shield"?"#65d2ba":"#ef9aaa");
-   text(bonus.kind==="shield"?"✦":"♥",x,471+Math.sin(now*.004)*5,23,"#fff","center");
+   ball(x,463+Math.sin(now*.004)*5,16,bonus.kind==="shield"?"#65d2ba":bonus.kind==="bolt"?"#e5b657":"#ef9aaa");
+   text(bonus.kind==="shield"?"✦":bonus.kind==="bolt"?"⚡":"♥",x,471+Math.sin(now*.004)*5,23,"#fff","center");
   }
  }
  for(const o of world.traps)enemy(o,now);
  for(const f of fire){ball(f.x-dist,f.y,17,"#ff8f5259");ball(f.x-dist,f.y,10,"#fb623e");ball(f.x-dist-3,f.y-3,4,"#ffda69")}
- hero(now);effects();hud();
+ hero(now);effects();electric(now);hud();
 }
 function panel(kind){
  mode=kind;let title="",desc="",icon="🌿",buttons="",extra="";
@@ -256,13 +314,14 @@ function panel(kind){
  overlay.hidden=false;
 }
 function begin(){
- level=0;dist=0;world=makeWorld(0);y=GROUND-PH;vy=0;onFloor=true;hearts=3;score=0;gems=0;shield=0;immune=0;boltCD=0;particles=[];fire=[];mode="playing";overlay.hidden=true;
+ level=0;dist=0;world=makeWorld(0);y=GROUND-PH;vy=0;onFloor=true;hearts=3;score=0;gems=0;shield=0;immune=0;boltCD=0;particles=[];fire=[];mode="playing";overlay.hidden=true;jumpCount=0;combo=0;lastAmberTime=-99;boltPaths=[];boltFlash=0;notice="";fireMarks=new Set();ping(590,.13);
 }
 function next(){
- level++;dist=0;world=makeWorld(level);y=GROUND-PH;vy=0;onFloor=true;immune=1;fire=[];boltCD=0;mode="playing";overlay.hidden=true;
+ level++;dist=0;world=makeWorld(level);y=GROUND-PH;vy=0;onFloor=true;immune=1;fire=[];boltCD=0;mode="playing";overlay.hidden=true;jumpCount=0;combo=0;lastAmberTime=-99;boltPaths=[];boltFlash=0;notice="";fireMarks=new Set();ping(690,.18);
 }
 function hurt(pit=false){
  if(immune>0&&!pit)return;
+ ping(170,.22,"sawtooth");vibrate();
  if(shield){shield=0;immune=1.3;if(!pit)return;}
  else{hearts--;immune=1.5;}
  if(hearts<=0){panel("lose");return}
@@ -270,20 +329,48 @@ function hurt(pit=false){
   const wx=dist+PX+PW/2;
   const g=world.gaps.find(a=>wx>a[0]-80&&wx<a[1]+350);
   dist=Math.max(0,(g?g[0]-250:wx-350)-PX);
-  y=GROUND-PH;vy=0;onFloor=true;fire=[];
+  y=GROUND-PH;vy=0;onFloor=true;jumpCount=0;fire=[];
  }
 }
 function jump(){
  if(mode!=="playing")return;
- if(onFloor){vy=JUMP;onFloor=false;burst(PX+10,GROUND,"#d7edab",5);}
+ if(onFloor || jumpCount<2){
+  const second=!onFloor;
+  vy=second?JUMP*.87:JUMP;onFloor=false;jumpCount=second?2:1;
+  burst(PX+15,y+PH,second?"#baf9ff":"#e1ffc4",second?13:6);
+  if(second)announce(pl?"✨ PODWÓJNY SKOK!":"✨ DOUBLE JUMP!",.75);
+  ping(second?690:440,.085,"triangle",.05);
+ }
 }
 function thunder(){
  if(mode!=="playing"||boltCD>0)return;
- boltCD=7.5;burst(180,260,"#d0f3fe",30);
+ // Eligible visible targets and those about to enter the screen.
+ const targetList=[];
  for(const o of world.traps){
-  if(!o.dead&&o.x-dist>PX&&o.x-dist<395){o.dead=true;score+=25;burst(o.x-dist,GROUND-35,"#dffbff",13);}
+  const sx=o.x-dist;
+  if(!o.dead&&sx>PX+20&&sx<W+74)targetList.push({kind:"trap",obj:o,x:Math.min(W-18,sx+20),y:o.kind==="bat"?GROUND-98:GROUND-40});
  }
- for(const f of fire)if(f.x-dist>PX&&f.x-dist<410){f.dead=true;burst(f.x-dist,f.y,"#fff3c7",10);}
+ for(const f of fire){
+  const sx=f.x-dist;
+  if(!f.dead&&sx>PX+20&&sx<W+60)targetList.push({kind:"fire",obj:f,x:Math.min(W-18,sx),y:f.y});
+ }
+ boltPaths=targetList.length?targetList.map(t=>({x:t.x,y:t.y})):[{x:240,y:365}];
+ boltFlash=.5;
+ burst(240,322,"#efffff",18);
+ ping(230,.28,"sawtooth",.085);vibrate();
+ if(targetList.length===0){
+  announce(pl?"⚡ BRAK CELU — PIORUN NADAL GOTOWY":"⚡ NO TARGET — THUNDER READY",1.8);
+  return; // no cooldown when nothing can be hit
+ }
+ boltCD=5.0;
+ for(const target of targetList){
+  target.obj.dead=true;
+  if(target.kind==="trap")score+=35;
+  else score+=15;
+  burst(target.x,target.y,"#d9f9ff",28);
+ }
+ fire=fire.filter(f=>!f.dead);
+ announce((pl?"⚡ ZNISZCZONO: ":"⚡ DESTROYED: ")+targetList.length,1.8);
 }
 function finishWorld(){
  score+=200+hearts*50;
@@ -293,10 +380,12 @@ function finishWorld(){
 }
 function update(dt){
  time+=dt;
+ boltFlash=Math.max(0,boltFlash-dt);
  particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt});
  particles=particles.filter(p=>p.life>0);
  if(mode!=="playing")return;
  immune=Math.max(0,immune-dt);boltCD=Math.max(0,boltCD-dt);
+ if(time-lastAmberTime>2.8)combo=0;
  dist+=([228,241,257][level])*dt;
  const wx=dist+PX+PW/2,gap=world.gaps.find(g=>wx>g[0]&&wx<g[1]);
  if(onFloor){
@@ -305,25 +394,29 @@ function update(dt){
  }
  if(!onFloor){
   const oldFoot=y+PH;vy+=GRAV*dt;y+=vy*dt;
-  if(vy>=0&&oldFoot<=GROUND+15&&y+PH>=GROUND&&!gap){y=GROUND-PH;vy=0;onFloor=true}
+  if(vy>=0&&oldFoot<=GROUND+15&&y+PH>=GROUND&&!gap){y=GROUND-PH;vy=0;onFloor=true;jumpCount=0;}
   if(y>H+25){hurt(true);if(mode!=="playing")return}
  }
  const h=box(PX+5,y+4,PW-10,PH-7);
  for(const g of world.amber){
   if(!g.taken&&Math.abs(g.x-dist-PX)<33&&overlaps(h,box(g.x-dist-12,g.y-16,24,32))){
-   g.taken=true;gems++;score+=10;burst(g.x-dist,g.y,"#ffdc84",7);
+   g.taken=true;gems++;combo++;lastAmberTime=time;const multiplier=Math.min(5,1+Math.floor(combo/5));score+=10*multiplier;burst(g.x-dist,g.y,"#ffdc84",multiplier>1?14:7);if(multiplier>1&&combo%5===0){announce("✨ COMBO x"+multiplier,1.0);ping(790,.08);}
   }
  }
  for(const b of world.bonuses)if(!b.taken&&overlaps(h,box(b.x-dist-18,443,36,43))){
-  b.taken=true;if(b.kind==="shield")shield=1;else hearts=Math.min(3,hearts+1);
-  burst(b.x-dist,465,"#b4ffe6",12);
+  b.taken=true;if(b.kind==="shield")shield=1;else if(b.kind==="bolt")boltCD=0;else hearts=Math.min(3,hearts+1);
+  announce(b.kind==="shield"?"✦ "+T.shield:b.kind==="bolt"?"⚡ "+(pl?"ODNOWIONY PIORUN":"THUNDER REFILLED"):"♥ +1",1.4);
+  burst(b.x-dist,465,"#b4ffe6",16);ping(890,.16);
  }
  for(const o of world.traps)if(!o.dead&&overlaps(h,obstacleBounds(o))){
   o.dead=true;hurt();if(mode!=="playing")return;
  }
  if(level===2){
-  for(const mark of [3280,3660,4020])if(dist>mark&&dist-mark<([228,241,257][level]*dt)){
-   fire.push({x:dist+450,y:mark===3660?GROUND-92:GROUND-28});
+  for(const mark of [3280,3660,4020])if(dist>=mark&&!fireMarks.has(mark)){
+   fireMarks.add(mark);
+   fire.push({x:dist+450,y:mark===3660?GROUND-92:GROUND-28,dead:false});
+   announce(pl?"🐉 SMOK ZIONIE OGNIEM!":"🐉 DRAGON FIRE!",1.5);
+   ping(160,.25,"sawtooth");
   }
  }
  for(const f of fire){
@@ -363,10 +456,13 @@ window.addEventListener("keydown",e=>{
  if(e.code==="KeyP"||e.code==="Escape"){if(mode==="playing")panel("pause");else if(mode==="pause"){mode="playing";overlay.hidden=true}}
 });
 document.addEventListener("visibilitychange",()=>{if(document.hidden&&mode==="playing")panel("pause")});
+const soundBtn=document.getElementById("sound");
+soundBtn.addEventListener("click",()=>{soundOn=!soundOn;soundBtn.textContent=soundOn?"🔊":"🔇";if(soundOn)ping(650,.1);});
 function frame(now){
  const dt=Math.min(.033,Math.max(0,(now-prev)/1000));prev=now;
  update(dt);draw(now);
  boltBtn.disabled=mode!=="playing"||boltCD>0;
+ document.getElementById("boltText").textContent=boltCD>0?Math.ceil(boltCD)+"s":T.bolt;
  pauseBtn.textContent=mode==="pause"?"▶":"⏸";
  requestAnimationFrame(frame);
 }
