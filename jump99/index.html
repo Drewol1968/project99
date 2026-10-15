@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#11122e">
+<meta name="description" content="JUMP 99 - A fast one-touch arcade runner. Tap to jump, dodge obstacles and beat your best score.">
+<meta property="og:title" content="JUMP 99 — How far can you go?">
+<meta property="og:description" content="One tap. One jump. Beat your high score.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://project99.appforge99.com/jump99/">
+<link rel="canonical" href="https://project99.appforge99.com/jump99/">
+<title>JUMP 99 — PROJECT 99</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#12152b;touch-action:none;-webkit-user-select:none;user-select:none}
+#app{position:relative;width:100%;height:100dvh;overflow:hidden;background:#24285c}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.hud{position:absolute;top:calc(env(safe-area-inset-top) + 14px);left:14px;right:14px;z-index:3;display:flex;justify-content:space-between;align-items:flex-start;gap:9px;pointer-events:none}
+.logo{color:#fff;font-size:13px;letter-spacing:1.2px;font-weight:1000;text-shadow:0 2px 12px #0007;text-decoration:none;pointer-events:auto;padding-top:3px}.logo b{color:#f9e978}
+.counters{display:flex;align-items:center;gap:7px}
+.counter{border:1px solid #ffffff7a;box-shadow:0 4px 15px #1b174739;background:#10152f9e;backdrop-filter:blur(9px);border-radius:13px;padding:7px 10px;min-width:76px;text-align:center}
+.counter small{display:block;color:#c7dbff;font-weight:950;font-size:9px;letter-spacing:1.3px;margin-bottom:2px}
+.counter strong{display:block;color:#fff;font-size:21px;line-height:1.12;font-variant-numeric:tabular-nums;letter-spacing:-.8px;font-weight:1000}
+.counter.best strong{color:#ffe773}
+.help{position:absolute;top:calc(env(safe-area-inset-top) + 91px);left:50%;transform:translateX(-50%);z-index:3;text-align:center;color:#fff;background:#172350cf;border:1px solid #9ba4ec99;border-radius:40px;padding:9px 15px;font-size:13px;font-weight:1000;letter-spacing:.25px;white-space:nowrap;box-shadow:0 6px 25px #0004;pointer-events:none;transition:opacity .25s}
+.help.hidden{opacity:0}
+.overlay{position:absolute;z-index:8;inset:0;display:flex;justify-content:center;align-items:center;overflow:auto;padding:calc(env(safe-area-inset-top) + 20px) 18px calc(env(safe-area-inset-bottom) + 20px);background:linear-gradient(180deg,#12153883,#14162dae)}
+.overlay[hidden]{display:none}
+.modal{width:min(100%,390px);border:1px solid #ffffff6d;border-radius:28px;padding:24px 20px 19px;background:linear-gradient(150deg,#33386eea,#171f43f8);box-shadow:0 22px 70px #10102295;backdrop-filter:blur(13px);text-align:center}
+.emoji{font-size:58px;filter:drop-shadow(0 7px 10px #0003);margin:0 0 3px;line-height:1.2}
+.kicker{font-size:11px;letter-spacing:2.9px;color:#e3e5ff;font-weight:950;margin:5px 0 9px}
+.modal h1,.modal h2{font-weight:1000;letter-spacing:-2px;font-size:clamp(42px,12vw,56px);line-height:.98;color:#fff;margin:0 0 14px}
+.modal h1 span,.modal h2 span{color:#ffe773}
+.modal p{font-size:16px;line-height:1.42;color:#ebefff;margin:0 auto 17px;max-width:300px}
+.modal .how{font-size:13px;color:#c9d7f6;margin-bottom:19px}
+.btn{border:0;cursor:pointer;width:100%;border-radius:18px;min-height:60px;font:1000 20px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.6px;background:linear-gradient(125deg,#fff398,#ffc44a);color:#222239;box-shadow:0 7px 0 #a57637,0 16px 25px #0004;touch-action:manipulation}
+.btn:active{transform:translateY(4px);box-shadow:0 3px 0 #a57637,0 8px 19px #0005}
+.btn.secondary{min-height:46px;background:#394878;box-shadow:none;border:1px solid #7c89b7;color:white;font-size:14px;margin-top:13px;letter-spacing:0}
+.rank-label{font-size:12px;color:#becbf5;font-weight:900;letter-spacing:1.4px}
+.large-score{font-size:82px;font-weight:1000;line-height:1.15;letter-spacing:-5px;font-variant-numeric:tabular-nums;color:#ffe773;text-shadow:0 5px 10px #1010224d}
+.score-details{display:flex;justify-content:center;gap:16px;margin:5px 0 19px;color:#dce8ff;font-size:14px;font-weight:850}
+.micro-note{color:#b8c7f5;font-size:11px;line-height:1.3;margin:16px 0 0}
+.bottom{position:absolute;z-index:2;bottom:calc(env(safe-area-inset-bottom) + 15px);left:50%;transform:translateX(-50%);font-size:11px;color:#e7edffbb;font-weight:850;letter-spacing:.6px;white-space:nowrap;pointer-events:none}
+@media (max-height:660px){.modal{padding:17px}.emoji{font-size:43px}.modal h1,.modal h2{font-size:38px}.modal p{font-size:14px;margin-bottom:11px}.modal .how{margin-bottom:12px}.btn{min-height:50px}.large-score{font-size:58px}}
+</style>
+</head>
+<body>
+<div id="app">
+<canvas id="field" aria-label="One-touch jumping game"></canvas>
+<div class="hud"><a class="logo" href="../">PROJECT <b>99</b></a><div class="counters"><div class="counter"><small id="scoreLabel">SCORE</small><strong id="score">0</strong></div><div class="counter best"><small id="bestLabel">BEST</small><strong id="best">0</strong></div></div></div>
+<div class="help hidden" id="help">👆 TAP ANYWHERE TO JUMP</div>
+<div class="bottom" id="foot">ONE TAP · ONE JUMP · BEAT YOUR BEST</div>
+<section class="overlay" id="startOverlay">
+<div class="modal"><div class="emoji">🌈⚡</div><div class="kicker" id="startKicker">ONE-TAP ARCADE GAME</div>
+<h1>JUMP <span>99</span></h1><p id="startDescription">Your character runs automatically. TAP the screen to jump over obstacles!</p><p class="how" id="startHow">No levels. No waiting. Just play.</p>
+<button type="button" class="btn" id="playBtn">▶ PLAY</button><div class="micro-note" id="freeNote">FREE · NO ACCOUNT · NO CAMERA</div></div>
+</section>
+<section class="overlay" id="endOverlay" hidden>
+<div class="modal"><div class="emoji" id="endEmoji">💥</div><div class="kicker" id="endKicker">GAME OVER</div><div class="rank-label" id="scoreTitle">YOUR SCORE</div><div class="large-score" id="finalScore">0</div><div class="score-details"><span id="coinsSummary">⭐ 0</span><span id="bestSummary">🏆 0</span></div>
+<h2 id="endTitle" style="font-size:28px;letter-spacing:-1px;line-height:1.14">ONE MORE TRY?</h2>
+<button type="button" class="btn" id="againBtn">↻ PLAY AGAIN</button>
+<button type="button" class="btn secondary" id="shareBtn">↗ CHALLENGE A FRIEND</button>
+</div></section>
+</div>
+<script>
+(()=>{
+"use strict";
+const messages={
+en:{score:"SCORE",best:"BEST",help:"👆 TAP ANYWHERE TO JUMP",foot:"ONE TAP · ONE JUMP · BEAT YOUR BEST",kicker:"ONE-TAP ARCADE GAME",desc:"Your character runs automatically. TAP the screen to jump over obstacles!",how:"No levels. No waiting. Just play.",play:"▶ PLAY",free:"FREE · NO ACCOUNT · NO CAMERA",over:"GAME OVER",scoreTitle:"YOUR SCORE",again:"↻ PLAY AGAIN",share:"↗ CHALLENGE A FRIEND",more:"ONE MORE TRY?",newBest:"NEW RECORD! 🏆",copy:"LINK COPIED ✓",shareTitle:"JUMP 99 — beat my high score",shareText:(n,u)=>"⚡ I scored "+n+" in JUMP 99! Think you can beat me? "+u},
+pl:{score:"PUNKTY",best:"REKORD",help:"👆 DOTKNIJ EKRANU, ABY SKOCZYĆ",foot:"DOTKNIJ · SKOCZ · POBIJ REKORD",kicker:"ZRĘCZNOŚCIÓWKA NA JEDEN DOTYK",desc:"Postać biegnie sama. DOTKNIJ ekranu, żeby przeskoczyć przeszkodę!",how:"Bez poziomów i czekania. Od razu grasz.",play:"▶ GRAJ",free:"ZA DARMO · BEZ KONTA · BEZ KAMERY",over:"KONIEC GRY",scoreTitle:"TWÓJ WYNIK",again:"↻ JESZCZE RAZ",share:"↗ WYZWANIE DLA ZNAJOMEGO",more:"SPRÓBUJ JESZCZE RAZ!",newBest:"NOWY REKORD! 🏆",copy:"LINK SKOPIOWANY ✓",shareTitle:"JUMP 99 — pobij mój rekord",shareText:(n,u)=>"⚡ Mam "+n+" punktów w JUMP 99! Pobijesz mnie? "+u},
+pt:{score:"PONTOS",best:"RECORDE",help:"👆 TOQUE PARA PULAR",foot:"UM TOQUE · UM PULO · UM RECORDE",kicker:"JOGO DE UM TOQUE",desc:"O personagem corre sozinho. TOQUE na tela para pular os obstáculos!",how:"Sem espera. É só jogar.",play:"▶ JOGAR",free:"GRÁTIS · SEM CONTA · SEM CÂMERA",over:"FIM DE JOGO",scoreTitle:"SUA PONTUAÇÃO",again:"↻ JOGAR DE NOVO",share:"↗ DESAFIE UM AMIGO",more:"TENTE OUTRA VEZ!",newBest:"NOVO RECORDE! 🏆",copy:"LINK COPIADO ✓",shareTitle:"JUMP 99 — supere meu recorde",shareText:(n,u)=>"⚡ Fiz "+n+" pontos no JUMP 99! Consegue superar? "+u},
+ja:{score:"スコア",best:"ベスト",help:"👆 タップでジャンプ",foot:"ワンタップ · ジャンプ · 記録更新",kicker:"ワンタップゲーム",desc:"キャラクターは自動で走ります。画面をタップして障害物を飛び越えよう！",how:"待ち時間なし。すぐ遊べる！",play:"▶ あそぶ",free:"無料 · 登録不要 · カメラ不要",over:"ゲームオーバー",scoreTitle:"スコア",again:"↻ もう一度",share:"↗ 友達に挑戦",more:"もう一回！",newBest:"新記録！🏆",copy:"リンクをコピーしました ✓",shareTitle:"JUMP 99 — 記録に挑戦",shareText:(n,u)=>"⚡ JUMP 99で"+n+"点！この記録を超えられる？ "+u}
+};
+const lang=(navigator.language||"en").toLowerCase();
+const l=lang.startsWith("pl")?"pl":lang.startsWith("ja")?"ja":lang.startsWith("pt")?"pt":"en";
+const t=messages[l];document.documentElement.lang=l;
+const $=id=>document.getElementById(id);
+const canvas=$("field"),ctx=canvas.getContext("2d",{alpha:false});
+const textMap={scoreLabel:"score",bestLabel:"best",help:"help",foot:"foot",startKicker:"kicker",startDescription:"desc",startHow:"how",playBtn:"play",freeNote:"free",endKicker:"over",scoreTitle:"scoreTitle",againBtn:"again",shareBtn:"share",endTitle:"more"};
+for(const [id,key] of Object.entries(textMap))$(id).textContent=t[key];
+let W=0,H=0,dpr=1,ground=0,frame=0,mode="menu",elapsed=0,travel=0,score=0,stars=0,best=0,obstacles=[],collectibles=[],particles=[],puffs=[],spawnTimer=0,randomSeed=3,flash=0,shake=0,helpTime=0,hasJumped=false,secondsInAir=0;
+const player={x:96,y:0,vy:0,r:21,grounded:true,rotation:0,squash:0,eye:0};
+const storageKey="p99_jump99_best_v1";
+function saved(){try{return Math.max(0,Number(localStorage.getItem(storageKey))||0)}catch{return 0}}
+function save(n){try{localStorage.setItem(storageKey,String(n))}catch{}}
+best=saved();$("best").textContent=String(best);
+function random(){randomSeed=(Math.imul(randomSeed,1664525)+1013904223)>>>0;return randomSeed/4294967296}
+function roundRect(x,y,w,h,r,fill){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fillStyle=fill;ctx.fill()}
+function grad(x,y,w,h,a,b){const g=ctx.createLinearGradient(x,y,x+w,y+h);g.addColorStop(0,a);g.addColorStop(1,b);return g}
+function size(){
+const oldGround=ground,oldWidth=W;
+W=Math.max(200,window.innerWidth);H=Math.max(280,window.innerHeight);dpr=Math.min(2,window.devicePixelRatio||1);
+canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);
+canvas.style.width=W+"px";canvas.style.height=H+"px";ctx.setTransform(dpr,0,0,dpr,0,0);
+ground=Math.round(H*.735);
+player.x=Math.max(75,Math.min(128,W*.245));
+if(player.grounded||!oldGround)player.y=ground-player.r;
+else player.y+=ground-oldGround;
+if(oldWidth){const diff=W-oldWidth;for(const o of obstacles)o.x+=diff*.25;for(const o of collectibles)o.x+=diff*.25;}
+}
+window.addEventListener("resize",size);
+function buzz(ms){try{if(navigator.vibrate)navigator.vibrate(ms)}catch{}}
+function spawnDust(x,y,count,color){
+ for(let i=0;i<count;i++){const theta=random()*Math.PI*2,s=25+random()*105;particles.push({x,y,vx:Math.cos(theta)*s,vy:Math.sin(theta)*s-40,life:.3+random()*.42,size:2+random()*4,color})}
+ if(particles.length>100)particles.splice(0,particles.length-100);
+}
+function begin(){
+mode="playing";$("startOverlay").hidden=true;$("endOverlay").hidden=true;
+score=0;stars=0;travel=0;elapsed=0;spawnTimer=2.25;flash=0;shake=0;helpTime=0;hasJumped=false;secondsInAir=0;
+obstacles=[];collectibles=[];particles=[];puffs=[];
+player.vy=0;player.y=ground-player.r;player.grounded=true;player.rotation=0;player.squash=0;
+randomSeed=((Date.now()>>>0)^0x1fa34b23)>>>0;
+$("score").textContent="0";$("best").textContent=String(best);
+$("help").classList.remove("hidden");$("shareBtn").textContent=t.share;
+}
+function jump(){
+if(mode==="menu"){begin();return;}
+if(mode==="over"){begin();return;}
+if(mode!=="playing")return;
+if(!player.grounded)return;
+player.vy=-Math.max(610,Math.min(700,H*.91));player.grounded=false;player.squash=.3;
+hasJumped=true;helpTime=0;$("help").classList.add("hidden");
+spawnDust(player.x,ground-4,8,"#d9faff");buzz(9);
+}
+function die(){
+if(mode!=="playing")return;
+mode="over";shake=12;flash=.7;buzz([50,30,80]);
+spawnDust(player.x,player.y,30,"#fff2a0");
+const newBest=score>best;
+if(newBest){best=score;save(best)}
+$("best").textContent=String(best);
+$("endEmoji").textContent=newBest?"🏆":"💥";
+$("endTitle").textContent=newBest?t.newBest:t.more;
+$("finalScore").textContent=String(score);
+$("bestSummary").textContent="🏆 "+best;
+$("coinsSummary").textContent="⭐ "+stars;
+$("endOverlay").hidden=false;
+}
+function spawnObstacle(){
+const speed=getSpeed();
+const w=32+Math.floor(random()*15),height=34+Math.floor(random()*15);
+const x=W+75;
+obstacles.push({x,w,h:height,type:random()<.32?"block":"spike",passed:false,phase:random()*6});
+if(random()<.73)collectibles.push({x:x+w*.5,y:ground-104-random()*23,r:11,phase:random()*7,collected:false});
+const minSpacing=Math.max(1.45,340/speed);
+spawnTimer=minSpacing+random()*.63;
+}
+function getSpeed(){return Math.min(440,245+elapsed*3.1)}
+function collisions(o){
+let bx=o.x+5,by=ground-o.h,bw=o.w-10,bh=o.h-4;
+const nearestX=Math.max(bx,Math.min(player.x,bx+bw));
+const nearestY=Math.max(by,Math.min(player.y,by+bh));
+const dx=player.x-nearestX,dy=player.y-nearestY;
+return dx*dx+dy*dy<(player.r-5)*(player.r-5);
+}
+function update(dt){
+elapsed+=dt;travel+=getSpeed()*dt;
+score=Math.floor(travel/25)+stars*20;$("score").textContent=String(score);
+const speed=getSpeed();
+spawnTimer-=dt;if(spawnTimer<=0)spawnObstacle();
+player.vy+=1650*dt;player.y+=player.vy*dt;
+if(player.y>=ground-player.r){
+if(!player.grounded){spawnDust(player.x,ground-4,5,"#f6ecaf");player.squash=.18}
+player.y=ground-player.r;player.vy=0;player.grounded=true;secondsInAir=0;
+}else{player.grounded=false;secondsInAir+=dt;}
+player.rotation=player.grounded?Math.sin(elapsed*15)*.07:Math.max(-.2,Math.min(.34,player.vy/1600));
+player.squash*=Math.max(0,1-7*dt);
+player.eye+=dt;
+for(const o of obstacles){
+o.x-=speed*dt;
+if(!o.passed&&o.x+o.w<player.x-player.r){o.passed=true;spawnDust(o.x+o.w,ground-3,6,"#fff0aa")}
+if(collisions(o)){die();return;}
+}
+obstacles=obstacles.filter(o=>o.x+o.w>-40);
+for(const c of collectibles){
+c.x-=speed*dt;c.phase+=dt*6;
+if(!c.collected&&Math.hypot(player.x-c.x,player.y-c.y)<player.r+c.r+4){
+c.collected=true;stars++;flash=.19;spawnDust(c.x,c.y,12,"#ffe775");buzz(7);
+}
+}
+collectibles=collectibles.filter(c=>!c.collected&&c.x>-30);
+if(!hasJumped){helpTime+=dt;if(helpTime>6)$("help").classList.remove("hidden");}
+for(const p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=120*dt;p.life-=dt;}
+particles=particles.filter(p=>p.life>0);
+flash=Math.max(0,flash-dt*1.7);shake=Math.max(0,shake-dt*22);
+}
+function ellipse(x,y,rx,ry,color){ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,2*Math.PI);ctx.fill();}
+function backdrop(){
+ctx.fillStyle=grad(0,0,W,H*.96,"#222a60","#78aee3");ctx.fillRect(0,0,W,H);
+const sunx=W*.79,suny=H*.23;
+const halo=ctx.createRadialGradient(sunx,suny,8,sunx,suny,135);
+halo.addColorStop(0,"#fff2bd8c");halo.addColorStop(1,"#fff2bd00");ctx.fillStyle=halo;ctx.fillRect(sunx-145,suny-145,290,290);
+ellipse(sunx,suny,47,47,"#ffe7a2");ellipse(sunx-8,suny-9,35,35,"#fff4c8");
+const cloudOffset=(travel*.045)% (W+180);
+for(let i=0;i<6;i++){
+const x=((i*133+30-cloudOffset)%(W+180)+W+180)%(W+180)-80;
+const y=H*(.19+(i%3)*.1);
+ellipse(x,y,42,13,"#e5e3f264");ellipse(x-15,y-7,25,13,"#ecedff66");ellipse(x+18,y-4,30,13,"#ffffff66");
+}
+const ridge=ground-77;
+ctx.fillStyle="#568dc0";ctx.beginPath();ctx.moveTo(0,ground);
+for(let x=0;x<=W+20;x+=16){
+const y=ridge+Math.sin((x+travel*.11)*.013)*26+Math.sin((x+travel*.11)*.028)*12;
+ctx.lineTo(x,y);
+}ctx.lineTo(W,ground);ctx.closePath();ctx.fill();
+ctx.fillStyle="#42719b";ctx.beginPath();ctx.moveTo(0,ground);
+for(let x=0;x<=W+20;x+=14){
+const y=ground-43+Math.sin((x+travel*.24)*.027)*17+Math.sin((x+travel*.24)*.056)*7;
+ctx.lineTo(x,y);
+}ctx.lineTo(W,ground);ctx.closePath();ctx.fill();
+}
+function drawGround(){
+ctx.fillStyle=grad(0,ground,W,H-ground,"#31396d","#131c3a");ctx.fillRect(0,ground,W,H-ground);
+ctx.fillStyle="#bff0ed";ctx.fillRect(0,ground-5,W,5);
+ctx.fillStyle="#77e9e688";ctx.fillRect(0,ground,W,3);
+const cell=54,shift=(travel*.7)%cell;
+for(let x=-cell-shift;x<W+cell;x+=cell){
+roundRect(x,ground+18,31,5,3,"#5e759e");
+roundRect(x+20,ground+67,18,5,2,"#3c4f85");
+}
+for(let y=ground+115;y<H;y+=60){ctx.fillStyle="#33426c58";ctx.fillRect(0,y,W,2)}
+}
+function drawStars(){
+for(const s of collectibles){
+ctx.save();ctx.translate(s.x,s.y+Math.sin(s.phase)*4);
+ctx.shadowColor="#ffdf63";ctx.shadowBlur=17;ctx.fillStyle="#ffdf68";
+ctx.beginPath();
+for(let i=0;i<10;i++){
+const angle=-Math.PI/2+i*Math.PI/5,r=i%2===0?14:6;
+const x=Math.cos(angle)*r,y=Math.sin(angle)*r;i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+}
+ctx.closePath();ctx.fill();ctx.shadowBlur=0;
+ellipse(-3,-4,2,2,"#fff9d1");
+ctx.restore();
+}
+}
+function drawObstacles(){
+for(const o of obstacles){
+const x=o.x,y=ground-o.h;
+ctx.save();ctx.shadowColor="#ff5c9d";ctx.shadowBlur=12;
+if(o.type==="spike"){
+ctx.fillStyle=grad(x,y,o.w,o.h,"#f88ac6","#fd4a9e");
+ctx.beginPath();ctx.moveTo(x+o.w/2,y);ctx.lineTo(x+o.w,ground);ctx.lineTo(x,ground);ctx.closePath();ctx.fill();
+ctx.shadowBlur=0;ctx.strokeStyle="#ffe6fb";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x+o.w/2,y+7);ctx.lineTo(x+o.w-6,ground-4);ctx.stroke();
+}else{
+roundRect(x,y,o.w,o.h,9,grad(x,y,o.w,o.h,"#ff91c5","#ef427c"));ctx.shadowBlur=0;
+roundRect(x+6,y+6,o.w-12,5,4,"#ffe8fa");
+}
+ctx.restore();
+}
+}
+function drawCharacter(){
+const x=player.x,y=player.y,r=player.r;
+ctx.save();
+ctx.globalAlpha=Math.max(.15,1-(ground-player.r-y)/140)*.32;ellipse(x+6,ground+4,28,8,"#0a2039");ctx.globalAlpha=1;
+ctx.translate(x,y);ctx.rotate(player.rotation);
+const squish=1+player.squash;ctx.scale(1+squish*.15,1-squish*.16);
+ctx.shadowColor="#a6fff5";ctx.shadowBlur=23;
+const g=ctx.createLinearGradient(-r,-r,r,r);g.addColorStop(0,"#e3fff3");g.addColorStop(.42,"#8dfadd");g.addColorStop(1,"#32bfca");
+ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fill();
+ctx.shadowBlur=0;ellipse(-6,-7,10,5,"#ffffff77");
+ellipse(-7,-1,4.3,6.3,"#132b46");ellipse(8,-1,4.3,6.3,"#132b46");
+ellipse(-8,-3,1.5,2,"#fff");ellipse(7,-3,1.5,2,"#fff");
+ctx.strokeStyle="#14566d";ctx.lineWidth=2.3;ctx.lineCap="round";ctx.beginPath();ctx.arc(.5,5,5,0,Math.PI);ctx.stroke();
+ellipse(-14,5,4,2.5,"#ff8ca188");ellipse(14,5,4,2.5,"#ff8ca188");
+ctx.restore();
+}
+function drawParticles(dt){
+for(const p of particles){
+ctx.globalAlpha=Math.max(0,Math.min(1,p.life*2));
+ellipse(p.x,p.y,p.size,p.size,p.color);
+}
+ctx.globalAlpha=1;
+}
+function frameDraw(){
+ctx.setTransform(dpr,0,0,dpr,0,0);
+ctx.save();
+if(shake>0)ctx.translate((random()-.5)*shake,(random()-.5)*shake);
+backdrop();drawGround();drawStars();drawObstacles();drawCharacter();drawParticles();
+ctx.restore();
+if(flash>0){ctx.fillStyle="rgba(255,249,222,"+flash*.65+")";ctx.fillRect(0,0,W,H);}
+}
+let previous=0;
+function tick(now){
+if(!previous)previous=now;
+let dt=Math.min(.033,(now-previous)/1000);previous=now;
+if(mode==="playing")update(dt);
+else if(mode==="menu"){travel+=dt*42;player.eye+=dt;}
+else if(mode==="over"){for(const p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;}particles=particles.filter(p=>p.life>0);flash=Math.max(0,flash-dt);shake=Math.max(0,shake-dt*22);}
+frameDraw();requestAnimationFrame(tick);
+}
+$("playBtn").addEventListener("click",e=>{e.stopPropagation();begin()});
+$("againBtn").addEventListener("click",e=>{e.stopPropagation();begin()});
+$("shareBtn").addEventListener("click",async e=>{
+ e.stopPropagation();
+ const url="https://project99.appforge99.com/jump99/";
+ const val=t.shareText(score,url);
+ try{if(navigator.share){await navigator.share({title:t.shareTitle,text:val});return;}
+ if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(val);$("shareBtn").textContent=t.copy;return;}
+ }catch(error){if(error?.name==="AbortError")return;}
+ const f=document.createElement("textarea");f.value=val;document.body.appendChild(f);f.select();
+ try{document.execCommand("copy");$("shareBtn").textContent=t.copy;}catch{}f.remove();
+});
+canvas.addEventListener("pointerdown",e=>{e.preventDefault();jump()},{passive:false});
+document.addEventListener("keydown",e=>{if(e.code==="Space"||e.code==="ArrowUp"){e.preventDefault();jump();}});
+document.addEventListener("visibilitychange",()=>{previous=0;if(document.hidden&&mode==="playing"){$("help").classList.add("hidden");}});
+size();
+requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
