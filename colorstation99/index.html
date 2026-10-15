@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101327">
+<meta name="description" content="COLOR STATION 99 — Colorful one-tap bus and passenger puzzle. 99 levels. Easy to learn, tricky to master.">
+<meta property="og:title" content="COLOR STATION 99 — Can you clear the station?">
+<meta property="og:description" content="Match buses with passengers. Three parking bays. 99 colorful puzzle levels.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://project99.appforge99.com/colorstation99/">
+<link rel="canonical" href="https://project99.appforge99.com/colorstation99/">
+<title>COLOR STATION 99 — PROJECT 99</title>
+<style>
+:root{font-family:ui-rounded,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f7f8ff;color-scheme:dark;--bg:#101327;--panel:#1d2543;--line:#364060;--muted:#bdc7e4;--accent:#f8e475}
+*{box-sizing:border-box}html{background:var(--bg);min-height:100%}
+body{margin:0;min-height:100dvh;background:radial-gradient(ellipse 140% 48% at 50% -10%,#434482 0%,#22294b 53%,#101327 100%);-webkit-tap-highlight-color:transparent}
+button{font:inherit;cursor:pointer;touch-action:manipulation}button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.app{width:min(100%,540px);margin:auto;padding:calc(14px + env(safe-area-inset-top)) 14px calc(26px + env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
+.brand{font-weight:950;color:white;text-decoration:none;font-size:17px;letter-spacing:1.3px}.brand b{color:#f8e475}
+.top-tag{border:1px solid #6e7199;border-radius:30px;font-size:10px;font-weight:900;letter-spacing:1px;padding:7px 9px;color:#ced3f2}
+.game-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+.title-small{font-size:10px;font-weight:850;letter-spacing:2px;color:#f8e475;margin:0 0 2px}
+h1{font-size:clamp(29px,8vw,41px);letter-spacing:-1.5px;line-height:1.07;margin:0;font-weight:950}
+.level-btn{border:1px solid #6777b7;background:#313a65;color:white;border-radius:15px;padding:8px 12px;text-align:center;min-width:91px;flex-shrink:0}
+.level-btn small{display:block;font-size:10px;color:#cfd7ff;font-weight:800;letter-spacing:1px}
+.level-btn strong{font-size:19px;letter-spacing:-.7px;font-variant-numeric:tabular-nums}
+.intro{font-size:13px;color:#dce3fa;line-height:1.42;margin:0 0 13px;max-width:490px}
+.stats{display:flex;gap:9px;margin-bottom:11px}
+.stat{border:1px solid #49527b;border-radius:11px;background:#202948;padding:8px 11px;flex:1;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.stat small{font-size:10px;letter-spacing:.4px;font-weight:850;color:#bfc8e9}
+.stat b{font-size:18px;color:#ffe783;font-variant-numeric:tabular-nums}
+.stage-card{background:linear-gradient(160deg,#273357,#1b2340);border:1px solid #4f5f92;border-radius:23px;padding:13px 10px 14px;box-shadow:0 17px 32px #090c1e66;margin-bottom:13px}
+.section-title{display:flex;align-items:center;justify-content:space-between;margin:0 2px 8px;font-size:11px;font-weight:900;letter-spacing:1.05px;color:#dbe5ff}
+.section-title .micro{font-size:10px;font-weight:800;color:#9eb1df;letter-spacing:0}
+.bays{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.bay{min-height:103px;border:2px dashed #586792;border-radius:16px;background:#18213b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;overflow:hidden;padding:4px;transition:background .12s}
+.bay.empty .bay-label{font-size:9px;letter-spacing:1px;color:#8194c4;font-weight:900}
+.bay.empty .bay-symbol{font-size:28px;color:#63739f}
+.bay.occupied{border-style:solid;border-color:var(--color);background:color-mix(in srgb,var(--color) 17%,#17233f)}
+.bay .bay-symbol{font-size:32px;font-weight:950;line-height:1;color:var(--color);text-shadow:0 3px 10px #0005}
+.bay .bay-counter{font-size:12px;font-weight:950;color:#fff}
+.mini-seats{display:flex;gap:4px;justify-content:center;margin-top:1px}
+.seat{height:7px;width:13px;background:#44506d;border-radius:4px}
+.seat.filled{background:var(--color)}
+.track{margin:12px 0 9px;border:2px dashed #6983a9;border-left:0;border-right:0;height:10px;opacity:.68;position:relative}
+.track:before{content:"→";position:absolute;right:8px;top:-13px;font-size:16px;color:#afc1e8;background:#202947;padding:0 8px}
+.queue-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:0 2px 8px}
+.queue-head strong{font-size:11px;letter-spacing:1px}
+.queue-head .counter{font-size:11px;font-weight:850;color:#c2d0ef;font-variant-numeric:tabular-nums}
+.queue{display:flex;align-items:center;gap:6px;min-height:69px;overflow:hidden}
+.person{position:relative;flex:1;min-width:0;max-width:63px;height:66px;border-radius:15px;background:color-mix(in srgb,var(--color) 22%,#18223c);border:1px solid color-mix(in srgb,var(--color) 65%,#fff);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0}
+.person.first{outline:3px solid #fff;outline-offset:-3px;box-shadow:0 0 20px var(--color);background:color-mix(in srgb,var(--color) 44%,#17223a)}
+.person:before{content:"";display:block;width:16px;height:16px;border-radius:50%;background:var(--color);box-shadow:0 0 0 2px #ffffff44}
+.person:after{content:"";display:block;width:25px;height:12px;border-radius:15px 15px 6px 6px;background:var(--color);margin-top:3px}
+.person .sign{font-weight:950;font-size:15px;position:absolute;right:3px;top:0;color:#fff;text-shadow:1px 1px #111}
+.queue-more{font-size:12px;font-weight:900;color:#cfd9f9}
+.arrow-next{color:#ffea88;font-size:23px;font-weight:900;line-height:1;flex-shrink:0}
+.yard{border:1px solid #4d5987;background:#171f3b;border-radius:21px;padding:13px 11px 11px;margin-bottom:12px}
+.yard-title{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px;gap:8px}
+.yard-title h2{margin:0;font-size:12px;letter-spacing:1.2px;font-weight:950}
+.yard-title .tip{font-size:10px;font-weight:800;color:#c1cceb}
+.buses{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.bus{position:relative;border:2px solid color-mix(in srgb,var(--color) 75%,white);border-radius:15px;min-height:89px;background:color-mix(in srgb,var(--color) 26%,#18223c);color:white;padding:7px 3px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:transform .12s,background .12s;box-shadow:0 4px 0 #0b1021}
+.bus:active{transform:translateY(3px);box-shadow:0 1px 0 #0b1021}
+.bus.hint{animation:glow .75s ease-in-out 3;z-index:1}
+@keyframes glow{50%{outline:4px solid #ffe179;outline-offset:1px;transform:scale(1.03)}}
+.bus .bus-mark{font-size:25px;color:var(--color);line-height:1;text-shadow:0 2px 8px #0007}
+.bus .coach{height:22px;width:min(82%,88px);border-radius:8px 9px 4px 4px;background:var(--color);display:flex;align-items:center;justify-content:space-around;padding:0 6px;position:relative;box-shadow:inset 0 -4px 0 #0002}
+.coach i{display:block;width:12px;height:11px;border-radius:3px;background:#202946;box-shadow:inset 0 2px 0 #fff8}
+.coach:after{content:"";position:absolute;bottom:-5px;left:12px;width:10px;height:10px;border-radius:50%;background:#080c1c;box-shadow:47px 0 0 #080c1c;border:2px solid #8797b8}
+.bus .bus-footer{font-size:10px;letter-spacing:.5px;font-weight:900;color:#fff;margin-top:5px}
+.bus .bus-ordinal{position:absolute;right:5px;top:4px;font-size:9px;opacity:.75}
+.empty-yard{padding:23px;text-align:center;font-size:13px;color:#b4c5e7;grid-column:span 3}
+.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}
+.tool-btn{min-height:48px;padding:7px 4px;border-radius:13px;border:1px solid #606f9e;background:#2a3558;color:#fff;font-size:12px;font-weight:850}
+.tool-btn:disabled{opacity:.35;cursor:not-allowed}
+.status{min-height:44px;border:1px solid #61719e;background:#293353;border-radius:13px;padding:11px;text-align:center;font-size:13px;font-weight:800;line-height:1.4}
+.status.warning{border-color:#ff9988;background:#583047;color:#ffe9e5}
+.status.success{border-color:#afeaa8;background:#245047;color:#efffdf}
+.bottom{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11px;margin:15px 3px;color:#a3b0d1}
+.bottom a{color:#cdd6f6;text-decoration:none}
+.footer-note{font-size:10px;line-height:1.4;color:#7f91b8;text-align:center;margin:8px}
+.overlay{position:fixed;inset:0;background:#060817d9;z-index:20;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{width:min(100%,470px);max-height:88dvh;overflow:auto;background:linear-gradient(150deg,#323c6a,#18213e);border:2px solid #7883c2;border-radius:25px;padding:21px;box-shadow:0 24px 80px #000a;text-align:center}
+.modal h2{font-size:31px;letter-spacing:-1px;margin:6px 0 10px}
+.modal p{font-size:14px;color:#d9e2fc;line-height:1.5;margin:0 0 17px}
+.trophy{font-size:56px}.stars{font-size:39px;letter-spacing:5px;color:#ffe87c}
+.modal .primary,.modal .secondary-btn{width:100%;min-height:52px;border:0;border-radius:15px;padding:10px;font-size:15px;font-weight:950;margin-top:9px}
+.modal .primary{background:#fbea74;color:#172040}.modal .secondary-btn{background:#45527d;color:#fff}
+.modal .close{margin-top:12px;background:transparent;border:0;color:#d8e4ff;padding:10px;font-size:13px;font-weight:800}
+.level-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin:12px 0}
+.level-tile{border:1px solid #6779af;background:#34426c;border-radius:11px;color:white;min-height:45px;font-size:13px;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.level-tile.current{border-color:#fff19e;background:#687334}
+.level-tile:disabled{opacity:.3}
+.level-tile span{font-size:9px;color:#ffe976;white-space:nowrap}
+[hidden]{display:none!important}
+@media(max-width:355px){.app{padding-inline:9px}.bay{min-height:91px}.bus{min-height:83px}.buses{gap:6px}.queue{gap:4px}.person{height:61px}.title-small{font-size:9px}h1{font-size:29px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="top"><a href="../" class="brand">PROJECT <b>99</b></a><span class="top-tag">COLOR STATION 99</span></header>
+<div class="game-head">
+<div><p class="title-small" id="eyebrow">ONE-TAP COLOR PUZZLE</p><h1 id="pageTitle">Color Station <span style="color:#f8e475">99</span></h1></div>
+<button class="level-btn" id="chooseLevel" type="button"><small id="levelLabel">LEVEL</small><strong id="levelValue">1 / 99</strong></button>
+</div>
+<p class="intro" id="intro">Tap a bus that matches the first passenger. Each bus takes 3 people, then leaves. Don't block all 3 bays!</p>
+<div class="stats">
+<div class="stat"><small id="movesLabel">BUSES USED</small><b id="movesValue">0</b></div>
+<div class="stat"><small id="progressLabel">PASSENGERS</small><b id="progressValue">0 / 6</b></div>
+</div>
+<section class="stage-card" aria-label="Game board">
+<div class="section-title"><span id="docksTitle">🚏 3 BUS BAYS</span><span class="micro" id="baysTip">FULL BUS LEAVES</span></div>
+<div id="bays" class="bays"></div>
+<div class="track" aria-hidden="true"></div>
+<div class="queue-head"><strong id="queueTitle">👥 PASSENGER QUEUE</strong><span id="queueCounter" class="counter">FIRST →</span></div>
+<div id="queue" class="queue" aria-label="Passenger queue"></div>
+</section>
+<section class="yard">
+<div class="yard-title"><h2 id="yardTitle">🚌 CHOOSE A BUS</h2><span id="yardTip" class="tip">TAP THE RIGHT COLOR</span></div>
+<div id="buses" class="buses"></div>
+</section>
+<div class="controls">
+<button id="undoBtn" class="tool-btn" type="button">↶ UNDO</button>
+<button id="restartBtn" class="tool-btn" type="button">↻ RESTART</button>
+<button id="hintBtn" class="tool-btn" type="button">💡 HINT</button>
+</div>
+<div id="status" class="status" role="status" aria-live="polite">Tap a bus matching the first person in line.</div>
+<div class="bottom"><span id="offlineMsg">99 levels · Free · No account</span><a href="../" id="homeLink">← Project 99</a></div>
+<p id="footerNote" class="footer-note">Game progress stays on this device.</p>
+</main>
+<div id="winOverlay" class="overlay" hidden>
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+<div class="trophy">🏆</div><div class="stars" id="winStars">★★★</div>
+<h2 id="winTitle">LEVEL CLEAR!</h2><p id="winText">Great job!</p>
+<button class="primary" id="nextLevel" type="button">NEXT LEVEL →</button>
+<button class="secondary-btn" id="shareResult" type="button">⚡ CHALLENGE A FRIEND</button>
+<button class="close" id="replayLevel" type="button">REPLAY LEVEL</button>
+</div></div>
+<div id="levelOverlay" class="overlay" hidden>
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="levelsTitle">
+<h2 id="levelsTitle">SELECT LEVEL</h2>
+<p id="levelsDesc">Clear levels to unlock more.</p>
+<div class="level-grid" id="levelGrid"></div>
+<button class="secondary-btn" id="closeLevels" type="button">CLOSE</button>
+</div></div>
+<script>
+(() => {
+"use strict";
+const i18n={
+en:{eyebrow:"ONE-TAP COLOR PUZZLE",level:"LEVEL",intro:"Tap a bus matching the first passenger. Each bus takes 3 people, then leaves. Don't block all 3 bays!",moves:"BUSES USED",progress:"PASSENGERS",docks:"🚏 3 BUS BAYS",baysTip:"FULL BUS LEAVES",queue:"👥 PASSENGER QUEUE",first:"FIRST →",yard:"🚌 CHOOSE A BUS",yardTip:"TAP THE RIGHT COLOR",undo:"↶ UNDO",restart:"↻ RESTART",hint:"💡 HINT",offline:"99 levels · Free · No account",footer:"Progress stays on this device.",empty:"EMPTY",bay:"BAY",seats:"SEATS",done:"ALL BUSES DISPATCHED!",welcome:"Find a bus that matches the first passenger. Tap it!",next:"Now choose a bus for the next passenger.",loading:"Passengers are boarding…",jam:"TRAFFIC JAM! The bays are full. Tap UNDO to try another bus.",full:"All 3 bays are full. Undo a move or use a hint.",same:"That color is already waiting in a bay.",hintPick:"The flashing bus matches the front passenger!",hintUndo:"No room. Use UNDO and choose another bus.",noHint:"Passengers are boarding. Watch the queue!",noUndo:"No moves to undo yet.",undone:"Last move undone. Try another bus.",restartMsg:"Level restarted. You can do it!",clear:"LEVEL CLEAR!",clearDetail:(n,stars)=>"You moved "+n+" buses. "+stars+" star"+(stars===1?"":"s")+" earned!",nextLevel:"NEXT LEVEL →",share:"⚡ CHALLENGE A FRIEND",replay:"REPLAY LEVEL",levels:"SELECT LEVEL",levelsDesc:"Finish levels to unlock new puzzles.",close:"CLOSE",copy:"LINK COPIED ✓",shareTitle:"COLOR STATION 99 — beat my level!",shareText:(level,stars,url)=>"🚌 I cleared level "+level+" in COLOR STATION 99 with "+stars+" ⭐! Can you beat me? "+url,full99:"PLAY LEVEL 1 AGAIN",yardEmpty:"All buses have left the parking lot",completed:"Station cleared! Great job!",winAgain:"Play the next level!" },
+pl:{eyebrow:"KOLOROWA GRA LOGICZNA",level:"POZIOM",intro:"Wybierz autobus w kolorze pierwszego pasażera. Każdy zabiera 3 osoby i odjeżdża. Nie blokuj wszystkich 3 miejsc!",moves:"AUTOBUSY",progress:"PASAŻEROWIE",docks:"🚏 3 MIEJSCA NA AUTOBUSY",baysTip:"PEŁNY ODJEDZIE",queue:"👥 KOLEJKA PASAŻERÓW",first:"PIERWSZY →",yard:"🚌 WYBIERZ AUTOBUS",yardTip:"DOTKNIJ DOBREGO KOLORU",undo:"↶ COFNIJ",restart:"↻ OD NOWA",hint:"💡 PODPOWIEDŹ",offline:"99 poziomów · Za darmo · Bez konta",footer:"Postęp zapisuje się na tym telefonie.",empty:"WOLNE",bay:"MIEJSCE",seats:"MIEJSCA",done:"AUTOBUSY ODJAZD!",welcome:"Znajdź autobus w kolorze pierwszego pasażera i go dotknij.",next:"Wybierz autobus dla pierwszego pasażera w kolejce.",loading:"Pasażerowie wsiadają…",jam:"KOREK! Wszystkie miejsca zajęte. Naciśnij COFNIJ i wybierz inny autobus.",full:"Wszystkie 3 miejsca zajęte. Cofnij ruch lub użyj podpowiedzi.",same:"Autobus tego koloru już stoi na przystanku.",hintPick:"Migający autobus pasuje do pierwszego pasażera!",hintUndo:"Brak miejsca. Kliknij COFNIJ i wybierz inny autobus.",noHint:"Pasażerowie wsiadają. Obserwuj kolejkę!",noUndo:"Nie ma jeszcze czego cofać.",undone:"Cofnięto ostatni ruch. Spróbuj inaczej.",restartMsg:"Poziom uruchomiony od nowa!",clear:"POZIOM UKOŃCZONY!",clearDetail:(n,stars)=>"Wybrane autobusy: "+n+". Zdobyte gwiazdki: "+stars+" ⭐",nextLevel:"NASTĘPNY POZIOM →",share:"⚡ WYZWANIE DLA ZNAJOMEGO",replay:"POWTÓRZ POZIOM",levels:"WYBIERZ POZIOM",levelsDesc:"Ukończ poziomy, aby odblokować następne.",close:"ZAMKNIJ",copy:"LINK SKOPIOWANY ✓",shareTitle:"COLOR STATION 99 — pobij mój wynik!",shareText:(level,stars,url)=>"🚌 Ukończyłem poziom "+level+" w COLOR STATION 99 i zdobyłem "+stars+" ⭐! Pobijesz mnie? "+url,full99:"ZAGRAJ OD POZIOMU 1",yardEmpty:"Wszystkie autobusy wyjechały z parkingu",completed:"Przystanek pusty! Brawo!",winAgain:"Przejdź do następnego poziomu!" },
+pt:{eyebrow:"DESAFIO DE CORES",level:"NÍVEL",intro:"Toque no ônibus da cor do primeiro passageiro. Cada ônibus leva 3 pessoas e sai. Não bloqueie as 3 vagas!",moves:"ÔNIBUS",progress:"PASSAGEIROS",docks:"🚏 3 VAGAS",baysTip:"LOTADO = SAI",queue:"👥 FILA DE PASSAGEIROS",first:"PRIMEIRO →",yard:"🚌 ESCOLHA UM ÔNIBUS",yardTip:"TOQUE NA COR CERTA",undo:"↶ DESFAZER",restart:"↻ REINICIAR",hint:"💡 DICA",offline:"99 níveis · Grátis · Sem conta",footer:"Seu progresso fica neste dispositivo.",empty:"LIVRE",bay:"VAGA",seats:"LUGARES",done:"TODOS SAÍRAM!",welcome:"Encontre o ônibus da cor do primeiro passageiro e toque nele.",next:"Escolha um ônibus para o primeiro passageiro.",loading:"Passageiros embarcando…",jam:"ENGARRAFAMENTO! Use DESFAZER e tente outro ônibus.",full:"As 3 vagas estão ocupadas. Desfaça uma jogada.",same:"Já existe um ônibus desta cor numa vaga.",hintPick:"O ônibus piscando combina com o primeiro passageiro!",hintUndo:"Sem vagas. Use DESFAZER.",noHint:"Embarque em andamento…",noUndo:"Nenhuma jogada para desfazer.",undone:"Jogada desfeita!",restartMsg:"Nível reiniciado!",clear:"NÍVEL COMPLETO!",clearDetail:(n,s)=>n+" ônibus usados. "+s+" estrelas!",nextLevel:"PRÓXIMO NÍVEL →",share:"⚡ DESAFIE UM AMIGO",replay:"JOGAR DE NOVO",levels:"ESCOLHER NÍVEL",levelsDesc:"Conclua níveis para desbloquear mais.",close:"FECHAR",copy:"LINK COPIADO ✓",shareTitle:"COLOR STATION 99 — desafio!",shareText:(l,s,u)=>"🚌 Completei o nível "+l+" de COLOR STATION 99 com "+s+" ⭐! Supere-me! "+u,full99:"JOGAR NÍVEL 1",yardEmpty:"Todos os ônibus saíram",completed:"Estação liberada!",winAgain:"Próximo nível!" },
+ja:{eyebrow:"ワンタップ・カラーパズル",level:"レベル",intro:"先頭の乗客と同じ色のバスをタップ！3人乗ると出発します。3つの停留所をふさがないで！",moves:"選んだバス",progress:"乗客",docks:"🚏 バス停は3つ",baysTip:"3人で出発",queue:"👥 乗客の列",first:"先頭 →",yard:"🚌 バスを選ぼう",yardTip:"同じ色をタップ",undo:"↶ 戻す",restart:"↻ やり直す",hint:"💡 ヒント",offline:"99レベル · 無料 · 登録不要",footer:"進行状況はこの端末に保存されます。",empty:"空き",bay:"停留所",seats:"座席",done:"全車出発！",welcome:"先頭の乗客と同じ色のバスを選んでね！",next:"次の乗客に合うバスを選んでね。",loading:"乗車中…",jam:"渋滞！3つの停留所が満車です。「戻す」を押そう。",full:"空きがありません。「戻す」を押してください。",same:"同じ色のバスはすでに停まっています。",hintPick:"光るバスが正解です！",hintUndo:"空きがありません。「戻す」を押してね。",noHint:"乗車中です…",noUndo:"戻せる操作がありません。",undone:"1手戻しました。",restartMsg:"やり直しました！",clear:"レベルクリア！",clearDetail:(n,s)=>"バス "+n+"台 · 星 "+s+"個獲得！",nextLevel:"次のレベル →",share:"⚡ 友達に挑戦",replay:"もう一度",levels:"レベル選択",levelsDesc:"クリアすると次のレベルが開きます。",close:"閉じる",copy:"リンクをコピーしました ✓",shareTitle:"COLOR STATION 99 に挑戦！",shareText:(l,s,u)=>"🚌 COLOR STATION 99のレベル"+l+"を星"+s+"個でクリア！挑戦してね！ "+u,full99:"レベル1から",yardEmpty:"すべてのバスが出発しました",completed:"バス停クリア！",winAgain:"次のレベルへ！"}
+};
+const tag=(navigator.language||"en").toLowerCase(), lang=tag.startsWith("pl")?"pl":tag.startsWith("ja")?"ja":tag.startsWith("pt")?"pt":"en", t=i18n[lang];
+document.documentElement.lang=lang;
+const $=id=>document.getElementById(id);
+const staticTexts={eyebrow:"eyebrow",levelLabel:"level",intro:"intro",movesLabel:"moves",progressLabel:"progress",docksTitle:"docks",baysTip:"baysTip",queueTitle:"queue",queueCounter:"first",yardTitle:"yard",yardTip:"yardTip",undoBtn:"undo",restartBtn:"restart",hintBtn:"hint",offlineMsg:"offline",footerNote:"footer",levelsTitle:"levels",levelsDesc:"levelsDesc",closeLevels:"close",winTitle:"clear",nextLevel:"nextLevel",shareResult:"share",replayLevel:"replay"};
+for(const [id,key] of Object.entries(staticTexts))$(id).textContent=t[key];
+const palette=[
+{key:"rose",hex:"#ff758f",glyph:"♥"},{key:"sky",hex:"#74b7ff",glyph:"★"},
+{key:"lemon",hex:"#ffe26b",glyph:"☀"},{key:"mint",hex:"#74e2a1",glyph:"◆"},
+{key:"purple",hex:"#d4a3ff",glyph:"☾"},{key:"orange",hex:"#ffad72",glyph:"✦"}
+];
+const colorByKey=Object.fromEntries(palette.map(x=>[x.key,x]));
+const MAX_LEVEL=99;
+const KEY_PROGRESS="p99_color_station_unlocked_v1";
+const KEY_STARS="p99_color_station_stars_v1";
+function readNumber(key,fallback){try{const n=Number(localStorage.getItem(key));return Number.isInteger(n)&&n>=1&&n<=99?n:fallback;}catch{return fallback;}}
+function readStars(){try{const v=JSON.parse(localStorage.getItem(KEY_STARS)||"{}");return v&&typeof v==="object"&&!Array.isArray(v)?v:{};}catch{return {};}}
+function store(key,v){try{localStorage.setItem(key,v);}catch{}}
+let unlocked=readNumber(KEY_PROGRESS,1),stars=readStars(),currentLevel=1,state=null,undoHistory=[],busy=false,epoch=0,feedback="",feedbackType="",hintId=null,hintTimer=0;
+const urlLevel=Number(new URLSearchParams(location.search).get("level"));
+currentLevel=Number.isInteger(urlLevel)&&urlLevel>=1&&urlLevel<=unlocked?urlLevel:Math.min(unlocked,1);
+function rng(seed){
+ let s=(seed>>>0)||12345678;
+ return()=>{s^=s<<13;s^=s>>>17;s^=s<<5;return (s>>>0)/4294967296;};
+}
+function shuffled(a,random){
+ let v=a.slice();for(let i=v.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[v[i],v[j]]=[v[j],v[i]];}return v;
+}
+function buildLevel(n){
+ const rand=rng(Math.imul(n,2654435761)+12345);
+ let waves;
+ if(n===1)waves=[["rose","sky"]];
+ else if(n===2)waves=[["mint","lemon","purple"]];
+ else if(n===3)waves=[["sky","orange"],["rose","mint"]];
+ else{
+   const waveCount=Math.min(4,2+Math.floor((n-4)/3));
+   waves=Array.from({length:waveCount},()=>shuffled(palette.map(x=>x.key),rand).slice(0,n%3===0?2:3));
+ }
+ const queue=[],buses=[];
+ for(let w=0;w<waves.length;w++){
+   const chunk=[];
+   for(const color of waves[w]){
+     const id="w"+w+"-"+color;
+     buses.push({id,color,loaded:0,status:"yard",bay:-1});
+     for(let j=0;j<3;j++)chunk.push(color);
+   }
+   const ordered=(n===1?["rose","rose","sky","rose","sky","sky"]:shuffled(chunk,rand));
+   queue.push(...ordered);
+ }
+ const yardOrder=shuffled(buses.map(x=>x.id),rand);
+ // Every wave has <=3 bus colors; there is always a solution using its matching buses.
+ return {queue,buses,yardOrder,bays:[null,null,null],pos:0,moves:0,hints:0,undos:0,complete:false};
+}
+function colorCss(color){return "--color:"+colorByKey[color].hex;}
+function snapshot(){return JSON.stringify({pos:state.pos,buses:state.buses,bays:state.bays,moves:state.moves,hints:state.hints,undos:state.undos});}
+function setStatus(message,kind=""){feedback=message;feedbackType=kind;const box=$("status");box.textContent=message;box.className="status"+(kind?" "+kind:"");}
+function render(){
+ $("levelValue").textContent=currentLevel+" / 99";
+ $("movesValue").textContent=String(state.moves);
+ $("progressValue").textContent=state.pos+" / "+state.queue.length;
+ const docks=$("bays");docks.replaceChildren();
+ for(let i=0;i<3;i++){
+   const bus=state.buses.find(x=>x.id===state.bays[i]);
+   const div=document.createElement("div");
+   if(!bus){div.className="bay empty";div.innerHTML='<span class="bay-symbol" aria-hidden="true">＋</span><span class="bay-label">'+escapeHtml(t.empty)+'</span>';}
+   else{
+     const meta=colorByKey[bus.color];
+     div.className="bay occupied";div.style.cssText=colorCss(bus.color);
+     div.innerHTML='<span class="bay-symbol">'+meta.glyph+'</span><span class="bay-counter">'+bus.loaded+' / 3</span><span class="mini-seats">'+Array.from({length:3},(_,k)=>'<span class="seat'+(k<bus.loaded?" filled":"")+'"></span>').join("")+'</span>';
+   }
+   div.setAttribute("aria-label",bus?t.bay+" "+(i+1)+": "+bus.color+", "+bus.loaded+"/3":t.bay+" "+(i+1)+": "+t.empty);
+   docks.appendChild(div);
+ }
+ const queue=$("queue");queue.replaceChildren();
+ if(state.pos>=state.queue.length){const el=document.createElement("div");el.className="empty-yard";el.textContent="🎉 "+t.completed;queue.appendChild(el);}
+ else {
+   const arrow=document.createElement("span");arrow.className="arrow-next";arrow.textContent="➜";queue.appendChild(arrow);
+   const rest=state.queue.length-state.pos;
+   const visible=Math.min(6,rest);
+   for(let i=0;i<visible;i++){
+     const color=state.queue[state.pos+i],meta=colorByKey[color];
+     const person=document.createElement("div");person.className="person"+(i===0?" first":"");person.style.cssText=colorCss(color);
+     person.setAttribute("role","img");person.setAttribute("aria-label",(i===0?t.first:"") + color);
+     const sign=document.createElement("span");sign.className="sign";sign.textContent=meta.glyph;person.appendChild(sign);queue.appendChild(person);
+   }
+   if(rest>visible){const more=document.createElement("span");more.className="queue-more";more.textContent="+"+(rest-visible);queue.appendChild(more);}
+ }
+ const yard=$("buses");yard.replaceChildren();
+ const available=state.yardOrder.map(id=>state.buses.find(b=>b.id===id)).filter(b=>b.status==="yard");
+ if(!available.length){const el=document.createElement("div");el.className="empty-yard";el.textContent="🚌 "+t.yardEmpty;yard.appendChild(el);}
+ for(const bus of available){
+   const meta=colorByKey[bus.color];
+   const b=document.createElement("button");b.type="button";b.className="bus"+(hintId===bus.id?" hint":"");
+   b.dataset.busId=bus.id;b.style.cssText=colorCss(bus.color);
+   b.disabled=busy||state.complete;
+   b.setAttribute("aria-label",bus.color+" "+meta.glyph+", "+t.seats+" 3");
+   b.innerHTML='<span class="bus-mark" aria-hidden="true">'+meta.glyph+'</span><span class="coach" aria-hidden="true"><i></i><i></i><i></i></span><span class="bus-footer">3 / 3</span>';
+   yard.appendChild(b);
+ }
+ $("undoBtn").disabled=!undoHistory.length||busy||state.complete;
+ $("restartBtn").disabled=busy;
+ $("hintBtn").disabled=busy||state.complete;
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function delay(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
+async function boardPassengers(version){
+ busy=true;render();
+ while(state.pos<state.queue.length){
+   const front=state.queue[state.pos];
+   const bayIdx=state.bays.findIndex(id=>id!==null&&state.buses.some(bus=>bus.id===id&&bus.color===front));
+   if(bayIdx<0)break;
+   setStatus(t.loading);
+   await delay(190);
+   if(version!==epoch)return;
+   const bus=state.buses.find(x=>x.id===state.bays[bayIdx]);
+   if(!bus||bus.color!==front)break;
+   bus.loaded++;state.pos++;
+   if(bus.loaded===3){bus.status="done";bus.bay=-1;state.bays[bayIdx]=null;}
+   render();
+ }
+ if(version!==epoch)return;
+ busy=false;
+ if(state.pos===state.queue.length){
+   state.complete=true;render();finishLevel();return;
+ }
+ const full=state.bays.every(Boolean);
+ setStatus(full?t.jam:t.next,full?"warning":"");
+ render();
+}
+async function placeBus(id){
+ if(busy||state.complete)return;
+ const bus=state.buses.find(x=>x.id===id);
+ if(!bus||bus.status!=="yard")return;
+ if(state.bays.some(bid=>state.buses.some(x=>x.id===bid&&x.color===bus.color))){
+   setStatus(t.same,"warning");return;
+ }
+ const free=state.bays.indexOf(null);
+ if(free===-1){setStatus(t.full,"warning");return;}
+ undoHistory.push(snapshot());
+ bus.status="bay";bus.bay=free;state.bays[free]=bus.id;state.moves++;
+ hintId=null;clearTimeout(hintTimer);
+ const v=epoch;render();await boardPassengers(v);
+}
+function undo(){
+ if(busy||!undoHistory.length||state.complete){if(!undoHistory.length)setStatus(t.noUndo);return;}
+ const last=JSON.parse(undoHistory.pop());
+ state.pos=last.pos;state.buses=last.buses;state.bays=last.bays;state.moves=last.moves;
+ state.hints=last.hints;state.undos=(last.undos||0)+1;
+ hintId=null;clearTimeout(hintTimer);setStatus(t.undone);render();
+}
+function restart(){
+ epoch++;busy=false;clearTimeout(hintTimer);hintId=null;
+ state=buildLevel(currentLevel);undoHistory=[];setStatus(currentLevel===1?t.welcome:t.restartMsg);render();
+ $("winOverlay").hidden=true;$("levelOverlay").hidden=true;
+}
+function hint(){
+ if(busy||state.complete){setStatus(t.noHint);return;}
+ if(state.bays.every(Boolean)){setStatus(t.hintUndo,"warning");return;}
+ const front=state.queue[state.pos];const bus=state.yardOrder.map(id=>state.buses.find(b=>b.id===id)).find(b=>b.color===front&&b.status==="yard");
+ if(!bus){setStatus(t.hintUndo,"warning");return;}
+ state.hints++;hintId=bus.id;render();setStatus(t.hintPick,"success");
+ clearTimeout(hintTimer);hintTimer=setTimeout(()=>{hintId=null;render();},2300);
+}
+function finishLevel(){
+ const earned=state.hints===0&&state.undos===0?3:state.hints+state.undos<=2?2:1;
+ const best=Math.max(Number(stars[currentLevel])||0,earned);
+ stars[currentLevel]=best;store(KEY_STARS,JSON.stringify(stars));
+ if(currentLevel<MAX_LEVEL){unlocked=Math.max(unlocked,currentLevel+1);store(KEY_PROGRESS,String(unlocked));}
+ $("winStars").textContent="★".repeat(earned)+"☆".repeat(3-earned);
+ $("winText").textContent=t.clearDetail(state.moves,earned);
+ $("nextLevel").textContent=currentLevel===MAX_LEVEL?t.full99:t.nextLevel;
+ $("winOverlay").hidden=false;
+ setStatus(t.completed,"success");
+}
+function goToLevel(n){
+ if(n<1||n>unlocked||n>99)return;
+ currentLevel=n;history.replaceState(null,"",location.pathname+"?level="+n);
+ restart();
+}
+function showLevels(){
+ if(busy)return;
+ const box=$("levelGrid");box.replaceChildren();
+ for(let i=1;i<=MAX_LEVEL;i++){
+   const tile=document.createElement("button");tile.type="button";tile.className="level-tile"+(i===currentLevel?" current":"");
+   tile.disabled=i>unlocked;
+   const num=document.createElement("strong");num.textContent=String(i);tile.appendChild(num);
+   const s=Number(stars[i])||0;
+   if(s>0){const tiny=document.createElement("span");tiny.textContent="★".repeat(s);tile.appendChild(tiny);}
+   tile.addEventListener("click",()=>goToLevel(i));box.appendChild(tile);
+ }
+ $("levelOverlay").hidden=false;
+}
+async function shareResult(){
+ const url="https://project99.appforge99.com/colorstation99/?level=1";
+ const earned=Number(stars[currentLevel])||1;
+ const txt=t.shareText(currentLevel,earned,url);
+ try{
+   if(navigator.share){await navigator.share({title:t.shareTitle,text:txt});return;}
+   if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(txt);$("shareResult").textContent=t.copy;return;}
+ }catch(e){if(e?.name==="AbortError")return;}
+ const field=document.createElement("textarea");field.value=txt;document.body.appendChild(field);field.select();
+ try{document.execCommand("copy");$("shareResult").textContent=t.copy;}catch{}
+ field.remove();
+}
+$("buses").addEventListener("click",e=>{const b=e.target.closest("button[data-bus-id]");if(b)void placeBus(b.dataset.busId);});
+$("undoBtn").addEventListener("click",undo);
+$("restartBtn").addEventListener("click",restart);
+$("hintBtn").addEventListener("click",hint);
+$("chooseLevel").addEventListener("click",showLevels);
+$("closeLevels").addEventListener("click",()=>{$("levelOverlay").hidden=true;});
+$("nextLevel").addEventListener("click",()=>{goToLevel(currentLevel===99?1:currentLevel+1);});
+$("replayLevel").addEventListener("click",restart);
+$("shareResult").addEventListener("click",()=>{void shareResult();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("levelOverlay").hidden=true;});
+restart();
+})();
+</script>
+</body>
+</html>
