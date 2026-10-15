@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b111d">
+<meta name="description" content="BAZYLISZEK 99: Lochy Bazyliszka. Baśniowa gra na telefon. Uciekaj przed spojrzeniem, zbieraj klucze i odbijaj wzrok lustrem.">
+<meta property="og:title" content="BAZYLISZEK 99 — Lochy Bazyliszka">
+<meta property="og:description" content="Trzy komnaty. Jedno lustro. Czy pokonasz Bazyliszka?">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://project99.appforge99.com/bazyliszek99/">
+<title>BAZYLISZEK 99 — Lochy Bazyliszka</title>
+<style>
+:root{color-scheme:dark;--gold:#ffdb87;--cream:#f5ecd7;--light:#c7d5d4;--stone:#1b2d3a;--panel:#101b27;--line:#334b53;--green:#9ef4a3;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}html{background:#0a111b}body{margin:0;color:var(--cream);min-height:100dvh;background:radial-gradient(circle at 50% -5%,#263b43,#111d27 32%,#090f19 80%);-webkit-tap-highlight-color:transparent}
+main{max-width:560px;margin:auto;padding:calc(env(safe-area-inset-top) + 10px) 12px calc(env(safe-area-inset-bottom) + 18px)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.home{text-decoration:none;color:var(--cream);letter-spacing:1.5px;font-size:12px;font-weight:900}.home b{color:var(--gold)}
+.locale{font-size:10px;letter-spacing:.8px;font-weight:900;padding:6px 10px;border:1px solid #566878;border-radius:50px;color:#d8dfe1}
+h1{font-family:Georgia,"Times New Roman",serif;text-align:center;font-weight:900;font-size:clamp(24px,6.7vw,37px);letter-spacing:.2px;color:#ffdc91;line-height:1.08;margin:7px 0 2px;text-shadow:0 2px 20px #f6aa4830}
+.tagline{text-align:center;font-size:11px;letter-spacing:2.5px;color:#9cb4af;font-weight:800;margin:0 0 12px}
+.hud{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.hud>div{background:#101d29e8;border:1px solid #3c5260;border-radius:10px;padding:8px 9px;min-width:0}
+.hud small{font-size:9px;font-weight:900;letter-spacing:1px;color:#9cb6be;display:block}
+.hud strong{font-size:15px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.hud .stretch{flex:1}.hud .health strong{color:#ff8191;letter-spacing:1px}.hud .mirror strong{color:#9af6d4}
+.viewport{position:relative;border:3px solid #5a5b51;border-radius:13px;overflow:hidden;background:#0b1720;box-shadow:0 0 0 2px #0a1118,0 14px 45px #0008}
+canvas{width:100%;height:auto;aspect-ratio:420 / 620;display:block;touch-action:none}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:22px;background:linear-gradient(180deg,#08131bdc,#111e24e9);z-index:3}
+.dialog{max-width:350px;width:100%;padding:21px 14px;text-align:center;background:linear-gradient(150deg,#1e3538ee,#10242cf5);border:1px solid #779182;border-radius:17px;box-shadow:0 15px 65px #000b}
+.dialog .sigil{font-size:65px;filter:drop-shadow(0 4px 15px #f4b84c45)}
+.dialog h2{font-family:Georgia,serif;color:#ffda89;font-size:29px;margin:7px 0 9px;line-height:1.08}
+.dialog p{font-size:14px;line-height:1.5;color:#d1ddd8;margin:0 auto 15px;max-width:295px;white-space:pre-line}
+button{font:inherit;cursor:pointer;touch-action:none}
+.action{border:0;border-radius:12px;min-height:49px;padding:12px 20px;font-weight:900;font-size:15px;background:linear-gradient(125deg,#ffd583,#eaaa55);color:#24180c;box-shadow:0 6px 0 #9c5a2c,0 7px 18px #0008;width:100%}
+.action:active{transform:translateY(3px);box-shadow:0 3px 0 #9c5a2c}
+.action:focus-visible,.ctrl:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.controls{display:grid;grid-template-columns:1fr 1fr 1.22fr 1.22fr;gap:8px;margin-top:11px}
+.ctrl{min-height:69px;border:1px solid #607c82;border-bottom:4px solid #37525d;color:#ecf8f2;border-radius:12px;background:linear-gradient(160deg,#293f4c,#172833);font-weight:900;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;user-select:none;-webkit-user-select:none}
+.ctrl .ico{font-size:25px;line-height:1.15}.ctrl .txt{font-size:9px;letter-spacing:.7px}.ctrl.mirror{background:linear-gradient(160deg,#3a6265,#1f3f49);color:#d1fff4}
+.ctrl:active,.ctrl.pressed{background:#526c77;transform:translateY(2px);border-bottom-width:2px}
+.ctrl[disabled]{opacity:.45;filter:grayscale(.6)}
+.status{margin:10px 0 0;min-height:38px;background:#111e28;border:1px solid #304653;border-radius:11px;display:flex;align-items:center;justify-content:center;text-align:center;padding:9px 12px;color:#e3e3c8;font-size:13px;font-weight:750;line-height:1.25}
+.foot{text-align:center;color:#82989b;font-size:10px;line-height:1.55;margin:12px 5px}
+.foot a{color:#c5d6c8;text-decoration:underline}
+[hidden]{display:none!important}
+@media(max-height:780px){main{max-width:430px}h1{font-size:25px}.tagline{margin-bottom:7px}.hud>div{padding:6px 8px}.controls{margin-top:7px}.ctrl{min-height:59px}.foot{margin-top:6px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto;transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main>
+<div class="top"><a class="home" href="../">PROJECT <b>99</b></a><span class="locale" id="edition">FAIRY-TALE ARCADE</span></div>
+<h1 id="mainTitle">BAZYLISZEK 99</h1>
+<p class="tagline" id="subTitle">LOCHY BAZYLISZKA</p>
+<div class="hud">
+<div class="stretch"><small id="roomLabel">KOMNATA</small><strong id="roomDisplay">1 / 3</strong></div>
+<div class="health"><small id="livesLabel">ŻYCIA</small><strong id="livesDisplay">♥♥♥</strong></div>
+<div class="mirror"><small id="mirrorLabel">LUSTRO</small><strong id="mirrorDisplay">GOTOWE</strong></div>
+<div><small id="timeLabel">CZAS</small><strong id="timeDisplay">0:00</strong></div>
+</div>
+<div class="viewport">
+<canvas id="game" width="420" height="620" aria-label="Lochy Bazyliszka, plansza gry"></canvas>
+<div class="overlay" id="overlay">
+<div class="dialog" role="dialog" aria-labelledby="dialogTitle" aria-describedby="dialogText">
+<div class="sigil" id="sigil">🐉</div>
+<h2 id="dialogTitle">Lochy Bazyliszka</h2>
+<p id="dialogText">Odnajdź klucz, unikaj zielonego spojrzenia i odbij je lustrem. Przejdź trzy komnaty!</p>
+<button class="action" id="dialogBtn" type="button">ROZPOCZNIJ PRZYGODĘ</button>
+</div>
+</div>
+</div>
+<div class="controls" aria-label="Sterowanie">
+<button class="ctrl" id="left" type="button" aria-label="W lewo"><span class="ico">◀</span><span class="txt" id="leftLabel">LEWO</span></button>
+<button class="ctrl" id="right" type="button" aria-label="W prawo"><span class="ico">▶</span><span class="txt" id="rightLabel">PRAWO</span></button>
+<button class="ctrl" id="jump" type="button"><span class="ico">⬆</span><span class="txt" id="jumpLabel">SKOK</span></button>
+<button class="ctrl mirror" id="mirror" type="button"><span class="ico">🪞</span><span class="txt" id="mirrorButtonLabel">LUSTRO</span></button>
+</div>
+<div class="status" id="status" role="status">Użyj strzałek, aby iść. LUSTRO odbija zielony wzrok.</div>
+<p class="foot" id="footer">Grę uruchomisz na telefonie lub komputerze. Strzałki: ruch; spacja: skok; M: lustro. <a href="../">Wróć do PROJECT 99</a>.</p>
+</main>
+<script>
+(()=>{
+"use strict";
+const W=420,H=620,FLOOR=537,TAU=Math.PI*2;
+const $=id=>document.getElementById(id);
+const canvas=$("game"),g=canvas.getContext("2d",{alpha:false});
+const pl=(navigator.language||"pl").toLowerCase().startsWith("pl");
+const L=pl?{
+edition:"BAŚNIOWA GRA",subtitle:"LOCHY BAZYLISZKA",room:"KOMNATA",lives:"ŻYCIA",mirror:"LUSTRO",time:"CZAS",
+left:"LEWO",right:"PRAWO",jump:"SKOK",ready:"GOTOWE",back:"Wróć do PROJECT 99",
+welcome:"Lochy Bazyliszka",welcomeText:"W trzech komnatach czai się Bazyliszek. Ruszaj strzałkami, przeskakuj pułapki i używaj LUSTRA, gdy jego wzrok świeci na zielono.",start:"ROZPOCZNIJ PRZYGODĘ",
+room1:"Brama podziemi",intro1:"Zabierz złoty klucz i otwórz kratę po prawej. Schowaj się za kolumną albo odbij spojrzenie lustrem.", 
+room2:"Korytarz pułapek",intro2:"Przeskocz ostre kolce. Dotknij dźwigni, żeby otworzyć przejście. Bazyliszek nadal obserwuje!",
+room3:"Komnata Bazyliszka",intro3:"Stań po prawej stronie kolumny i odbij zielony wzrok LUSTREM trzy razy. Potem dojdź do wyjścia.",
+continue:"WEJDŹ DO KOMNATY",key:"ZŁOTY KLUCZ",lever:"DŹWIGNIA",gaze:"UWAGA! ZIELONY WZROK!",warning:"Oczy Bazyliszka błyszczą…",hide:"Ukryj się za kolumną!",reflect:"ODBIJ WZROK LUSTREM!",needKey:"Najpierw znajdź złoty klucz!",needLever:"Uruchom dźwignię!",needBoss:"Odbij wzrok jeszcze kilka razy!",gotKey:"Masz klucz! Idź do bramy →",gotLever:"Krata otwarta! Idź w prawo →",reflected:"Udało się! Wzrok odbity!",bossLeft:"Pozostało odbić wzrok: ",spikes:"SKOCZ nad kolcami!",hurt:"Zamieniasz się w kamień!",injured:"Straciłeś życie! Spróbuj ponownie.",gameOver:"Skamieniały bohater",gameOverText:"Bazyliszek wygrał tę rundę. Spróbuj jeszcze raz i odbij jego spojrzenie w odpowiednim momencie.",retry:"ZAGRAJ OD NOWA",win:"POKONAŁEŚ BAZYLISZKA!",winText:"Uratowałeś lochy! Twój czas: ",record:"Najlepszy czas na tym urządzeniu: ",winButton:"ZAGRAJ JESZCZE RAZ",share:"UDOSTĘPNIJ WYNIK",mirrorCooldown:"ŁADUJE",holding:"Lustro błyszczy!",blocked:"Wzrok zatrzymany przez kolumnę",status0:"Zbierz klucz, chowaj się za kolumną, dotrzyj do bramy.",status1:"Przeskocz kolce i uruchom dźwignię.",status2:"Odbij spojrzenie lustrem trzy razy, aby pokonać Bazyliszka.",footer:"Strzałki: ruch; spacja: skok; M: lustro. Gra zręcznościowa, bez logowania."
+}:{
+edition:"FAIRY-TALE ARCADE",subtitle:"BASILISK DUNGEONS",room:"CHAMBER",lives:"LIVES",mirror:"MIRROR",time:"TIME",
+left:"LEFT",right:"RIGHT",jump:"JUMP",ready:"READY",back:"Back to PROJECT 99",
+welcome:"The Basilisk Dungeons",welcomeText:"Three chambers. One terrible gaze. Move with arrows, jump over traps, and use the MIRROR while the gaze shines green.",start:"START ADVENTURE",
+room1:"The ancient gate",intro1:"Pick up the golden key and reach the gate on the right. Hide behind a pillar or reflect the gaze with your mirror.",
+room2:"The trap corridor",intro2:"Jump over spikes and touch the lever to open the gate. The Basilisk is still watching!",
+room3:"The Basilisk's lair",intro3:"Stand to the right of the pillar, and reflect its green gaze with the MIRROR three times. Then reach the exit.",
+continue:"ENTER CHAMBER",key:"GOLDEN KEY",lever:"LEVER",gaze:"WATCH OUT! GREEN GAZE!",warning:"The Basilisk's eyes glow…",hide:"Hide behind the pillar!",reflect:"REFLECT WITH MIRROR!",needKey:"Find the golden key first!",needLever:"Pull the lever!",needBoss:"Reflect the gaze a few more times!",gotKey:"Key collected! Get to the gate →",gotLever:"Gate unlocked! Move right →",reflected:"Nice! Gaze reflected!",bossLeft:"Reflections remaining: ",spikes:"JUMP OVER THE SPIKES!",hurt:"You're turning to stone!",injured:"You lost a life! Try again.",gameOver:"Turned to stone",gameOverText:"The Basilisk won this round. Try again and reflect its gaze at the right moment.",retry:"TRY AGAIN",win:"YOU BEAT THE BASILISK!",winText:"The dungeon is safe! Your time: ",record:"Your fastest time on this device: ",winButton:"PLAY AGAIN",share:"SHARE YOUR TIME",mirrorCooldown:"COOLING",holding:"Mirror is shining!",blocked:"The pillar blocks the gaze",status0:"Find the key, hide by the pillar, reach the gate.",status1:"Jump over spikes and pull the lever.",status2:"Reflect three times to defeat the Basilisk.",footer:"Arrow keys: move; space: jump; M: mirror. Free arcade game, no account."
+};
+document.documentElement.lang=pl?"pl":"en";
+$("edition").textContent=L.edition;$("subTitle").textContent=L.subtitle;
+$("roomLabel").textContent=L.room;$("livesLabel").textContent=L.lives;$("mirrorLabel").textContent=L.mirror;$("timeLabel").textContent=L.time;
+$("leftLabel").textContent=L.left;$("rightLabel").textContent=L.right;$("jumpLabel").textContent=L.jump;$("mirrorButtonLabel").textContent=L.mirror;
+$("footer").replaceChildren(document.createTextNode(L.footer+" "));
+const back=document.createElement("a");back.href="../";back.textContent=L.back;$("footer").append(back);
+const controls={left:false,right:false}, keys={};
+let mode="menu",room=0,lives=3,hero={x:42,y:0,vy:0,facing:1},roomClock=0,totalTime=0,last=performance.now(),flash=0,petrify=0,mirrorCooldown=0,mirrorActive=0,stun=0,bossHp=3,gotKey=false,lever=false,gazeHitCycle=-1,toast="",toastUntil=0,winTime=0;
+const pillars=[175,238,155],gateX=390;
+let dialogCallback=null;
+function status(s,duration=2.6){toast=s;toastUntil=totalTime+duration;}
+function showDialog(icon,title,desc,button,cb){
+ mode="dialog";controls.left=false;controls.right=false;
+ $("sigil").textContent=icon;$("dialogTitle").textContent=title;$("dialogText").textContent=desc;$("dialogBtn").textContent=button;
+ $("overlay").hidden=false;dialogCallback=cb;
+}
+$("dialogBtn").addEventListener("click",()=>{if(!dialogCallback)return;const cb=dialogCallback;dialogCallback=null;$("overlay").hidden=true;cb();});
+function startGame(){
+ lives=3;totalTime=0;bossHp=3;room=0;enterRoom(0);
+}
+function enterRoom(number){
+ room=number;roomClock=0;petrify=0;mirrorCooldown=0;mirrorActive=0;stun=0;gotKey=false;lever=false;gazeHitCycle=-1;
+ hero={x:42,y:0,vy:0,facing:1};controls.left=controls.right=false;toast="";
+ $("roomDisplay").textContent=(room+1)+" / 3";
+ const info=[
+ ["🔑",L.room1,L.intro1],
+ ["🗝️",L.room2,L.intro2],
+ ["🐉",L.room3,L.intro3]
+ ][number];
+ showDialog(info[0],info[1],info[2],number===0&&totalTime===0?L.start:L.continue,()=>{mode="playing";status(L["status"+room],3.4);});
+}
+function jump(){
+ if(mode!=="playing"||hero.y>0.1)return;
+ hero.vy=430;hero.y=0.1;
+}
+function reflect(){
+ if(mode!=="playing"||mirrorCooldown>0)return;
+ mirrorActive=1.15;mirrorCooldown=2.25;flash=.2;
+}
+function gateReady(){return room===0?gotKey:room===1?lever:bossHp===0;}
+function roomCycle(){
+ const offset=0;
+ const cycle=Math.floor((roomClock+offset)/5.1);
+ const phase=(roomClock+offset)%5.1;
+ const warn=phase>=1.7&&phase<2.4;
+ const active=phase>=2.4&&phase<4.0&&stun<=0;
+ return {cycle,phase,warn,active};
+}
+function heroVisible(){return hero.x>pillars[room]+21;}
+function damage(){
+ lives--;petrify=0;stun=1.6;mirrorActive=0;hero={x:38,y:0,vy:0,facing:1};flash=.45;
+ if(lives<=0){
+ showDialog("🪨",L.gameOver,L.gameOverText,L.retry,startGame);
+ }else{status(L.injured,2.8);}
+}
+function complete(){
+ if(room<2){enterRoom(room+1);return;}
+ mode="win";winTime=Math.round(totalTime*10)/10;
+ let best=null;
+ try {
+ const raw=Number(localStorage.getItem("bazyliszek99_best_seconds"));
+ if(raw>0&&Number.isFinite(raw))best=raw;
+ if(best===null||winTime<best){best=winTime;localStorage.setItem("bazyliszek99_best_seconds",String(best));}
+ }catch(e){}
+ const desc=L.winText+formatTime(winTime)+(best!==null?"\n"+L.record+formatTime(best):"");
+ showDialog("🏆",L.win,desc,L.winButton,startGame);
+ const d=$("dialog"); 
+}
+function formatTime(v){const sec=Math.floor(v);return Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0")+(v%1?"."+Math.round((v%1)*10):"");}
+function update(dt){
+ if(mode!=="playing")return;
+ roomClock+=dt;totalTime+=dt;
+ mirrorCooldown=Math.max(0,mirrorCooldown-dt);
+ mirrorActive=Math.max(0,mirrorActive-dt);
+ stun=Math.max(0,stun-dt);flash=Math.max(0,flash-dt);
+ const direction=(controls.right?1:0)-(controls.left?1:0);
+ if(direction){hero.x=Math.max(22,Math.min(392,hero.x+direction*135*dt));hero.facing=direction;}
+ if(hero.y>0||hero.vy>0){
+ hero.y+=hero.vy*dt;hero.vy-=1060*dt;
+ if(hero.y<0){hero.y=0;hero.vy=0;}
+ }
+ if(room===0&&!gotKey&&Math.abs(hero.x-250)<21&&hero.y<47){gotKey=true;status(L.gotKey,3);}
+ if(room===1&&!lever&&Math.abs(hero.x-300)<22&&hero.y<52){lever=true;status(L.gotLever,3);}
+ if(room===1&&hero.y<27&&hero.x>121&&hero.x<189){damage();return;}
+ const cyc=roomCycle();
+ const visible=heroVisible();
+ if(cyc.active&&visible){
+ if(mirrorActive>0&&gazeHitCycle!==cyc.cycle){
+ gazeHitCycle=cyc.cycle;stun=1.5;mirrorActive=0;petrify=0;flash=.6;
+ if(room===2){bossHp=Math.max(0,bossHp-1);status(bossHp===0?L.gotLever:L.bossLeft+bossHp,3);}
+ else{status(L.reflected,2.4);}
+ }else if(gazeHitCycle!==cyc.cycle){
+ petrify+=dt;
+ if(petrify>=.92){damage();return;}
+ }
+ }else{petrify=Math.max(0,petrify-1.3*dt);}
+ if(hero.x>=381){
+ if(gateReady()){complete();return;}
+ if(room===0&&toast!==L.needKey)status(L.needKey,1.1);
+ if(room===1&&toast!==L.needLever)status(L.needLever,1.1);
+ if(room===2&&toast!==L.needBoss)status(L.needBoss,1.1);
+ }
+}
+function poly(points,fill,stroke=null,width=1){
+ g.beginPath();g.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)g.lineTo(points[i][0],points[i][1]);g.closePath();
+ if(fill){g.fillStyle=fill;g.fill();}
+ if(stroke){g.lineWidth=width;g.strokeStyle=stroke;g.stroke();}
+}
+function ellipse(x,y,rx,ry,fill,stroke=null,width=1){
+ g.beginPath();g.ellipse(x,y,Math.max(.1,rx),Math.max(.1,ry),0,0,TAU);
+ if(fill){g.fillStyle=fill;g.fill();}
+ if(stroke){g.lineWidth=width;g.strokeStyle=stroke;g.stroke();}
+}
+function rounded(x,y,w,h,r,fill,stroke=null){
+ g.beginPath();g.roundRect(x,y,w,h,r);
+ if(fill){g.fillStyle=fill;g.fill();}
+ if(stroke){g.strokeStyle=stroke;g.lineWidth=2;g.stroke();}
+}
+function glow(x,y,r,color){
+ const gr=g.createRadialGradient(x,y,2,x,y,r);gr.addColorStop(0,color);gr.addColorStop(1,"#00000000");g.fillStyle=gr;g.fillRect(x-r,y-r,r*2,r*2);
+}
+function background(t){
+ const grad=g.createLinearGradient(0,0,420,620);
+ grad.addColorStop(0,room===2?"#152a2c":"#162731");grad.addColorStop(.53,"#182a33");grad.addColorStop(1,"#08141e");
+ g.fillStyle=grad;g.fillRect(0,0,W,H);
+ glow(208,125,240,room===2?"#44bb7770":"#c7834133");
+ // dungeon arches
+ for(let i=-1;i<4;i++){
+ const x=i*145+28;
+ g.fillStyle="#0a1823";g.fillRect(x,110,100,350);
+ g.beginPath();g.arc(x+50,111,50,Math.PI,0);g.fill();
+ g.strokeStyle="#455460";g.lineWidth=7;g.beginPath();g.moveTo(x,452);g.lineTo(x,112);g.arc(x+50,112,50,Math.PI,0);g.lineTo(x+100,452);g.stroke();
+ for(let j=0;j<7;j++){
+  g.fillStyle=j%2?"#30444b":"#243943";g.fillRect(x+2,169+j*39,96,5);
+ }
+ }
+ // masonry
+ for(let y=25;y<560;y+=35){
+  g.strokeStyle="#4d565548";g.lineWidth=2;g.beginPath();g.moveTo(0,y);g.lineTo(420,y);g.stroke();
+  for(let x=(Math.round(y/35)%2)*32-38;x<430;x+=65){g.beginPath();g.moveTo(x,y);g.lineTo(x,y+34);g.stroke();}
+ }
+ // chains
+ for(let x of [36,315]){
+ g.strokeStyle="#78847a";g.lineWidth=2;
+ for(let y=0;y<140;y+=12){g.beginPath();g.ellipse(x,y+4,3,7,0,0,TAU);g.stroke();}
+ }
+ torch(53,272,t);torch(361,265,t+.8);
+ // floor
+ g.fillStyle="#23343b";g.fillRect(0,FLOOR,W,H-FLOOR);
+ g.fillStyle="#4b5854";g.fillRect(0,FLOOR,W,11);
+ g.fillStyle="#917856";g.fillRect(0,FLOOR+8,W,3);
+ for(let i=0;i<12;i++){
+  const x=i*39-7;
+  rounded(x,552+(i%2)*5,35,27,3,i%2?"#273a41":"#34464a","#47575a");
+  g.strokeStyle="#0b252f";g.beginPath();g.moveTo(x+7,576);g.lineTo(x+5,605);g.stroke();
+ }
+ const specks=[[60,494],[110,320],[253,281],[390,190],[25,420],[312,511]];
+ for(const [x,y] of specks){ellipse(x,y,2,2,"#6e8b7466");}
+ // loose stones
+ poly([[20,535],[27,524],[44,533],[47,537]],"#52645b");
+ poly([[284,536],[298,529],[314,536]],"#3d4e4a");
+}
+function torch(x,y,t){
+ glow(x,y-23,70,"#ff963833");
+ rounded(x-4,y,8,32,2,"#3d3a34","#645343");
+ poly([[x-9,y],[x+9,y],[x+6,y+8],[x-6,y+8]],"#8d6848");
+ const wiggle=Math.sin(t*9+x)*3;
+ glow(x+wiggle,y-16,35,"#ffd45899");
+ poly([[x,y+1],[x-8+wiggle,y-17],[x+wiggle,y-41-Math.sin(t*12)*5],[x+10+wiggle,y-14]],"#ff9d2d");
+ poly([[x,y],[x-3+wiggle,y-15],[x+wiggle,y-26],[x+5+wiggle,y-13]],"#fff2a3");
+}
+function pillar(x){
+ const w=39;
+ g.fillStyle="#09172288";g.fillRect(x-17,330,w+19,214);
+ rounded(x,335,w,210,5,"#40555b","#192f38");
+ for(let i=0;i<6;i++){g.fillStyle=i%2?"#4b6266":"#394d53";g.fillRect(x+4,350+i*31,w-8,6);}
+ rounded(x-11,325,w+21,18,3,"#5b6f6d","#293a40");
+ rounded(x-13,524,w+25,22,3,"#596d69","#283c44");
+ g.fillStyle="#82918c44";g.fillRect(x+6,344,5,178);
+}
+function spikes(){
+ for(let x=121;x<194;x+=13){
+  poly([[x,537],[x+6.5,497-(x%3)*5],[x+13,537]],"#b9c4b4","#526566",2);
+  poly([[x+4,529],[x+6.5,505],[x+9,529]],"#eff8da77");
+ }
+ g.fillStyle="#6f3e37";g.fillRect(120,536,75,7);
+}
+function gate(){
+ const unlocked=gateReady();
+ const x=367,y=395;
+ glow(x+24,465,95,unlocked?"#40f0a455":"#cc812122");
+ rounded(x-5,y-15,57,164,9,"#273c43","#857b5b");
+ rounded(x+3,y,40,145,4,unlocked?"#163d36":"#161f2b","#9d8b65");
+ for(let i=0;i<5;i++){g.fillStyle="#938669";g.fillRect(x+7+i*8,y+1,3,144);}
+ for(let j=0;j<3;j++){g.fillStyle="#9d9370";g.fillRect(x+6,y+24+j*46,39,4);}
+ ellipse(x+30,y+74,7,7,unlocked?"#6cdd88":"#f3bc59","#493e2b",2);
+ if(!unlocked)g.fillStyle="#e8bd71";else g.fillStyle="#a9ffc9";
+ g.font="900 10px system-ui";g.textAlign="center";g.fillText(unlocked?"✓":"✖",x+30,y+79);
+}
+function keyShape(x,y,t){
+ glow(x,y,34,"#ffe69a77");
+ g.save();g.translate(x,y+Math.sin(t*4)*5);g.rotate(-.34);
+ ellipse(0,-8,8,9,null,"#ffdd83",4);
+ rounded(-2,1,5,24,1,"#ffc64d");
+ g.fillStyle="#ffde72";g.fillRect(0,19,12,5);g.fillRect(0,13,8,4);
+ g.restore();
+}
+function leverShape(x,y,t){
+ rounded(x-13,y+12,28,11,3,"#697371","#283942");
+ rounded(x-3,y-28,7,43,3,"#b0b4a7");
+ g.save();g.translate(x,y-24);g.rotate(lever?.55:-.3);
+ rounded(-3,-28,7,36,3,"#adb9b0");
+ ellipse(0,-30,10,10,lever?"#5bdc8b":"#ce7744","#e6d0a0",2);
+ g.restore();
+}
+function basilisk(t,cyc){
+ const big=room===2;
+ const x=big?323:344;
+ const y=big?452:477;
+ const scale=big?1.17:.88;
+ g.save();g.translate(x,y);g.scale(scale,scale);
+ glow(0,-62,big?115:78,cyc.active?"#87ff674b":"#5fcf4b24");
+ // curled body
+ g.lineCap="round";g.lineJoin="round";
+ g.lineWidth=37;g.strokeStyle="#183f37";g.beginPath();g.moveTo(12,19);g.bezierCurveTo(64,14,56,-22,29,-41);g.bezierCurveTo(-4,-58,15,-85,45,-78);g.stroke();
+ g.lineWidth=19;g.strokeStyle="#2d7650";g.beginPath();g.moveTo(13,17);g.bezierCurveTo(65,16,55,-20,29,-42);g.bezierCurveTo(-3,-60,15,-85,45,-78);g.stroke();
+ for(let i=0;i<5;i++){poly([[8-i*11,-15-i*8],[11-i*10,-31-i*11],[21-i*8,-20-i*8]],i%2?"#7bbc67":"#accb62");}
+ // head
+ poly([[-37,-71],[-22,-105],[3,-112],[32,-96],[38,-75],[23,-51],[-27,-51]],"#357a56","#142e2c",3);
+ poly([[-39,-62],[0,-45],[30,-51],[14,-38],[-8,-36]],"#5fa264","#143b32",3);
+ poly([[-34,-92],[-45,-121],[-19,-103]],"#89b65e");
+ poly([[13,-103],[31,-130],[26,-97]],"#abc866");
+ for(let i=0;i<4;i++){poly([[-8+i*12,-110],[-2+i*11,-125],[-1+i*11,-103]],"#90b361");}
+ ellipse(-18,-82,8,7,cyc.warn||cyc.active?"#cfff50":"#cbaf62","#1c352f",2);
+ ellipse(-18,-82,2,6,"#192e1f");
+ poly([[-45,-60],[-31,-52],[-10,-50],[-31,-46]],"#aac877");
+ poly([[-34,-49],[-28,-37],[-24,-50]],"#f9f4c9");
+ poly([[-17,-45],[-11,-34],[-8,-48]],"#f9f4c9");
+ if(cyc.active){
+ g.strokeStyle="#fb7292";g.lineWidth=3;g.beginPath();g.moveTo(-40,-51);g.lineTo(-55,-41);g.lineTo(-62,-48);g.moveTo(-55,-41);g.lineTo(-64,-36);g.stroke();
+ }
+ g.restore();
+}
+function rays(t){
+ const cyc=roomCycle();
+ if(!cyc.active&&!cyc.warn)return;
+ const x=room===2?285:304,y=room===2?362:398;
+ if(cyc.active){
+  glow(x-65,y,200,"#74ff5a55");
+  poly([[x,y],[5,300+Math.sin(t*3)*13],[5,563],[x,445]],"#86ff683b","#b7ff6a91",2);
+  for(let i=0;i<4;i++){
+   g.strokeStyle=i%2?"#caff9366":"#bdfd5166";g.lineWidth=2;
+   g.beginPath();g.moveTo(x,y+6*i);g.lineTo(0,341+i*44+Math.sin(t*2+i)*7);g.stroke();
+  }
+ }else{
+  g.strokeStyle="#dbf0816b";g.lineWidth=2;g.setLineDash([7,12]);
+  g.beginPath();g.moveTo(x,y);g.lineTo(0,450);g.stroke();g.setLineDash([]);
+ }
+}
+function adventurer(t){
+ const x=hero.x,y=FLOOR-hero.y;
+ const moving=controls.left||controls.right;
+ const sway=moving&&hero.y===0?Math.sin(t*14)*2:0;
+ g.save();g.translate(x,y+sway);g.scale(hero.facing,1);
+ ellipse(2,4,22,6,"#00000088");
+ // cloak
+ poly([[-12,-45],[10,-49],[19,-7],[9,-4],[-14,-8]],"#2b6881","#142f3b",3);
+ poly([[-11,-36],[-17,-9],[-10,-5],[-6,-28]],"#3d97ac");
+ rounded(-10,-9,9,13,3,"#5b493c");
+ rounded(3,-9,9,13,3,"#594638");
+ // face + hood
+ ellipse(0,-49,17,18,"#3a5361","#143544",3);
+ ellipse(2,-46,11,12,"#e5af7e");
+ g.fillStyle="#2f302c";g.fillRect(2,-48,3,3);g.fillRect(9,-48,2,3);
+ poly([[-17,-60],[1,-74],[17,-57],[9,-60],[-6,-56]],"#2b7a8d","#154355",2);
+ // dagger / mirror handle
+ g.strokeStyle="#a87742";g.lineWidth=4;g.beginPath();g.moveTo(11,-30);g.lineTo(23,-49);g.stroke();
+ ellipse(24,-53,10,12,mirrorActive>0?"#e6ffdd":"#b2d1d4","#cead76",4);
+ ellipse(24,-54,6,8,"#9de6e3");
+ if(mirrorActive>0){
+ glow(x>0?24:0,-52,45,"#a6ffcfab");
+ g.strokeStyle="#e2ffed";g.lineWidth=3;
+ g.beginPath();g.arc(24,-54,19,-.7,1.7);g.stroke();
+ }
+ if(petrify>0){g.fillStyle="#bec7c1";g.globalAlpha=Math.min(.85,petrify/.9);g.fillRect(-15,-63,33,58);g.globalAlpha=1;}
+ g.restore();
+}
+function effects(t){
+ if(room===0&&!gotKey)keyShape(250,496,t);
+ if(room===1){spikes();leverShape(300,510,t);}
+ if(room===2){
+  const count=bossHp;
+  for(let i=0;i<3;i++){
+   const x=285+i*33;
+   ellipse(x,61,12,12,i<count?"#a5f75e":"#364748","#d2dbb0",2);
+   g.font="14px system-ui";g.fillStyle="#14291d";g.textAlign="center";g.fillText("✦",x,66);
+  }
+ }
+ // eye status light
+ const cyc=roomCycle();
+ if(cyc.warn){glow(333,355,65,"#e0ff7077");}
+}
+function draw(t){
+ background(t);
+ const cyc=roomCycle();
+ gate();
+ effects(t);
+ basilisk(t,cyc);
+ rays(t);
+ adventurer(t);
+ pillar(pillars[room]);
+ // stone haze at ground, spell flash
+ const fg=g.createLinearGradient(0,450,0,620);fg.addColorStop(0,"#111d2400");fg.addColorStop(1,"#050a0f75");g.fillStyle=fg;g.fillRect(0,450,420,170);
+ if(flash>0){g.fillStyle=flash>.4?"#baf6c127":"#ffffff18";g.fillRect(0,0,W,H);}
+ if(petrify>.03){
+  g.fillStyle="#b7bcb9";g.globalAlpha=Math.min(.35,petrify*.32);g.fillRect(0,0,420,620);g.globalAlpha=1;
+  rounded(52,20,316,14,7,"#29383e","#d9dcc3");rounded(54,22,312*Math.min(1,petrify/.92),10,5,"#9ba69a");
+ }
+ // room indicator plaque
+ rounded(11,12,168,32,8,"#081a23ba","#6f765348");
+ g.fillStyle="#e8d6a7";g.font="700 13px Georgia";g.textAlign="left";
+ g.fillText([L.room1,L.room2,L.room3][room],21,33);
+ if(room===2&&bossHp===0){
+ glow(391,459,80,"#b8ffaf66");
+ }
+}
+function ui(){
+ const hearts="♥".repeat(lives)+"♡".repeat(3-lives);
+ if($("livesDisplay").textContent!==hearts)$("livesDisplay").textContent=hearts;
+ const cooldown=mirrorCooldown>0?(mirrorCooldown.toFixed(1)+"s"):L.ready;
+ if($("mirrorDisplay").textContent!==cooldown)$("mirrorDisplay").textContent=cooldown;
+ const t=formatTime(totalTime).split(".")[0];if($("timeDisplay").textContent!==t)$("timeDisplay").textContent=t;
+ $("mirror").disabled=mode!=="playing"||mirrorCooldown>0;
+ $("jump").disabled=mode!=="playing";
+ let text=L["status"+room];
+ const cyc=roomCycle();
+ if(mode==="playing"){
+  if(totalTime<toastUntil)text=toast;
+  else if(cyc.active&&heroVisible())text=mirrorCooldown===0?L.reflect:L.gaze;
+  else if(cyc.warn&&heroVisible())text=L.warning;
+  else if(room===1&&hero.x>94&&hero.x<201)text=L.spikes;
+  else if(room===0&&gotKey)text=L.gotKey;
+  else if(room===1&&lever)text=L.gotLever;
+  else if(room===2)text=L.bossLeft+bossHp;
+ }
+ if($("status").textContent!==text)$("status").textContent=text;
+}
+function frame(now){
+ let dt=Math.max(0,Math.min(.045,(now-last)/1000));last=now;
+ if(document.hidden)dt=0;
+ update(dt);draw(now/1000);ui();requestAnimationFrame(frame);
+}
+function bindHold(id,key){
+ const el=$(id);
+ function release(){controls[key]=false;el.classList.remove("pressed");}
+ el.addEventListener("pointerdown",e=>{e.preventDefault();controls[key]=true;el.classList.add("pressed");try{el.setPointerCapture(e.pointerId);}catch(_){}});
+ ["pointerup","pointercancel","lostpointercapture"].forEach(type=>el.addEventListener(type,release));
+}
+bindHold("left","left");bindHold("right","right");
+function bindOnce(id,fn){
+ const el=$(id);
+ el.addEventListener("pointerdown",e=>{e.preventDefault();fn();});
+ el.addEventListener("click",e=>{if(e.detail===0)fn();});
+}
+bindOnce("jump",jump);bindOnce("mirror",reflect);
+window.addEventListener("keydown",e=>{
+ const code=e.code;
+ if(["ArrowLeft","ArrowRight","ArrowUp","Space","KeyA","KeyD","KeyW","KeyM","ShiftLeft","ShiftRight"].includes(code))e.preventDefault();
+ if(keys[code])return;keys[code]=true;
+ if(code==="ArrowLeft"||code==="KeyA")controls.left=true;
+ if(code==="ArrowRight"||code==="KeyD")controls.right=true;
+ if(code==="Space"||code==="ArrowUp"||code==="KeyW")jump();
+ if(code==="KeyM"||code==="ShiftLeft"||code==="ShiftRight")reflect();
+});
+window.addEventListener("keyup",e=>{
+ keys[e.code]=false;
+ if(e.code==="ArrowLeft"||e.code==="KeyA")controls.left=!!(keys.ArrowLeft||keys.KeyA);
+ if(e.code==="ArrowRight"||e.code==="KeyD")controls.right=!!(keys.ArrowRight||keys.KeyD);
+});
+window.addEventListener("blur",()=>{controls.left=controls.right=false;for(const k of Object.keys(keys))keys[k]=false;});
+showDialog("🐉",L.welcome,L.welcomeText,L.start,startGame);
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
