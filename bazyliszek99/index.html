@@ -34,7 +34,7 @@ canvas{width:100%;height:auto;aspect-ratio:420 / 620;display:block;touch-action:
 button{font:inherit;cursor:pointer;touch-action:none}
 .action{border:0;border-radius:12px;min-height:49px;padding:12px 20px;font-weight:900;font-size:15px;background:linear-gradient(125deg,#ffd583,#eaaa55);color:#24180c;box-shadow:0 6px 0 #9c5a2c,0 7px 18px #0008;width:100%}
 .action:active{transform:translateY(3px);box-shadow:0 3px 0 #9c5a2c}
-.action:focus-visible,.ctrl:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.share-action{border:1px solid #85ba9b;background:#23483e;color:#eaffdd;border-radius:11px;min-height:43px;margin-top:13px;padding:10px 12px;width:100%;font-weight:850}.action:focus-visible,.ctrl:focus-visible,.share-action:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .controls{display:grid;grid-template-columns:1fr 1fr 1.22fr 1.22fr;gap:8px;margin-top:11px}
 .ctrl{min-height:69px;border:1px solid #607c82;border-bottom:4px solid #37525d;color:#ecf8f2;border-radius:12px;background:linear-gradient(160deg,#293f4c,#172833);font-weight:900;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;user-select:none;-webkit-user-select:none}
 .ctrl .ico{font-size:25px;line-height:1.15}.ctrl .txt{font-size:9px;letter-spacing:.7px}.ctrl.mirror{background:linear-gradient(160deg,#3a6265,#1f3f49);color:#d1fff4}
@@ -66,7 +66,7 @@ button{font:inherit;cursor:pointer;touch-action:none}
 <div class="sigil" id="sigil">🐉</div>
 <h2 id="dialogTitle">Lochy Bazyliszka</h2>
 <p id="dialogText">Odnajdź klucz, unikaj zielonego spojrzenia i odbij je lustrem. Przejdź trzy komnaty!</p>
-<button class="action" id="dialogBtn" type="button">ROZPOCZNIJ PRZYGODĘ</button>
+<button class="action" id="dialogBtn" type="button">ROZPOCZNIJ PRZYGODĘ</button><button class="share-action" id="shareScoreBtn" type="button" hidden>UDOSTĘPNIJ WYNIK</button>
 </div>
 </div>
 </div>
@@ -117,7 +117,7 @@ function status(s,duration=2.6){toast=s;toastUntil=totalTime+duration;}
 function showDialog(icon,title,desc,button,cb){
  mode="dialog";controls.left=false;controls.right=false;
  $("sigil").textContent=icon;$("dialogTitle").textContent=title;$("dialogText").textContent=desc;$("dialogBtn").textContent=button;
- $("overlay").hidden=false;dialogCallback=cb;
+ $("overlay").hidden=false;$("shareScoreBtn").hidden=true;dialogCallback=cb;
 }
 $("dialogBtn").addEventListener("click",()=>{if(!dialogCallback)return;const cb=dialogCallback;dialogCallback=null;$("overlay").hidden=true;cb();});
 function startGame(){
@@ -169,8 +169,18 @@ function complete(){
  }catch(e){}
  const desc=L.winText+formatTime(winTime)+(best!==null?"\n"+L.record+formatTime(best):"");
  showDialog("🏆",L.win,desc,L.winButton,startGame);
- const d=$("dialog"); 
+ $("shareScoreBtn").textContent=L.share;
+ $("shareScoreBtn").hidden=false; 
 }
+$("shareScoreBtn").addEventListener("click",async()=>{
+ const url="https://project99.appforge99.com/bazyliszek99/";
+ const text=(pl?"🐉 Pokonałem Bazyliszka w ":"🐉 I beat the Basilisk in ")+formatTime(winTime)+(pl?". Dasz radę szybciej? ":". Can you beat me? ")+url;
+ try{
+  if(navigator.share){await navigator.share({title:"BAZYLISZEK 99",text,url});return;}
+  if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(text);$("shareScoreBtn").textContent=pl?"SKOPIOWANO ✓":"COPIED ✓";return;}
+ }catch(e){if(e&&e.name==="AbortError")return;}
+ const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");$("shareScoreBtn").textContent=pl?"SKOPIOWANO ✓":"COPIED ✓";}catch(e){}ta.remove();
+});
 function formatTime(v){const sec=Math.floor(v);return Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0")+(v%1?"."+Math.round((v%1)*10):"");}
 function update(dt){
  if(mode!=="playing")return;
