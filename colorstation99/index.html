@@ -251,7 +251,7 @@ function render(){
    b.dataset.busId=bus.id;b.style.cssText=colorCss(bus.color);
    b.disabled=busy||state.complete;
    b.setAttribute("aria-label",bus.color+" "+meta.glyph+", "+t.seats+" 3");
-   b.innerHTML='<span class="bus-mark" aria-hidden="true">'+meta.glyph+'</span><span class="coach" aria-hidden="true"><i></i><i></i><i></i></span><span class="bus-footer">3 / 3</span>';
+   b.innerHTML='<span class="bus-mark" aria-hidden="true">'+meta.glyph+'</span><span class="coach" aria-hidden="true"><i></i><i></i><i></i></span><span class="bus-footer">'+escapeHtml(t.seats)+': 3</span>';
    yard.appendChild(b);
  }
  $("undoBtn").disabled=!undoHistory.length||busy||state.complete;
