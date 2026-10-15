@@ -65,6 +65,16 @@ h1{font-size:clamp(29px,8vw,41px);letter-spacing:-1.5px;line-height:1.07;margin:
 .bus{position:relative;border:2px solid color-mix(in srgb,var(--color) 75%,white);border-radius:15px;min-height:89px;background:color-mix(in srgb,var(--color) 26%,#18223c);color:white;padding:7px 3px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:transform .12s,background .12s;box-shadow:0 4px 0 #0b1021}
 .bus:active{transform:translateY(3px);box-shadow:0 1px 0 #0b1021}
 .bus.hint{animation:glow .75s ease-in-out 3;z-index:1}
+.app.tutorial .intro{background:#fff0a8;color:#202643;border-radius:14px;text-align:center;font-size:19px;line-height:1.25;font-weight:950;padding:14px 9px;margin-bottom:12px;box-shadow:0 8px 18px #0003}
+.app.tutorial .yard{border:3px solid #ffeb80;box-shadow:0 0 26px #f8e47539}
+.bus.tutorial-pick{grid-column:1/-1;width:100%;max-width:330px;min-height:150px;justify-self:center;border:4px solid #fff8b2;box-shadow:0 0 0 5px #ffea6b3d,0 0 25px #ffe4669c;animation:tutorialGlow 1.1s ease-in-out infinite alternate}
+.bus.tutorial-pick .coach{height:35px;width:130px;max-width:80%}
+.bus.tutorial-pick .coach i{width:18px;height:16px}
+.bus.tutorial-pick .coach:after{box-shadow:74px 0 0 #080c1c}
+.bus.tutorial-pick .bus-mark{font-size:33px}
+.tutorial-label{display:block;background:#fff5a2;color:#11182e;border-radius:30px;padding:6px 15px;font-size:17px;font-weight:1000;line-height:1.2}
+@keyframes tutorialGlow{from{transform:scale(.98)}to{transform:scale(1.015)}}
+@media(prefers-reduced-motion:reduce){.bus.tutorial-pick{animation:none}}
 @keyframes glow{50%{outline:4px solid #ffe179;outline-offset:1px;transform:scale(1.03)}}
 .bus .bus-mark{font-size:25px;color:var(--color);line-height:1;text-shadow:0 2px 8px #0007}
 .bus .coach{height:22px;width:min(82%,88px);border-radius:8px 9px 4px 4px;background:var(--color);display:flex;align-items:center;justify-content:space-around;padding:0 6px;position:relative;box-shadow:inset 0 -4px 0 #0002}
@@ -101,7 +111,7 @@ h1{font-size:clamp(29px,8vw,41px);letter-spacing:-1.5px;line-height:1.07;margin:
 </style>
 </head>
 <body>
-<main class="app">
+<main class="app" id="gameApp">
 <header class="top"><a href="../" class="brand">PROJECT <b>99</b></a><span class="top-tag">COLOR STATION 99</span></header>
 <div class="game-head">
 <div><p class="title-small" id="eyebrow">ONE-TAP COLOR PUZZLE</p><h1 id="pageTitle">Color Station <span style="color:#f8e475">99</span></h1></div>
@@ -167,6 +177,24 @@ const palette=[
 {key:"purple",hex:"#d4a3ff",glyph:"☾"},{key:"orange",hex:"#ffad72",glyph:"✦"}
 ];
 const colorByKey=Object.fromEntries(palette.map(x=>[x.key,x]));
+const tutorialText={
+pl:{names:{rose:"RÓŻOWY",sky:"NIEBIESKI",lemon:"ŻÓŁTY",mint:"ZIELONY",purple:"FIOLETOWY",orange:"POMARAŃCZOWY"},line:c=>"👇 DOTKNIJ "+c+" AUTOBUSU NA DOLE!",tap:"👆 DOTKNIJ TUTAJ!",yard:"👇 DOTKNIJ AUTOBUSU"},
+en:{names:{rose:"PINK",sky:"BLUE",lemon:"YELLOW",mint:"GREEN",purple:"PURPLE",orange:"ORANGE"},line:c=>"👇 TAP THE "+c+" BUS BELOW!",tap:"👆 TAP HERE!",yard:"👇 TAP THE BUS"},
+pt:{names:{rose:"ROSA",sky:"AZUL",lemon:"AMARELO",mint:"VERDE",purple:"ROXO",orange:"LARANJA"},line:c=>"👇 TOQUE NO ÔNIBUS "+c+"!",tap:"👆 TOQUE AQUI!",yard:"👇 TOQUE NO ÔNIBUS"},
+ja:{names:{rose:"ピンク",sky:"青い",lemon:"黄色い",mint:"緑の",purple:"紫の",orange:"オレンジの"},line:c=>"👇 "+c+"バスをタップ！",tap:"👆 ここをタップ！",yard:"👇 バスをタップ"}
+};
+const tt=tutorialText[lang];
+const root=$("gameApp"),boardPanel=document.querySelector(".stage-card"),yardPanel=document.querySelector(".yard");
+function updateLayout(){
+ const tutorial=currentLevel===1;
+ root.classList.toggle("tutorial",tutorial);
+ if(tutorial)root.insertBefore(yardPanel,boardPanel);
+ else root.insertBefore(boardPanel,yardPanel);
+}
+function tutorialLine(){
+ const color=state.queue[state.pos];
+ return color ? tt.line(tt.names[color]) : t.completed;
+}
 const MAX_LEVEL=99;
 const KEY_PROGRESS="p99_color_station_unlocked_v1";
 const KEY_STARS="p99_color_station_stars_v1";
@@ -213,6 +241,13 @@ function snapshot(){return JSON.stringify({pos:state.pos,buses:state.buses,bays:
 function setStatus(message,kind=""){feedback=message;feedbackType=kind;const box=$("status");box.textContent=message;box.className="status"+(kind?" "+kind:"");}
 function render(){
  $("levelValue").textContent=currentLevel+" / 99";
+ if(currentLevel===1){
+   $("intro").textContent=tutorialLine();
+   $("yardTitle").textContent=tt.yard;
+ }else{
+   $("intro").textContent=t.intro;
+   $("yardTitle").textContent=t.yard;
+ }
  $("movesValue").textContent=String(state.moves);
  $("progressValue").textContent=state.pos+" / "+state.queue.length;
  const docks=$("bays");docks.replaceChildren();
@@ -243,15 +278,17 @@ function render(){
    if(rest>visible){const more=document.createElement("span");more.className="queue-more";more.textContent="+"+(rest-visible);queue.appendChild(more);}
  }
  const yard=$("buses");yard.replaceChildren();
- const available=state.yardOrder.map(id=>state.buses.find(b=>b.id===id)).filter(b=>b.status==="yard");
+ const matchingColor=state.queue[state.pos];
+ const available=state.yardOrder.map(id=>state.buses.find(b=>b.id===id))
+   .filter(b=>b.status==="yard"&&(currentLevel!==1||b.color===matchingColor));
  if(!available.length){const el=document.createElement("div");el.className="empty-yard";el.textContent="🚌 "+t.yardEmpty;yard.appendChild(el);}
  for(const bus of available){
    const meta=colorByKey[bus.color];
-   const b=document.createElement("button");b.type="button";b.className="bus"+(hintId===bus.id?" hint":"");
+   const b=document.createElement("button");b.type="button";b.className="bus"+(hintId===bus.id?" hint":"")+(currentLevel===1?" tutorial-pick":"");
    b.dataset.busId=bus.id;b.style.cssText=colorCss(bus.color);
    b.disabled=busy||state.complete;
    b.setAttribute("aria-label",bus.color+" "+meta.glyph+", "+t.seats+" 3");
-   b.innerHTML='<span class="bus-mark" aria-hidden="true">'+meta.glyph+'</span><span class="coach" aria-hidden="true"><i></i><i></i><i></i></span><span class="bus-footer">'+escapeHtml(t.seats)+': 3</span>';
+   b.innerHTML=(currentLevel===1?'<span class="tutorial-label">'+escapeHtml(tt.tap)+'</span>':"")+'<span class="bus-mark" aria-hidden="true">'+meta.glyph+'</span><span class="coach" aria-hidden="true"><i></i><i></i><i></i></span><span class="bus-footer">'+escapeHtml(t.seats)+': 3</span>';
    yard.appendChild(b);
  }
  $("undoBtn").disabled=!undoHistory.length||busy||state.complete;
@@ -281,7 +318,7 @@ async function boardPassengers(version){
    state.complete=true;render();finishLevel();return;
  }
  const full=state.bays.every(Boolean);
- setStatus(full?t.jam:t.next,full?"warning":"");
+ setStatus(currentLevel===1?tutorialLine():(full?t.jam:t.next),full?"warning":"");
  render();
 }
 async function placeBus(id){
@@ -303,11 +340,11 @@ function undo(){
  const last=JSON.parse(undoHistory.pop());
  state.pos=last.pos;state.buses=last.buses;state.bays=last.bays;state.moves=last.moves;
  state.hints=last.hints;state.undos=(last.undos||0)+1;
- hintId=null;clearTimeout(hintTimer);setStatus(t.undone);render();
+ hintId=null;clearTimeout(hintTimer);setStatus(currentLevel===1?tutorialLine():t.undone);render();
 }
 function restart(){
  epoch++;busy=false;clearTimeout(hintTimer);hintId=null;
- state=buildLevel(currentLevel);undoHistory=[];setStatus(currentLevel===1?t.welcome:t.restartMsg);render();
+ state=buildLevel(currentLevel);undoHistory=[];updateLayout();setStatus(currentLevel===1?tutorialLine():t.restartMsg);render();
  $("winOverlay").hidden=true;$("levelOverlay").hidden=true;
 }
 function hint(){
