@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#132a2a">
+<title>JUMP 99: Kwiat Paproci — PROJECT 99</title>
+<meta name="description" content="JUMP 99: Kwiat Paproci. Trzy słowiańskie krainy. Jedno dotknięcie, żeby skoczyć.">
+<meta property="og:title" content="JUMP 99 — Kwiat Paproci">
+<meta property="og:description" content="Bór Leszego, Bagna Rusałki i Jaskinia Smoka. Zdobądź Kwiat Paproci!">
+<meta property="og:type" content="website">
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#0b1821;color:#f0fff2}
+body{background:radial-gradient(ellipse at top,#28504b,#13242c 40%,#080e1b 95%);overflow-x:hidden}
+main{max-width:490px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 9px) 10px calc(env(safe-area-inset-bottom) + 10px);display:flex;flex-direction:column;align-items:center;gap:9px}
+header{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:40px}
+a{color:#e5ffbd;text-decoration:none}header a{font-size:16px;font-weight:1000;letter-spacing:1px}header a strong{color:#dff279}
+header small{font-size:10px;font-weight:850;color:#a7c7b7;letter-spacing:1px}
+header button{border:1px solid #638273;background:#183c3e;color:white;border-radius:11px;font-size:18px;height:36px;min-width:41px;cursor:pointer}
+.frame{position:relative;overflow:hidden;border-radius:21px;border:2px solid #577666;box-shadow:0 22px 70px #0008;background:#25443d;width:min(100%,420px,calc((100svh - 159px)*.60));min-width:min(100%,265px);aspect-ratio:3/5;touch-action:none}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+.overlay{position:absolute;inset:0;z-index:2;display:flex;justify-content:center;align-items:center;padding:15px;background:linear-gradient(#071e26a8,#091922f0)}
+.overlay[hidden]{display:none}
+.panel{max-width:340px;width:100%;text-align:center}
+.eyebrow{font-size:11px;letter-spacing:2.4px;font-weight:900;color:#d5f5a1;margin:0 0 9px}
+.emblem{font-size:58px;filter:drop-shadow(0 0 20px #e5fa9266);margin:0 0 5px}
+h1{font-size:clamp(31px,8vw,47px);font-weight:1000;line-height:1.03;letter-spacing:-1px;margin:0}
+h1 span{color:#d5fb9e}
+.panel p{font-size:clamp(12px,3.4vw,15px);line-height:1.45;color:#cee7d7;margin:13px 0 15px}
+.worlds{display:flex;flex-direction:column;gap:6px;margin:0 0 15px}
+.worlds div{border-radius:10px;background:#163e42c9;border:1px solid #51776b;padding:8px;font-size:12px;text-align:left;font-weight:850}
+.btn{display:block;width:100%;min-height:50px;border:0;border-radius:13px;background:linear-gradient(130deg,#dffc9b,#91d976);color:#163623;font-weight:1000;font-size:18px;box-shadow:0 6px #487d4e;cursor:pointer;touch-action:manipulation}
+.btn:active{transform:translateY(3px);box-shadow:0 3px #487d4e}
+.btn.alt{background:#345558;color:#fff;box-shadow:none;border:1px solid #7ea394;font-size:14px;min-height:44px;margin-top:11px}
+.result{font-size:28px;font-weight:1000;color:#f9e293;margin:0 0 11px}
+.controls{display:flex;gap:10px;width:min(100%,420px,calc((100svh - 159px)*.60));min-width:min(100%,265px);height:60px}
+.controls button{border:1px solid #7ea48c;box-shadow:inset 0 2px #ffffff40;border-radius:15px;font-weight:1000;font-size:21px;touch-action:none;cursor:pointer}
+#bolt{width:36%;background:linear-gradient(120deg,#384d7b,#274263);color:#f8f6be}
+#bolt:disabled{opacity:.45}
+#jump{flex:1;background:linear-gradient(125deg,#d0eb7c,#79c366);color:#17442b}
+.foot{font-size:11px;color:#a5beb3;text-align:center}
+@media(max-height:670px){main{gap:5px}.controls{height:48px}.frame,.controls{width:min(100%,420px,calc((100svh - 141px)*.60))}.emblem{font-size:39px}}
+</style>
+</head>
+<body>
+<main>
+<header><a href="../">PROJECT <strong>99</strong></a><small>JUMP 99 · BETA</small><button id="pause" aria-label="Pauza">⏸</button></header>
+<div class="frame">
+<canvas id="game" width="420" height="700" aria-label="JUMP 99 Kwiat Paproci"></canvas>
+<div class="overlay" id="overlay"></div>
+</div>
+<div class="controls"><button id="bolt">⚡ <span id="boltText">PIORUN</span></button><button id="jump">⬆ <span id="jumpText">SKOK</span></button></div>
+<div class="foot" id="foot">Dotknij ekranu = skok · Piorun usuwa przeszkody</div>
+</main>
+<script>
+(()=>{
+"use strict";
+const pl=(navigator.language||"pl").slice(0,2).toLowerCase()==="pl";
+const T=pl?{
+names:["BÓR LESZEGO","BAGNA RUSAŁKI","JASKINIA SMOKA"],worlds:["🌲 Bór Leszego","🌫️ Bagna Rusałki","🐉 Jaskinia Smoka"],
+intro:"Biegnij przez trzy słowiańskie krainy. Zbieraj bursztyny, przeskakuj przeszkody i zdobądź Kwiat Paproci!",start:"▶ ZAGRAJ",next:"▶ NASTĘPNA KRAINA",again:"↻ JESZCZE RAZ",pause:"PAUZA",resume:"▶ GRAJ DALEJ",win:"KWIAT PAPROCI ZDOBYTY!",lose:"KONIEC PRZYGODY",clear:"KRAINA ZDOBYTA!",share:"📤 UDOSTĘPNIJ WYNIK",jump:"SKOK",bolt:"PIORUN",foot:"Dotknij ekranu = skok · ⚡ usuwa przeszkody",score:"WYNIK",best:"REKORD",shield:"TARCZA",newBest:"NOWY REKORD!",points:"pkt",return:"← PROJECT 99",shareText:s=>"🌿 Mój wynik w JUMP 99: Kwiat Paproci to "+s+" pkt. Spróbuj mnie pokonać! "
+}:{
+names:["LESHY'S FOREST","RUSALKA'S SWAMP","DRAGON'S CAVE"],worlds:["🌲 Leshy's Forest","🌫️ Rusalka's Swamp","🐉 Dragon's Cave"],
+intro:"Run through three Slavic worlds. Collect amber, jump over monsters, and find the legendary Fern Flower!",start:"▶ PLAY",next:"▶ NEXT WORLD",again:"↻ PLAY AGAIN",pause:"PAUSED",resume:"▶ RESUME",win:"YOU FOUND THE FERN FLOWER!",lose:"GAME OVER",clear:"WORLD CLEARED!",share:"📤 SHARE SCORE",jump:"JUMP",bolt:"THUNDER",foot:"Tap screen = jump · ⚡ clears obstacles",score:"SCORE",best:"BEST",shield:"SHIELD",newBest:"NEW RECORD!",points:"pts",return:"← PROJECT 99",shareText:s=>"🌿 My score in JUMP 99: Fern Flower is "+s+". Can you beat me? "
+};
+document.documentElement.lang=pl?"pl":"en";
+document.getElementById("jumpText").textContent=T.jump;
+document.getElementById("boltText").textContent=T.bolt;
+document.getElementById("foot").textContent=T.foot;
+const canvas=document.getElementById("game"),ctx=canvas.getContext("2d"),overlay=document.getElementById("overlay"),boltBtn=document.getElementById("bolt"),pauseBtn=document.getElementById("pause");
+const W=420,H=700,GROUND=526,PX=95,PW=37,PH=53,GRAV=1700,JUMP=-670;
+const plans=[
+ {length:3700,gaps:[[1030,1144],[2470,2588]],traps:[[500,"log"],[1530,"wolf"],[2060,"log"],[3030,"wolf"],[3440,"log"]]},
+ {length:3950,gaps:[[870,990],[2280,2400],[3150,3270]],traps:[[510,"spike"],[1390,"swamp"],[1880,"spike"],[2730,"swamp"],[3620,"spike"]]},
+ {length:4300,gaps:[[940,1060],[2110,2230],[3440,3570]],traps:[[560,"bat"],[1480,"spike"],[1780,"bat"],[2700,"spike"],[3070,"bat"],[3780,"spike"]]}
+];
+let mode="menu",level=0,dist=0,y=GROUND-PH,vy=0,onFloor=true,hearts=3,score=0,gems=0,shield=0,immune=0,boltCD=0,world=null,particles=[],fire=[],time=0,prev=performance.now(),best=0,record=false;
+try{best=Number(localStorage.getItem("p99_fern_best")||0)||0}catch{}
+function makeWorld(index){
+const cfg=plans[index],amber=[];
+for(let x=285;x<cfg.length-100;x+=140){
+ if(cfg.gaps.some(g=>x>g[0]-34&&x<g[1]+39)||cfg.traps.some(t=>Math.abs(t[0]-x)<68))continue;
+ amber.push({x,y:Math.floor(x/140)%5===2?405:479,taken:false});
+}
+return {length:cfg.length,gaps:cfg.gaps,traps:cfg.traps.map(([x,kind])=>({x,kind,dead:false})),amber,bonuses:[{x:1215,kind:"shield",taken:false},{x:2850,kind:"heart",taken:false}]};
+}
+function box(x,y,w,h){return {x,y,w,h}}
+function overlaps(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+function r(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x,y,w,h)}
+function ball(x,y,radius,c){ctx.beginPath();ctx.arc(x,y,radius,0,7);ctx.fillStyle=c;ctx.fill()}
+function poly(points,c){ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);ctx.closePath();ctx.fillStyle=c;ctx.fill()}
+function stroke(x,y,xx,yy,c,w=3){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(xx,yy);ctx.lineWidth=w;ctx.strokeStyle=c;ctx.stroke()}
+function round(x,y,w,h,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,12);ctx.fill()}
+function text(str,x,y,sz=14,color="#fff",align="left"){ctx.font="900 "+sz+"px system-ui,sans-serif";ctx.textAlign=align;ctx.fillStyle=color;ctx.fillText(str,x,y);ctx.textAlign="left"}
+function mod(x,n){return(x%n+n)%n}
+function bg(){
+ const color=[["#123d40","#276552","#164337"],["#262846","#5d6776","#355064"],["#3a2037","#b06445","#643847"]][level],grad=ctx.createLinearGradient(0,0,0,H);
+ grad.addColorStop(0,color[0]);grad.addColorStop(.7,color[1]);grad.addColorStop(1,color[2]);r(0,0,W,H,grad);
+ ball(334-dist*.018,118,67,"#ffe9a824");ball(334-dist*.018,118,36,level===2?"#ffa36d":"#e9e7c7");
+ for(let i=0;i<18;i++){ball(mod(i*105-dist*.14,W+40),70+i*39%355,1.4+(i%3),level===2?"#ffe2a080":"#e0f2d080")}
+ poly([[0,H],[0,411+Math.sin(dist/150)*18],[90,362],[210,425],[290,375],[420,410],[420,H]],level===2?"#4c2b3e":level===1?"#334a64":"#1d5450");
+ if(level===0){
+  for(let i=0;i<10;i++){
+   const x=mod(i*105-dist*.27,W+130)-60,h=110+(i%4)*20;
+   r(x-5,500-h,10,h+48,"#24463d");
+   for(let j=0;j<3;j++)poly([[x,467-h+j*34],[x-39+j*5,514-h+j*34],[x+39-j*5,514-h+j*34]],j%2?"#1a5849":"#246453");
+  }
+ }else if(level===1){
+  for(let i=0;i<14;i++){
+   const x=mod(i*77-dist*.30,W+100)-50,h=54+(i%4)*9;
+   stroke(x,513,x-8,513-h,"#2d585c",4);stroke(x,513,x+13,527-h,"#3c6869",3);
+   ball(x-10,512-h,7,"#66948d");
+  }
+  for(let i=0;i<4;i++)round(mod(i*143-dist*.16,W+150)-70,415+i*21,140,12,"#e2f2ea1c");
+ }else{
+  for(let i=0;i<10;i++){
+   const x=mod(i*88-dist*.31,W+90)-40;
+   poly([[x-27,0],[x+23,0],[x+(i%3)*4,84+(i%3)*15]],"#382434");
+   ball(x,465+i%3*13,5+i%3*2,"#ffb25555");
+  }
+ }
+}
+function ground(){
+ r(0,GROUND,W,H-GROUND,level===2?"#2c2435":"#112c34");
+ let start=0,segments=[];
+ for(const gap of world.gaps){segments.push([start,gap[0]]);start=gap[1]}
+ segments.push([start,world.length+1000]);
+ for(const s of segments){
+  const x=s[0]-dist,w=s[1]-s[0];if(x>W||x+w<0)continue;
+  const gradient=ctx.createLinearGradient(0,GROUND,0,H);
+  gradient.addColorStop(0,level===0?"#597b48":level===1?"#688d7b":"#aa735d");
+  gradient.addColorStop(.18,level===0?"#344c38":level===1?"#40565a":"#593b42");
+  gradient.addColorStop(1,level===2?"#2c273b":"#1d3439");
+  r(x,GROUND,w,H-GROUND,gradient);r(x,GROUND,w,7,level===2?"#e89c67":"#99b975");
+  for(let i=Math.ceil(s[0]/45);i<s[1]/45;i++){
+   const xx=i*45-dist;if(xx<-5||xx>W+5)continue;
+   stroke(xx,GROUND+30,xx+10,GROUND+40,level===2?"#986154":"#42654d",3);
+  }
+ }
+}
+function hero(now){
+ if(immune>0&&Math.floor(now/80)%2===0)return;
+ const x=PX,p=Math.sin(now*.016)*7;
+ if(shield){ball(x+18,y+29,38,"#bcfff032");ctx.beginPath();ctx.arc(x+18,y+29,37,0,7);ctx.strokeStyle="#c0ffe2";ctx.lineWidth=3;ctx.stroke()}
+ poly([[x+9,y+19],[x-4,y+40],[x+13,y+46],[x+24,y+36]],"#bf454d");
+ stroke(x+13,y+36,x+12+p,y+52,"#26384c",8);stroke(x+26,y+36,x+25-p,y+52,"#26384c",8);
+ round(x+8,y+19,26,24,"#416cb0");r(x+21,y+20,4,23,"#e8c664");
+ ball(x+23,y+11,13,"#f0be9c");
+ poly([[x+4,y+4],[x+13,y-12],[x+31,y-8],[x+39,y+4]],"#a83741");
+ r(x+5,y+2,35,7,"#d85d4f");ball(x+32,y+9,2,"#162b3b");
+ stroke(x+8,y+22,x+1,y+33+p*.2,"#efb896",5);
+ stroke(x+33,y+24,x+44,y+32-p*.2,"#efb896",5);
+ stroke(x+43,y+33,x+51,y+17,"#e3eceb",4);
+}
+function enemy(o,now){
+ if(o.dead)return;
+ const x=o.x-dist;if(x<-70||x>W+80)return;
+ if(o.kind==="spike"){
+  for(let i=0;i<3;i++)poly([[x+i*15,GROUND],[x+8+i*15,GROUND-43-(i%2)*6],[x+18+i*15,GROUND]],"#edaa9f");
+ }else if(o.kind==="log"){
+  round(x,GROUND-35,48,34,"#755039");ball(x+12,GROUND-17,12,"#d7a675");ball(x+12,GROUND-17,7,"#976843");
+ }else if(o.kind==="wolf"){
+  round(x+5,GROUND-34,47,26,"#2e3c46");ball(x+55,GROUND-21,15,"#40505a");
+  poly([[x+45,GROUND-31],[x+51,GROUND-51],[x+60,GROUND-32]],"#425762");
+  ball(x+60,GROUND-24,3,"#ffe295");stroke(x+10,GROUND-12,x+8,GROUND+1,"#2b3942",7);
+  stroke(x+36,GROUND-12,x+38,GROUND+1,"#2b3942",7);
+ }else if(o.kind==="swamp"){
+  ball(x+22,GROUND-34,23,"#679a80");round(x+6,GROUND-30,34,30,"#4d846d");
+  ball(x+15,GROUND-39,6,"#faedc2");ball(x+30,GROUND-39,6,"#faedc2");
+  ball(x+15,GROUND-39,2,"#173d40");ball(x+30,GROUND-39,2,"#173d40");
+ }else{
+  const yy=GROUND-95+Math.sin(now*.009+o.x)*15;
+  poly([[x+23,yy+12],[x-6,yy-12],[x+1,yy+29],[x+23,yy+20],[x+49,yy+29],[x+54,yy-12]],"#502b55");
+  ball(x+23,yy+9,15,"#764769");ball(x+17,yy+7,3,"#f7e7b5");ball(x+29,yy+7,3,"#f7e7b5");
+ }
+}
+function obstacleBounds(o){
+ let x=o.x-dist;
+ if(o.kind==="bat")return box(x+5,GROUND-113+Math.sin(time*9+o.x)*15,44,45);
+ if(o.kind==="spike")return box(x+3,GROUND-46,43,46);
+ if(o.kind==="log")return box(x,GROUND-35,46,34);
+ if(o.kind==="wolf")return box(x+4,GROUND-41,63,42);
+ return box(x+5,GROUND-56,40,56);
+}
+function gem(g,now){
+ if(g.taken)return;const x=g.x-dist;if(x<-15||x>W+15)return;
+ const yy=g.y+Math.sin(now*.004+g.x)*5;
+ poly([[x,yy-14],[x+11,yy-3],[x+7,yy+10],[x,yy+15],[x-10,yy+5],[x-10,yy-5]],"#ffc45c");
+ poly([[x,yy-14],[x+11,yy-3],[x,yy+3]],"#fff5ae");
+}
+function dragon(now){
+ if(level!==2)return;
+ const x=world.length-550-dist;if(x<-200||x>W+180)return;
+ const yy=310+Math.sin(now*.002)*11;
+ ball(x,yy,100,"#ff963020");
+ poly([[x-50,yy],[x-100,yy-105],[x,yy-52],[x+45,yy-108],[x+61,yy+19]],"#7d4a60");
+ round(x-40,yy+15,120,65,"#985768");ball(x+81,yy+24,35,"#bd7465");
+ poly([[x+62,yy+3],[x+64,yy-34],[x+85,yy+3]],"#efa470");
+ ball(x+92,yy+15,6,"#eefe9a");ball(x+94,yy+15,2.5,"#263c3f");
+ poly([[x+97,yy+37],[x+145,yy+46],[x+101,yy+53]],"#d58d62");
+}
+function effects(){
+ for(const p of particles)ball(p.x,p.y,Math.max(1,3*p.life),p.c);
+}
+function burst(x,y,c,n=9){
+ for(let i=0;i<n;i++){const a=i*6.283/n;particles.push({x,y,vx:Math.cos(a)*120,vy:Math.sin(a)*120,life:.65,c})}
+}
+function hud(){
+ round(10,10,400,70,"#112935da");
+ text(T.names[level],24,33,15,"#e6f9df");
+ text((level+1)+" / 3",24,53,12,"#c2d6b6");
+ text("🟠 "+gems,232,39,19,"#ffe4a4");
+ for(let i=0;i<3;i++)text(i<hearts?"♥":"♡",334+i*22,38,22,i<hearts?"#ff8793":"#99a2a1");
+ round(24,63,372,6,"#51666a");round(24,63,Math.min(372,372*((dist+PX)/world.length)),6,"#d7ec94");
+ if(shield){round(12,90,115,27,"#244f55dc");text("✦ "+T.shield,24,109,12,"#c7fff0");}
+ if(boltCD>0){round(305,90,102,28,"#23384ddc");text("⚡ "+Math.ceil(boltCD)+"s",355,110,13,"#e2f6be","center");}
+}
+function draw(now){
+ bg();dragon(now);ground();
+ for(const g of world.amber)gem(g,now);
+ for(const bonus of world.bonuses)if(!bonus.taken){
+  const x=bonus.x-dist;
+  if(x>-30&&x<W+30){
+   ball(x,463+Math.sin(now*.004)*5,23,"#b5ffb92d");
+   ball(x,463+Math.sin(now*.004)*5,16,bonus.kind==="shield"?"#65d2ba":"#ef9aaa");
+   text(bonus.kind==="shield"?"✦":"♥",x,471+Math.sin(now*.004)*5,23,"#fff","center");
+  }
+ }
+ for(const o of world.traps)enemy(o,now);
+ for(const f of fire){ball(f.x-dist,f.y,17,"#ff8f5259");ball(f.x-dist,f.y,10,"#fb623e");ball(f.x-dist-3,f.y-3,4,"#ffda69")}
+ hero(now);effects();hud();
+}
+function panel(kind){
+ mode=kind;let title="",desc="",icon="🌿",buttons="",extra="";
+ if(kind==="menu"){
+  title="JUMP 99<br><span>KWIAT PAPROCI</span>";desc=T.intro;
+  extra='<div class="worlds">'+T.worlds.map(s=>'<div>'+s+'</div>').join("")+'</div>';
+  buttons='<button class="btn" data-go="start">'+T.start+'</button>';
+ }else if(kind==="pause"){
+  title=T.pause;icon="⏸";desc=T.intro;
+  buttons='<button class="btn" data-go="resume">'+T.resume+'</button>';
+ }else if(kind==="clear"){
+  title=T.clear;icon=["🌲","🌫️","🐉"][level];
+  desc=T.worlds[level+1]||"";extra='<div class="result">'+score+' '+T.points+'</div>';
+  buttons='<button class="btn" data-go="next">'+T.next+'</button>';
+ }else if(kind==="lose"){
+  title=T.lose;icon="💔";desc=T.worlds[level];
+  extra='<div class="result">'+score+' '+T.points+'</div>';
+  buttons='<button class="btn" data-go="start">'+T.again+'</button>';
+ }else if(kind==="win"){
+  title=T.win;icon="🌿";desc=record?T.newBest:T.intro;
+  extra='<div class="result">'+score+' '+T.points+'</div><p>'+T.best+': '+best+'</p>';
+  buttons='<button class="btn" data-go="share">'+T.share+'</button><button class="btn alt" data-go="start">'+T.again+'</button>';
+ }
+ overlay.innerHTML='<div class="panel"><div class="eyebrow">PROJECT 99 · SLAVIC ADVENTURE</div><div class="emblem">'+icon+'</div><h1>'+title+'</h1><p>'+desc+'</p>'+extra+buttons+'</div>';
+ overlay.hidden=false;
+}
+function begin(){
+ level=0;dist=0;world=makeWorld(0);y=GROUND-PH;vy=0;onFloor=true;hearts=3;score=0;gems=0;shield=0;immune=0;boltCD=0;particles=[];fire=[];mode="playing";overlay.hidden=true;
+}
+function next(){
+ level++;dist=0;world=makeWorld(level);y=GROUND-PH;vy=0;onFloor=true;immune=1;fire=[];boltCD=0;mode="playing";overlay.hidden=true;
+}
+function hurt(pit=false){
+ if(immune>0&&!pit)return;
+ if(shield){shield=0;immune=1.3;if(!pit)return;}
+ else{hearts--;immune=1.5;}
+ if(hearts<=0){panel("lose");return}
+ if(pit){
+  const wx=dist+PX+PW/2;
+  const g=world.gaps.find(a=>wx>a[0]-80&&wx<a[1]+350);
+  dist=Math.max(0,(g?g[0]-250:wx-350)-PX);
+  y=GROUND-PH;vy=0;onFloor=true;fire=[];
+ }
+}
+function jump(){
+ if(mode!=="playing")return;
+ if(onFloor){vy=JUMP;onFloor=false;burst(PX+10,GROUND,"#d7edab",5);}
+}
+function thunder(){
+ if(mode!=="playing"||boltCD>0)return;
+ boltCD=7.5;burst(180,260,"#d0f3fe",30);
+ for(const o of world.traps){
+  if(!o.dead&&o.x-dist>PX&&o.x-dist<395){o.dead=true;score+=25;burst(o.x-dist,GROUND-35,"#dffbff",13);}
+ }
+ for(const f of fire)if(f.x-dist>PX&&f.x-dist<410){f.dead=true;burst(f.x-dist,f.y,"#fff3c7",10);}
+}
+function finishWorld(){
+ score+=200+hearts*50;
+ if(level<2){panel("clear");return}
+ record=score>best;if(record){best=score;try{localStorage.setItem("p99_fern_best",String(best))}catch{}}
+ panel("win");
+}
+function update(dt){
+ time+=dt;
+ particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt});
+ particles=particles.filter(p=>p.life>0);
+ if(mode!=="playing")return;
+ immune=Math.max(0,immune-dt);boltCD=Math.max(0,boltCD-dt);
+ dist+=([228,241,257][level])*dt;
+ const wx=dist+PX+PW/2,gap=world.gaps.find(g=>wx>g[0]&&wx<g[1]);
+ if(onFloor){
+  if(gap){onFloor=false;vy=40;}
+  else{y=GROUND-PH;vy=0;}
+ }
+ if(!onFloor){
+  const oldFoot=y+PH;vy+=GRAV*dt;y+=vy*dt;
+  if(vy>=0&&oldFoot<=GROUND+15&&y+PH>=GROUND&&!gap){y=GROUND-PH;vy=0;onFloor=true}
+  if(y>H+25){hurt(true);if(mode!=="playing")return}
+ }
+ const h=box(PX+5,y+4,PW-10,PH-7);
+ for(const g of world.amber){
+  if(!g.taken&&Math.abs(g.x-dist-PX)<33&&overlaps(h,box(g.x-dist-12,g.y-16,24,32))){
+   g.taken=true;gems++;score+=10;burst(g.x-dist,g.y,"#ffdc84",7);
+  }
+ }
+ for(const b of world.bonuses)if(!b.taken&&overlaps(h,box(b.x-dist-18,443,36,43))){
+  b.taken=true;if(b.kind==="shield")shield=1;else hearts=Math.min(3,hearts+1);
+  burst(b.x-dist,465,"#b4ffe6",12);
+ }
+ for(const o of world.traps)if(!o.dead&&overlaps(h,obstacleBounds(o))){
+  o.dead=true;hurt();if(mode!=="playing")return;
+ }
+ if(level===2){
+  for(const mark of [3280,3660,4020])if(dist>mark&&dist-mark<([228,241,257][level]*dt)){
+   fire.push({x:dist+450,y:mark===3660?GROUND-92:GROUND-28});
+  }
+ }
+ for(const f of fire){
+  if(f.dead)continue;f.x-=130*dt;
+  if(overlaps(h,box(f.x-dist-12,f.y-12,24,24))){f.dead=true;hurt();if(mode!=="playing")return}
+  if(f.x-dist<-30)f.dead=true;
+ }
+ fire=fire.filter(f=>!f.dead);
+ if(wx>=world.length)finishWorld();
+}
+async function share(){
+ const url="https://project99.appforge99.com/jump99/paproci.html";
+ const words=T.shareText(score)+url;
+ try{
+  if(navigator.share){await navigator.share({title:"JUMP 99 — Fern Flower",text:words,url});return;}
+  if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(words);return;}
+ }catch(e){if(e.name==="AbortError")return}
+ const ta=document.createElement("textarea");ta.value=words;document.body.appendChild(ta);ta.select();try{document.execCommand("copy")}catch{}ta.remove();
+}
+overlay.addEventListener("click",e=>{
+ const button=e.target.closest("button[data-go]");if(!button)return;
+ const a=button.dataset.go;
+ if(a==="start")begin();if(a==="next")next();if(a==="resume"){mode="playing";overlay.hidden=true}
+ if(a==="share"){share();button.textContent=pl?"✓ SKOPIOWANO / UDOSTĘPNIONO":"✓ SHARED / COPIED";}
+});
+canvas.addEventListener("pointerdown",e=>{e.preventDefault();jump()});
+const j=document.getElementById("jump");
+j.addEventListener("pointerdown",e=>{e.preventDefault();jump()});
+j.addEventListener("click",e=>{if(e.detail===0)jump()});
+boltBtn.addEventListener("pointerdown",e=>{e.preventDefault();thunder()});
+boltBtn.addEventListener("click",e=>{if(e.detail===0)thunder()});
+pauseBtn.addEventListener("click",()=>{if(mode==="playing")panel("pause");else if(mode==="pause"){mode="playing";overlay.hidden=true}});
+window.addEventListener("keydown",e=>{
+ if(e.repeat)return;
+ if(["Space","ArrowUp","KeyW"].includes(e.code)){e.preventDefault();jump()}
+ if(e.code==="KeyE")thunder();
+ if(e.code==="KeyP"||e.code==="Escape"){if(mode==="playing")panel("pause");else if(mode==="pause"){mode="playing";overlay.hidden=true}}
+});
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&mode==="playing")panel("pause")});
+function frame(now){
+ const dt=Math.min(.033,Math.max(0,(now-prev)/1000));prev=now;
+ update(dt);draw(now);
+ boltBtn.disabled=mode!=="playing"||boltCD>0;
+ pauseBtn.textContent=mode==="pause"?"▶":"⏸";
+ requestAnimationFrame(frame);
+}
+world=makeWorld(0);panel("menu");requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
