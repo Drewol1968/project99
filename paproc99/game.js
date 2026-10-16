@@ -3,12 +3,13 @@
 const $ = id => document.getElementById(id);
 const canvas=$("game"),ctx=canvas.getContext("2d",{alpha:false});
 const levelData=[
- {name:"ŚWIĘTY LAS",emoji:"🌲",short:"Las Leszego",desc:"Korzenie, pradawne dęby i strażnik Leszy.",palette:["#091d25","#315b4f","#1a403b","#82a96a"],grounds:[[0,470],[540,940],[1020,1430],[1510,1940],[2010,2660]],platforms:[[245,100,130],[635,105,130],[1110,105,125],[1600,105,120],[2130,100,130],[1785,173,95]],glows:[[170,55],[355,155],[680,145],[835,55],[1140,152],[1310,55],[1640,150],[1860,55],[2150,145],[2400,55]],enemies:[360,780,1230,1720,2240],checkpoints:[1080,2080],goal:2510,width:2660,story:"W lesie Leszego ukryto pierwszą część legendy."},
- {name:"BAGNA RUSAŁEK",emoji:"🌫️",short:"Bagna Rusałek",desc:"Mgła, zgubne kładki i przebiegłe utopce.",palette:["#101e2e","#3f6165","#284c4f","#80b99a"],grounds:[[0,445],[525,900],[980,1320],[1400,1780],[1860,2280],[2355,2740]],platforms:[[240,105,130],[625,105,125],[1100,105,140],[1530,110,130],[1935,105,130],[2425,105,120]],glows:[[170,60],[300,150],[665,145],[825,60],[1130,145],[1250,65],[1555,155],[2010,148],[2220,60],[2490,145]],enemies:[365,760,1210,1625,2100,2520],checkpoints:[1040,1920],goal:2610,width:2740,story:"Rusałki kuszą wędrowców, a utopce strzegą przepraw."},
- {name:"PODWODNA KRAINA",emoji:"🌊",short:"Podwodna Kraina",desc:"Zalane ruiny, wodne zjawy i zatopiona brama.",palette:["#061b38","#116a87","#11405f","#4bc9c4"],grounds:[[0,465],[545,960],[1040,1460],[1540,1980],[2060,2720]],platforms:[[220,95,120],[640,150,135],[1130,105,130],[1640,120,120],[2160,115,135],[2370,190,120]],glows:[[165,60],[295,140],[700,196],[855,65],[1180,145],[1350,65],[1680,168],[1910,65],[2210,160],[2420,235]],enemies:[390,795,1320,1770,2240,2520],checkpoints:[1120,2130],goal:2600,width:2720,story:"W głębinach lśni ostatnia droga do Kwiatu Paproci."}
+ {name:"ŚWIĘTY LAS",emoji:"🌲",short:"Las Leszego",desc:"Korzenie, pradawne dęby i strażnik Leszy.",palette:["#091d25","#315b4f","#1a403b","#82a96a"],grounds:[[0,470],[590,940],[1060,1430],[1565,1940],[2075,2660]],platforms:[[245,98,130],[635,105,130],[1110,100,125],[1600,105,120],[2130,100,130],[1785,158,95]],glows:[[170,55],[355,155],[680,145],[835,55],[1140,152],[1310,55],[1640,150],[1860,55],[2150,145],[2400,55]],enemies:[360,780,1230,1720,2240],checkpoints:[1080,2080],goal:2510,width:2660,required:6,spikes:[915,1845],flyers:[[715,136],[1695,145]],story:"W lesie Leszego ukryto pierwszą część legendy."},
+ {name:"BAGNA RUSAŁEK",emoji:"🌫️",short:"Bagna Rusałek",desc:"Mgła, zgubne kładki i przebiegłe utopce.",palette:["#101e2e","#3f6165","#284c4f","#80b99a"],grounds:[[0,445],[580,900],[1045,1320],[1465,1780],[1930,2280],[2425,2740]],platforms:[[240,105,130],[625,102,125],[1100,102,140],[1530,108,130],[1935,105,130],[2425,105,120]],glows:[[170,60],[300,150],[665,145],[825,60],[1130,145],[1250,65],[1555,155],[2010,148],[2220,60],[2490,145]],enemies:[365,760,1210,1625,2100,2520],checkpoints:[1040,1920],goal:2610,width:2740,required:7,spikes:[385,1230,1690,2170],flyers:[[685,135],[1170,140],[2020,145]],story:"Rusałki kuszą wędrowców, a utopce strzegą przepraw."},
+ {name:"PODWODNA KRAINA",emoji:"🌊",short:"Podwodna Kraina",desc:"Zalane ruiny, wodne zjawy i zatopiona brama.",palette:["#061b38","#116a87","#11405f","#4bc9c4"],grounds:[[0,465],[610,960],[1110,1460],[1620,1980],[2130,2720]],platforms:[[220,95,120],[640,150,135],[1130,105,130],[1640,120,120],[2160,115,135],[2370,190,120]],glows:[[165,60],[295,140],[700,196],[855,65],[1180,145],[1350,65],[1680,168],[1910,65],[2210,160],[2420,235]],enemies:[390,795,1320,1770,2240,2520],checkpoints:[1120,2130],goal:2600,width:2720,required:8,spikes:[385,850,1330,2320],flyers:[[710,145],[1190,148],[1690,160],[2370,180]],story:"W głębinach lśni ostatnia droga do Kwiatu Paproci."}
 ];
 const GAME_SAVE="p99_fern_open_levels_v2";
-const NEED=5,PH=39,PW=25,GRAVITY=1080,SPEED=215;
+const PH=39,PW=25,GRAVITY=1080,SPEED=225;
+const requiredGlows=()=>stage?.required||6;
 let viewW=400,viewH=460,dpr=1,groundY=375,cam=0,now=0,last=0;
 let stageIndex=0,stage=null,unlocked=loadUnlocked(),mode="menu";
 let hero={x:55,y:0,vx:0,vy:0,facing:1,onGround:true,coyote:0,inv:0,hp:3,anim:0,swimCD:0};
@@ -53,7 +54,7 @@ function updateMenu(){
 function setLevel(i){
  stageIndex=i;stage=levelData[i];
  checkpoint=55;glows=stage.glows.map((o,j)=>({x:o[0],offset:o[1],taken:false,phase:j}));
- enemies=stage.enemies.map((x,j)=>({base:x,x,dir:j%2?-1:1,range:24+j%3*15,dead:false,phase:j*.77}));
+ enemies=stage.enemies.map((x,j)=>({base:x,x,dir:j%2?-1:1,range:36+j%3*13,dead:false,phase:j*.77}));
  gems=0;particles=[];elapsed=0;cam=0;hero={x:55,y:groundY-PH,vx:0,vy:0,facing:1,onGround:true,coyote:.12,inv:0,hp:3,anim:0,swimCD:0};
  $("levelTag").textContent=stage.emoji+" "+stage.name;
  updateHUD();
@@ -61,11 +62,12 @@ function setLevel(i){
 function startLevel(i=stageIndex){
  setLevel(i);mode="play";startTime=performance.now();
  hideLayers();$("topHud").hidden=false;keys.left=keys.right=keys.jump=false;
- toast(stageIndex===2?"🌊 PRZYTRZYMAJ SKOK, ABY PŁYNĄĆ":"✦ ZBIERZ 5 ŚWIETLIKÓW I ZNAJDŹ BRAMĘ",2600);
+ toast(stageIndex===2?"🌊 PŁYŃ I ZBIERZ "+requiredGlows()+" ŚWIETLIKÓW":"✦ ZBIERZ "+requiredGlows()+" ŚWIETLIKÓW I ZNAJDŹ BRAMĘ",2800);
  beep(523,.09);beep(784,.12,.14);
 }
 function updateHUD(){
  $("gemsDisplay").textContent=String(gems);
+ if($("requiredDisplay"))$("requiredDisplay").textContent=String(requiredGlows());
  $("healthDisplay").textContent=("♥ ".repeat(hero.hp)).trim()||"♡";
 }
 function toast(text,duration=1400){
@@ -179,7 +181,7 @@ function update(dt){
  queuedJump=false;
  if(jumpNow){
   if(underwater){hero.vy=-320;hero.swimCD=.34;hero.onGround=false;beep(320,.045)}
-  else if(hero.onGround||hero.coyote>0){hero.vy=-460;hero.onGround=false;hero.coyote=0;beep(400,.07)}
+  else if(hero.onGround||hero.coyote>0){hero.vy=-500;hero.onGround=false;hero.coyote=0;beep(400,.07)}
  }
  const oldBottom=hero.y+PH;
  hero.vy=Math.min(underwater?350:820,hero.vy+(underwater?620:GRAVITY)*dt);
@@ -203,12 +205,21 @@ function update(dt){
   const oy=groundY-orb.offset+Math.sin(now*.0025+orb.phase)*5;
   if(Math.hypot(hero.x+PW/2-orb.x,hero.y+PH/2-oy)<30){
    orb.taken=true;gems++;updateHUD();burst(orb.x,oy,"#ffe08a");beep(620+gems*75,.1);
-   if(gems===NEED)toast("✺ BRAMA OTWARTA! IDŹ W PRAWO →",2100);
+   if(gems===requiredGlows())toast("✺ BRAMA OTWARTA! IDŹ W PRAWO →",2100);
   }
  }
+ for(const s of stage.spikes){
+  if(hero.x+PW>s+5&&hero.x<s+29&&hero.y+PH>groundY-18&&hero.y<groundY)damage();
+ }
+ for(const spirit of stage.flyers){
+  const sx=spirit[0]+Math.sin(now*.0017+spirit[0])*43;
+  const sy=groundY-spirit[1]+Math.sin(now*.0028+spirit[0]) *25;
+  if(Math.hypot(hero.x+PW/2-sx,hero.y+PH/2-sy)<27)damage();
+ }
+ if(mode!=="play")return;
  for(const e of enemies){
   if(e.dead)continue;
-  e.x=e.base+Math.sin(now*.0013+e.phase)*e.range;
+  e.x=e.base+Math.sin(now*(.0019+stageIndex*.00035)+e.phase)*e.range;
   const ey=groundY-29;
   if(hero.x+PW>e.x-17&&hero.x<e.x+17&&hero.y+PH>ey&&hero.y<ey+28){
    if(hero.vy>75&&oldBottom<=ey+14){
@@ -217,8 +228,8 @@ function update(dt){
   }
  }
  if(hero.x>stage.goal-22&&hero.y+PH>groundY-150){
-  if(gems>=NEED){finish(true);return}
-  if(now-(update.portalAlert||0)>2400){toast("✦ POTRZEBUJESZ JESZCZE "+(NEED-gems)+" ŚWIETLIKÓW",1600);update.portalAlert=now;}
+  if(gems>=requiredGlows()){finish(true);return}
+  if(now-(update.portalAlert||0)>2400){toast("✦ POTRZEBUJESZ JESZCZE "+(requiredGlows()-gems)+" ŚWIETLIKÓW",1600);update.portalAlert=now;}
   hero.x=Math.min(hero.x,stage.goal-25);
  }
  for(const p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=180*dt;p.life-=dt;}
@@ -376,10 +387,33 @@ function drawEnemy(e){
  }
  ctx.restore();
 }
+function drawHazards(){
+ for(const spike of stage.spikes){
+  const x=spike-cam,y=groundY;
+  if(x<-45||x>viewW+30)continue;
+  roundedRect(x-3,y-5,40,6,2,stageIndex===2?"#75acaa":"#624a3d");
+  for(let i=0;i<3;i++){
+   const sx=x+i*12;
+   polygon([sx,y-5,sx+6,y-28-(i%2)*6,sx+12,y-5],stageIndex===2?"#5accb8":"#d39b6d");
+   line(sx+6,y-18,sx+9,y-7,1,stageIndex===2?"#d5ffff":"#f3d6a0");
+  }
+ }
+ for(const spirit of stage.flyers){
+  const x=spirit[0]+Math.sin(now*.0017+spirit[0])*43-cam;
+  const y=groundY-spirit[1]+Math.sin(now*.0028+spirit[0])*25;
+  if(x<-50||x>viewW+50)continue;
+  ctx.save();ctx.shadowColor=stageIndex===2?"#8ffff0":"#c6adfc";ctx.shadowBlur=14;
+  const col=stageIndex===2?"#83dad2":"#c3a8e1";
+  circle(x,y,13,col);
+  circle(x-4,y-2,2,"#223148");circle(x+4,y-2,2,"#223148");
+  for(let i=-1;i<=1;i++)line(x+i*6,y+9,x+i*6+Math.sin(now*.004+i)*4,y+20,2,col);
+  ctx.restore();
+ }
+}
 function drawPortal(){
  const x=stage.goal-cam,y=groundY;
  if(x<-70||x>viewW+70)return;
- const unlocked=gems>=NEED;
+ const unlocked=gems>=requiredGlows();
  ctx.save();
  ctx.shadowColor=unlocked?"#f3d37f":"#6d9b98";ctx.shadowBlur=unlocked?32:6;
  ctx.strokeStyle=unlocked?"#f2d183":"#567a7b";ctx.lineWidth=8;ctx.beginPath();ctx.ellipse(x,y-53,29,53,0,Math.PI,2*Math.PI);ctx.stroke();
@@ -395,7 +429,7 @@ function drawPortal(){
   line(x-9,y-82,x+9,y-68,3,"#9dbbb9");
  }
  ctx.restore();
- const label=unlocked?"BRAMA OTWARTA":"ZBIERZ 5 ŚWIETLIKÓW";
+ const label=unlocked?"BRAMA OTWARTA":"ZBIERZ "+requiredGlows()+" ŚWIETLIKÓW";
  ctx.font="bold 11px system-ui";ctx.textAlign="center";
  ctx.fillStyle="#f7e6b8";ctx.shadowColor="#000";ctx.shadowBlur=5;ctx.fillText(label,x,y-131);
  ctx.textAlign="start";ctx.shadowBlur=0;
@@ -451,6 +485,7 @@ function draw(){
  for(const s of stage.grounds)drawGround({x:s[0],end:s[1],y:groundY});
  for(const p of stage.platforms)drawPlatform({x:p[0],end:p[0]+p[2],y:groundY-p[1]});
  drawDecor();
+ drawHazards();
  for(const orb of glows)drawOrb(orb);
  drawPortal();
  for(const e of enemies)drawEnemy(e);
