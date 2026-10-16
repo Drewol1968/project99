@@ -1,3 +1,78 @@
-<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Kwiat Paproci 99</title><style>*{box-sizing:border-box}body{margin:0;background:#091b1b;color:#fff;font-family:system-ui;overflow:hidden}header{height:55px;display:flex;align-items:center;justify-content:space-around;background:#102321}button{border:0;border-radius:14px;background:#e9c66e;color:#18231b;font-weight:900;font-size:20px;touch-action:none}#game{display:block;width:100vw;height:calc(100dvh - 180px);touch-action:none}#controls{height:125px;display:flex;justify-content:space-between;padding:15px;gap:12px;background:#102321}#controls button{width:30%;font-size:30px}#message{position:absolute;top:70px;left:10%;width:80%;text-align:center;font-weight:800;text-shadow:0 2px 4px #000;background:#112a27c9;border-radius:15px;padding:10px;pointer-events:none}</style></head><body><header><b>🌿 KWIAT PAPROCI 99</b><span id="level">LAS</span><span id="score">✦ 0</span></header><canvas id="game"></canvas><div id="message">Zbieraj świetliki ✦ i dotrzyj do złotej bramy →</div><div id="controls"><button id="left">◀</button><button id="jump">⬆ SKOK</button><button id="right">▶</button></div><script>
-const c=document.getElementById('game'),x=c.getContext('2d'),msg=document.getElementById('message'),scoreEl=document.getElementById('score'),levelEl=document.getElementById('level');let W,H,ground,level=0,score=0,won=false;const names=['ŚWIĘTY LAS','BAGNA RUSAŁEK','PODWODNA KRAINA','STARY GRÓD','ŚNIEŻNE GÓRY','JASKINIA ŻMIJA','KWIAT PAPROCI'];let p,items,platforms,enemy,keys={left:false,right:false,jump:false};function resize(){W=c.width=innerWidth*devicePixelRatio;H=c.height=c.clientHeight*devicePixelRatio;x.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);W=innerWidth;H=c.clientHeight;ground=H-65}addEventListener('resize',resize);resize();function reset(){p={x:25,y:ground-32,vx:0,vy:0,w:25,h:32,on:false};items=[.19,.39,.6,.79].map((a,i)=>({x:W*a,y:ground-65-(i%2)*55,taken:false}));platforms=[{x:W*.28,y:ground-75,w:W*.2},{x:W*.59,y:ground-115,w:W*.18}];enemy={x:W*.53,y:ground-23,dir:1};levelEl.textContent=names[level];msg.textContent=level===0?'Zbieraj świetliki ✦ i dotrzyj do bramy →':names[level]+' — zbierz świetliki i znajdź bramę';won=false}function bind(id,k){let b=document.getElementById(id);b.addEventListener('pointerdown',e=>{e.preventDefault();keys[k]=true;b.setPointerCapture(e.pointerId)});for(let ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,()=>keys[k]=false)}bind('left','left');bind('right','right');bind('jump','jump');addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='a')keys.left=true;if(e.key==='ArrowRight'||e.key==='d')keys.right=true;if(e.key===' '||e.key==='ArrowUp')keys.jump=true});addEventListener('keyup',e=>{if(e.key==='ArrowLeft'||e.key==='a')keys.left=false;if(e.key==='ArrowRight'||e.key==='d')keys.right=false;if(e.key===' '||e.key==='ArrowUp')keys.jump=false});function draw(){let colors=[['#102b28','#35664a'],['#122d32','#4a6660'],['#072e50','#13788b'],['#242c35','#62624d'],['#182a42','#849ab0'],['#311b25','#8b4731'],['#1d2630','#566447']][level];let bg=x.createLinearGradient(0,0,0,H);bg.addColorStop(0,colors[0]);bg.addColorStop(1,colors[1]);x.fillStyle=bg;x.fillRect(0,0,W,H);x.fillStyle='#ffffff12';for(let i=0;i<16;i++){let xx=(i*89+25)%W;x.beginPath();x.arc(xx,((i*127+43)%(H-90)),2+(i%3),0,7);x.fill()}if(level===0||level===1){for(let i=0;i<9;i++){let xx=i*W/8;x.fillStyle='#142b26';x.fillRect(xx,ground-135,12,135);x.fillStyle='#224c39';x.beginPath();x.arc(xx+6,ground-143,32,0,7);x.fill()}}if(level===2){x.fillStyle='#77dfff22';for(let i=0;i<13;i++){x.beginPath();x.arc((i*97)%W,(performance.now()/50+i*49)%H,5+i%5,0,7);x.strokeStyle='#a8f8ff55';x.stroke()}}x.fillStyle=level===2?'#175b64':'#273e2c';x.fillRect(0,ground,W,H-ground);x.fillStyle='#927d51';for(let a of platforms){x.fillRect(a.x,a.y,a.w,12);x.fillStyle='#4b6c4c';x.fillRect(a.x,a.y,a.w,4);x.fillStyle='#927d51'}for(let it of items)if(!it.taken){x.fillStyle='#f5dc72';x.shadowBlur=17;x.shadowColor='#fce875';x.beginPath();x.arc(it.x,it.y,7,0,7);x.fill();x.shadowBlur=0}x.fillStyle='#e4b957';x.fillRect(W-43,ground-98,28,98);x.fillStyle='#33291b';x.fillRect(W-38,ground-91,18,85);x.fillStyle='#ffed8c';x.font='27px serif';x.fillText('✦',W-44,ground-105);x.fillStyle=level===1?'#70e1da':'#b89ab9';x.beginPath();x.arc(enemy.x,enemy.y-11,14,0,7);x.fill();x.fillStyle='#fff';x.fillRect(enemy.x-7,enemy.y-14,4,4);x.fillRect(enemy.x+4,enemy.y-14,4,4);x.fillStyle='#dfb997';x.fillRect(p.x+5,p.y,15,15);x.fillStyle='#4b301f';x.fillRect(p.x+3,p.y-3,19,6);x.fillStyle='#8c533c';x.fillRect(p.x,p.y+15,25,17);x.fillStyle='#ead49d';x.fillRect(p.x+4,p.y+32,6,4);x.fillRect(p.x+16,p.y+32,6,4)}let prev=performance.now();function tick(now){let dt=Math.min((now-prev)/16.67,2);prev=now;if(!won){p.vx=((keys.right?1:0)-(keys.left?1:0))*3.6;p.x=Math.max(0,Math.min(W-p.w,p.x+p.vx*dt));if(keys.jump&&p.on){p.vy=level===2?-8:-12;p.on=false}let oldBottom=p.y+p.h;p.vy+=((level===2?.23:.58))*dt;p.y+=p.vy*dt;p.on=false;if(p.y+p.h>=ground){p.y=ground-p.h;p.vy=0;p.on=true}for(let a of platforms)if(p.vy>=0&&oldBottom<=a.y+7&&p.y+p.h>=a.y&&p.x+p.w>a.x&&p.x<a.x+a.w){p.y=a.y-p.h;p.vy=0;p.on=true}for(let it of items)if(!it.taken&&Math.hypot(p.x+12-it.x,p.y+15-it.y)<25){it.taken=true;score++;scoreEl.textContent='✦ '+score}enemy.x+=enemy.dir*.65*dt;if(enemy.x>W*.75||enemy.x<W*.46)enemy.dir*=-1;if(Math.abs(p.x+12-enemy.x)<20&&p.y+p.h>ground-35){p.x=25;p.y=ground-32;p.vy=0;msg.textContent='Uważaj na strażnika! Spróbuj ponownie'}if(p.x>W-60){if(level===6){won=true;msg.textContent='🌿 ZDOBYŁEŚ KWIAT PAPROCI! Dotknij ekranu, by zacząć od nowa'}else{level++;reset()}}}draw();requestAnimationFrame(tick)}c.addEventListener('pointerdown',()=>{if(won){level=0;score=0;scoreEl.textContent='✦ 0';reset()}});reset();requestAnimationFrame(tick);
-</script></body></html>
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#101521">
+<meta name="description" content="Kwiat Paproci 99 — słowiańska gra przygodowa. Odkryj las Leszego, bagna rusałek i podwodną krainę.">
+<meta property="og:title" content="KWIAT PAPROCI 99 — słowiańska przygoda">
+<meta property="og:description" content="Trzy magiczne krainy. Potwory, świetliki i Kwiat Paproci. Zagraj za darmo!">
+<title>KWIAT PAPROCI 99 | PROJECT 99</title>
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+<main class="shell">
+  <header class="top">
+    <a href="../" class="logo" aria-label="PROJECT 99">PROJECT <b>99</b></a>
+    <span class="edition">SŁOWIAŃSKA PRZYGODA · DEMO</span>
+    <button class="sound" id="soundBtn" aria-label="Włącz lub wyłącz dźwięk">♫ <span id="soundState">OFF</span></button>
+  </header>
+  <section class="title-strip">
+    <div><p class="eyebrow">LEGENDA NOCY KUPAŁY</p><h1>KWIAT <em>PAPROCI</em> <span>99</span></h1></div>
+    <div class="tiny-stats"><span id="progressLabel">ODKRYJ 3 KRAINY</span></div>
+  </section>
+  <section class="game-frame" aria-label="Obszar gry">
+    <canvas id="game" tabindex="0" aria-label="Przygoda — poruszaj się strzałkami, skacz spacją"></canvas>
+    <div class="top-hud" id="topHud" hidden>
+      <span class="hud-place" id="levelTag">🌲 ŚWIĘTY LAS</span>
+      <span class="hud-gems">✦ <b id="gemsDisplay">0</b>/5</span>
+      <span class="hud-hp" id="healthDisplay" aria-label="Życia">♥ ♥ ♥</span>
+      <button id="pauseBtn" class="hud-pause" aria-label="Pauza">Ⅱ</button>
+    </div>
+    <div class="toast" id="toast" role="status" hidden></div>
+    <div class="overlay visible" id="menuOverlay">
+      <div class="overlay-content">
+        <div class="seal">✺</div>
+        <p class="overline">WYPRAWA PO LEGENDARNY KWIAT</p>
+        <h2>Wybierz krainę</h2>
+        <p class="intro">Odszukaj co najmniej 5 świetlików i dotrzyj do magicznej bramy. Unikaj słowiańskich stworzeń!</p>
+        <div class="stage-list" id="stageList"></div>
+        <button class="action primary" id="playBtn">▶ ROZPOCZNIJ PRZYGODĘ</button>
+        <p class="small-tip">Telefon: przyciski pod grą. Komputer: ← → i spacja.</p>
+      </div>
+    </div>
+    <div class="overlay" id="pauseOverlay" hidden>
+      <div class="overlay-content compact">
+        <div class="seal">⏸</div><h2>Przerwa</h2><p class="intro">Legenda poczeka na bohatera.</p>
+        <button class="action primary" id="resumeBtn">▶ GRAJ DALEJ</button>
+        <button class="action outline" id="pauseHomeBtn">WYBIERZ KRAINĘ</button>
+      </div>
+    </div>
+    <div class="overlay" id="endOverlay" hidden>
+      <div class="overlay-content compact">
+        <div class="seal" id="endSeal">✺</div>
+        <p class="overline" id="endOverline">WYZWANIE UKOŃCZONE</p>
+        <h2 id="endTitle">Zwycięstwo!</h2>
+        <p class="intro" id="endDetail"></p>
+        <div class="results" id="endStats"></div>
+        <button class="action primary" id="endMainBtn">DALEJ →</button>
+        <button class="action outline" id="endHomeBtn">WYBIERZ KRAINĘ</button>
+      </div>
+    </div>
+  </section>
+  <section class="touch-controls" aria-label="Sterowanie dotykowe">
+    <div class="controls-pair">
+      <button type="button" class="control move" id="leftBtn" aria-label="Idź w lewo">◀</button>
+      <button type="button" class="control move" id="rightBtn" aria-label="Idź w prawo">▶</button>
+    </div>
+    <div class="controls-guide">RUSZAJ SIĘ · SKACZ</div>
+    <button type="button" class="control jump" id="jumpBtn">↑ <span>SKOK</span></button>
+  </section>
+  <section class="help">
+    <span>🌿 Las Leszego</span><span>🌫️ Bagna Rusałek</span><span>🌊 Podwodna Kraina</span>
+  </section>
+  <footer>Wersja testowa. Postęp zapisuje się na tym urządzeniu. <a href="../">Wróć do PROJECT 99</a></footer>
+</main>
+<script src="game.js?v=1"></script>
+</body>
+</html>
