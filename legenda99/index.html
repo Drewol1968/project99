@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101c2b">
+<meta name="description" content="LEGENDA 99: Szlak Żmija. Sześć krain, relikty, pułapki, przeciwnicy i wielki finał. Darmowa gra platformowa z PROJECT 99.">
+<meta property="og:title" content="LEGENDA 99 — Szlak Żmija">
+<meta property="og:description" content="Przejdź sześć krain. Zbierz relikty. Pokonaj Żmija.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://project99.appforge99.com/legenda99/">
+<link rel="canonical" href="https://project99.appforge99.com/legenda99/">
+<title>LEGENDA 99 — Szlak Żmija</title>
+<link rel="stylesheet" href="./style.css?v=1">
+</head>
+<body>
+<main class="shell">
+<header class="topbar">
+  <a class="brand" href="../">PROJECT <b>99</b></a>
+  <div class="top-actions"><button id="language" class="round" type="button" aria-label="Change language">EN</button><button id="sound" class="round" type="button" aria-label="Przełącz dźwięk">♪</button><button id="pause" class="round" type="button" aria-label="Pauza">Ⅱ</button></div>
+</header>
+<div class="heading"><div><p id="eyebrow" class="eyebrow">PRZYGODA • 6 KRAIN</p><h1 id="gameName">LEGENDA <em>99</em></h1></div><span class="chapter" id="chapter">ŚWIĘTY LAS</span></div>
+<div class="game-wrap" id="gameWrap">
+  <canvas id="game" aria-label="Gra platformowa Legenda 99"></canvas>
+  <div class="hud"><div class="hud-piece"><span>✦</span><b id="relics">0/5</b></div><div class="hud-piece"><span>◷</span><b id="clock">00:00</b></div><div class="hud-piece"><span>☠</span><b id="deaths">0</b></div></div>
+  <div id="toast" class="toast" aria-live="polite" hidden></div>
+  <section id="modal" class="modal" aria-live="polite">
+    <div class="modal-panel">
+      <p class="modal-kicker" id="modalKicker">SŁOWIAŃSKA PRZYGODA</p>
+      <div class="hero-symbol" id="modalSymbol">ᛟ</div>
+      <h2 id="modalTitle">SZLAK ŻMIJA</h2>
+      <p id="modalText">Sześć krain. Zbieraj relikty i dotrzyj do bramy. Przeskakuj przeciwników i pułapki.</p>
+      <button id="mainAction" class="primary" type="button">ROZPOCZNIJ PRZYGODĘ</button>
+      <button id="secondaryAction" class="secondary" type="button">WYBIERZ POZIOM</button>
+      <div id="levelPicker" class="level-picker" hidden></div>
+    </div>
+  </section>
+</div>
+<div class="controls">
+  <div class="move-buttons"><button id="left" class="control" type="button" aria-label="Lewo">◀</button><button id="right" class="control" type="button" aria-label="Prawo">▶</button></div>
+  <div class="controls-tip" id="controlsTip">RUSZAJ SIĘ • SKACZ • ZBIERAJ RELIKTY</div>
+  <button id="jump" class="control jump" type="button" aria-label="Skok">↑<small id="jumpText">SKOK</small></button>
+</div>
+<footer><div class="mini-progress" id="miniProgress"></div><div class="footnote"><span id="help">Telefon: przyciski. Komputer: ← → i spacja.</span><a href="../" id="homeLink">← PROJECT 99</a></div></footer>
+</main>
+<script src="./game.js?v=1" defer></script>
+</body>
+</html>
