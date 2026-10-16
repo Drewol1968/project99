@@ -1,0 +1,37 @@
+name: Legenda 99 checks
+on:
+  push:
+    paths:
+      - 'legenda99/**'
+      - '.github/workflows/legenda99-checks.yml'
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: node --check legenda99/game.js
+      - name: Verify HTML integration and six worlds
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const html = fs.readFileSync('legenda99/index.html', 'utf8');
+          const js = fs.readFileSync('legenda99/game.js', 'utf8');
+          const main = fs.readFileSync('index.html', 'utf8');
+          const ids = [...js.matchAll(/\$\("([A-Za-z][\w-]+)"\)/g)].map(x => x[1]);
+          const missing = [...new Set(ids)].filter(id => !html.includes('id="' + id + '"'));
+          const worlds = (js.match(/theme:"(?:forest|swamp|water|fortress|snow|cave)"/g) || []).length;
+          if (missing.length || worlds !== 6 || !main.includes('href="./legenda99/"') || !html.includes('src="./game.js?v=1"')) {
+            console.error({missing, worlds, homepageLink: main.includes('href="./legenda99/"')});
+            process.exitCode = 1;
+          } else {
+            console.log('6 worlds, all controls present, homepage link present, game entrypoint present.');
+          }
+          NODE
