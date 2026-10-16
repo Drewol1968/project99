@@ -135,7 +135,7 @@ function spawn(resetDeath=false){
  p={x:world.checkX,y:FLOOR-50,vx:0,vy:0,w:32,h:50,ground:false,coyote:0,airJumps:levelIndex===2?1:0,inv:1.3,face:1,walk:0,standing:null};
  if(resetDeath)deaths=0;
  cam.x=clamp(p.x-view.w*.28,0,Math.max(0,world.width-view.w));
- cam.y=clamp(FLOOR-view.h*.7,0,Math.max(0,WORLD_H-view.h));
+ cam.y=clamp(FLOOR-view.h*.79,0,Math.max(0,WORLD_H-view.h));
 }
 function resetInputs(){keys.left=false;keys.right=false;document.querySelectorAll(".control").forEach(b=>b.classList.remove("pressed"))}
 function startLevel(i){
@@ -345,7 +345,7 @@ function update(dt){
  $("clock").textContent=fmtTime(elapsed);
  const sc=view.scale;
  const targetX=clamp(p.x+p.w*.5-view.w*.38,0,Math.max(0,world.width-view.w));
- const targetY=clamp(p.y+p.h*.5-view.h*.58,0,Math.max(0,WORLD_H-view.h));
+ const targetY=clamp(p.y+p.h*.5-view.h*.76,0,Math.max(0,WORLD_H-view.h));
  cam.x+=(targetX-cam.x)*.11;cam.y+=(targetY-cam.y)*.1;
 }
 function poly(points,color,stroke=null){
@@ -404,9 +404,12 @@ function fillBackground(w,h){
 }
 function drawTerrain(r){
  const c=world.colors,theme=world.d.theme;
- const side=ctx.createLinearGradient(0,r.y,0,r.y+r.h);
+ // Keep terrain visually filled to the bottom of the current viewport.
+ // The collision rectangle itself remains unchanged.
+ const visibleHeight=Math.max(r.h,cam.y+view.h-r.y+TILE);
+ const side=ctx.createLinearGradient(0,r.y,0,r.y+Math.max(r.h,150));
  side.addColorStop(0,c.ground);side.addColorStop(1,c.stone);
- ctx.fillStyle=side;ctx.fillRect(r.x,r.y,r.w,r.h);
+ ctx.fillStyle=side;ctx.fillRect(r.x,r.y,r.w,visibleHeight);
  ctx.fillStyle=c.top;ctx.fillRect(r.x,r.y,r.w,9);
  ctx.fillStyle="#ffffff32";ctx.fillRect(r.x,r.y,r.w,2);
  // Block edges textured as stone or earth.
