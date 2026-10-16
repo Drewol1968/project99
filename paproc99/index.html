@@ -14,7 +14,7 @@
 <main class="shell">
   <header class="top">
     <a href="../" class="logo" aria-label="PROJECT 99">PROJECT <b>99</b></a>
-    <span class="edition">SŁOWIAŃSKA PRZYGODA · DEMO</span>
+    <span class="edition">SŁOWIAŃSKA PRZYGODA · WYZWANIE 2.0</span>
     <button class="sound" id="soundBtn" aria-label="Włącz lub wyłącz dźwięk">♫ <span id="soundState">OFF</span></button>
   </header>
   <section class="title-strip">
@@ -25,7 +25,7 @@
     <canvas id="game" tabindex="0" aria-label="Przygoda — poruszaj się strzałkami, skacz spacją"></canvas>
     <div class="top-hud" id="topHud" hidden>
       <span class="hud-place" id="levelTag">🌲 ŚWIĘTY LAS</span>
-      <span class="hud-gems">✦ <b id="gemsDisplay">0</b>/5</span>
+      <span class="hud-gems">✦ <b id="gemsDisplay">0</b>/<b id="requiredDisplay">6</b></span>
       <span class="hud-hp" id="healthDisplay" aria-label="Życia">♥ ♥ ♥</span>
       <button id="pauseBtn" class="hud-pause" aria-label="Pauza">Ⅱ</button>
     </div>
@@ -35,7 +35,7 @@
         <div class="seal">✺</div>
         <p class="overline">WYPRAWA PO LEGENDARNY KWIAT</p>
         <h2>Wybierz krainę</h2>
-        <p class="intro">Odszukaj co najmniej 5 świetlików i dotrzyj do magicznej bramy. Unikaj słowiańskich stworzeń!</p>
+        <p class="intro">Las: 6 świetlików, Bagna: 7, Podwodna Kraina: 8. Skacz nad przepaściami, omijaj kolce i latające zjawy!</p>
         <div class="stage-list" id="stageList"></div>
         <button class="action primary" id="playBtn">▶ ROZPOCZNIJ PRZYGODĘ</button>
         <p class="small-tip">Telefon: przyciski pod grą. Komputer: ← → i spacja.</p>
@@ -73,6 +73,6 @@
   </section>
   <footer>Wersja testowa. Postęp zapisuje się na tym urządzeniu. <a href="../">Wróć do PROJECT 99</a></footer>
 </main>
-<script src="game.js?v=1"></script>
+<script src="game.js?v=2"></script>
 </body>
 </html>
